@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <stdio.h>
 
 namespace VoxelEngine {
 	Application::Application()
