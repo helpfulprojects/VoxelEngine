@@ -1,7 +1,5 @@
 #pragma once
-
 #include "Event.h"
-#include <sstream>
 
 namespace VoxelEngine {
 	class VE_API WindowResizeEvent : public Event {

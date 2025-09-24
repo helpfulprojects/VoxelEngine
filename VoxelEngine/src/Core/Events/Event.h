@@ -1,8 +1,7 @@
 #pragma once
+#include "pch.h"
 #include "Core/Core.h"
 
-#include <string>
-#include <functional>
 
 namespace VoxelEngine {
 	//Events are blocking
