@@ -1,5 +1,5 @@
 #pragma once
-#include "Core/Window.h"
+#include "VoxelEngine/Window.h"
 #include <GLFW/glfw3.h>
 namespace VoxelEngine {
 	class WindowsWindow : public Window

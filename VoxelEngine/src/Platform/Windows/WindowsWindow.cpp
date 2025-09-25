@@ -1,9 +1,9 @@
 #include "pch.h"
 #include "WindowsWindow.h"
 
-#include "Core/Events/KeyEvent.h"
-#include "Core/Events/MouseEvent.h"
-#include "Core/Events/ApplicationEvent.h"
+#include "VoxelEngine/Events/KeyEvent.h"
+#include "VoxelEngine/Events/MouseEvent.h"
+#include "VoxelEngine/Events/ApplicationEvent.h"
 
 namespace VoxelEngine {
 	static bool s_GLFWInitialized = false;

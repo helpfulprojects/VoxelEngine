@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
-#include "Core/Core.h"
-#include "Core/Events/Event.h"
+#include "VoxelEngine/Core.h"
+#include "VoxelEngine/Events/Event.h"
 
 namespace VoxelEngine {
 	struct WindowProps {

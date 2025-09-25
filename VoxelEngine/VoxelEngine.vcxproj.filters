@@ -1,51 +1,75 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Core">
-      <UniqueIdentifier>{2EB4837C-1AEB-840D-C3D7-6A10AFED000F}</UniqueIdentifier>
+    <Filter Include="Platform">
+      <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Core\Events">
-      <UniqueIdentifier>{52201B74-BED5-9369-47CA-8D40B37E8A6D}</UniqueIdentifier>
+    <Filter Include="Platform\Windows">
+      <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VoxelEngine">
+      <UniqueIdentifier>{C9F2F76B-35A8-7061-BE9C-6A382A516765}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VoxelEngine\Events">
+      <UniqueIdentifier>{8D8279F6-7966-3A4C-E2C6-349FCEC924CE}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Core\Application.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Core.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\EntryPoint.h">
-      <Filter>Core</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Events\ApplicationEvent.h">
-      <Filter>Core\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Events\Event.h">
-      <Filter>Core\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Events\KeyEvent.h">
-      <Filter>Core\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Events\MouseEvent.h">
-      <Filter>Core\Events</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Core\Log.h">
-      <Filter>Core</Filter>
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
+      <Filter>Platform\Windows</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine.h" />
+    <ClInclude Include="src\VoxelEngine\Application.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\EntryPoint.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Events\ApplicationEvent.h">
+      <Filter>VoxelEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Events\Event.h">
+      <Filter>VoxelEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Events\KeyEvent.h">
+      <Filter>VoxelEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Events\MouseEvent.h">
+      <Filter>VoxelEngine\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Layer.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\LayerStack.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Log.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Window.h">
+      <Filter>VoxelEngine</Filter>
+    </ClInclude>
     <ClInclude Include="src\pch.h" />
-    <ClInclude Include="src\Core\Window.h" />
-    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Core\Application.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
+      <Filter>Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\Log.cpp">
-      <Filter>Core</Filter>
+    <ClCompile Include="src\VoxelEngine\Application.cpp">
+      <Filter>VoxelEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Layer.cpp">
+      <Filter>VoxelEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\LayerStack.cpp">
+      <Filter>VoxelEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Log.cpp">
+      <Filter>VoxelEngine</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
-    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>
