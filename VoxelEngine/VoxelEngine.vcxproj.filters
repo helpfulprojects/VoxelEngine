@@ -35,6 +35,8 @@
     </ClInclude>
     <ClInclude Include="src\VoxelEngine.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\Core\Window.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Core\Application.cpp">
@@ -44,5 +46,6 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="src\pch.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
   </ItemGroup>
 </Project>
