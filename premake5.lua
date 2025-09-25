@@ -13,7 +13,9 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 -- Include directories relative to root folder (solution directory)
 IncludeDir = {}
 IncludeDir["GLFW"] = "VoxelEngine/vendor/GLFW/include"
+IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
 include "VoxelEngine/vendor/GLFW"
+include "VoxelEngine/vendor/GLAD"
 
 project "VoxelEngine"
 	location "VoxelEngine"
@@ -37,11 +39,13 @@ project "VoxelEngine"
 	{
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.GLAD}"
 	}
 
 	links{
 		"GLFW",
+		"GLAD",
 		"opengl32.lib"
 	}
 
@@ -53,7 +57,8 @@ project "VoxelEngine"
 		defines
 		{
 			"VE_PLATFORM_WINDOWS",
-			"VE_BUILD_DLL"
+			"VE_BUILD_DLL",
+			"GLFW_INCLUDE_NONE"
 		}
 		postbuildcommands 
 		{ 
