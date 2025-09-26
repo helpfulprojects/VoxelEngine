@@ -16,10 +16,13 @@ namespace VoxelEngine {
 		void OnEvent(Event& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
+		inline Window& GetWindow() { return *m_Window; }
+		static inline Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		std::unique_ptr<Window> m_Window;
 		bool m_Running = true;
+		static Application* s_Instance;
 		LayerStack m_LayerStack;
 	};
 	// To be defined in CLIENT

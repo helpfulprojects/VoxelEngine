@@ -4,3 +4,6 @@
 [submodule "VoxelEngine/vendor/GLFW"]
 	path = VoxelEngine/vendor/GLFW
 	url = https://github.com/helpfulprojects/glfw
+[submodule "VoxelEngine/vendor/imgui"]
+	path = VoxelEngine/vendor/imgui
+	url = https://github.com/helpfulprojects/imgui

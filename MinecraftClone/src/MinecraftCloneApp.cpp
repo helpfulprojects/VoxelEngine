@@ -5,7 +5,7 @@ public:
 
 	}
 	void OnUpdate() override {
-		VE_INFO("ExampleLayer::Update");
+		//VE_INFO("ExampleLayer::Update");
 	}
 	void OnEvent(VoxelEngine::Event& event) override {
 		VE_TRACE(event);
@@ -15,6 +15,7 @@ class MinecraftClone : public VoxelEngine::Application {
 public:
 	MinecraftClone() {
 		PushLayer(new ExampleLayer());
+		PushOverlay(new VoxelEngine::ImGuiLayer());
 	}
 	~MinecraftClone() {
 

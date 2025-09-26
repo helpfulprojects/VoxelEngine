@@ -14,8 +14,10 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 IncludeDir = {}
 IncludeDir["GLFW"] = "VoxelEngine/vendor/GLFW/include"
 IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
+IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
 include "VoxelEngine/vendor/GLFW"
 include "VoxelEngine/vendor/GLAD"
+include "VoxelEngine/vendor/imgui"
 
 project "VoxelEngine"
 	location "VoxelEngine"
@@ -40,12 +42,14 @@ project "VoxelEngine"
 		"%{prj.name}/src",
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
-		"%{IncludeDir.GLAD}"
+		"%{IncludeDir.GLAD}",
+		"%{IncludeDir.ImGui}"
 	}
 
 	links{
 		"GLFW",
 		"GLAD",
+		"ImGui",
 		"opengl32.lib"
 	}
 
@@ -95,7 +99,8 @@ project "MinecraftClone"
 	includedirs
 	{
 		"VoxelEngine/vendor/spdlog/include",
-		"VoxelEngine/src"
+		"VoxelEngine/src",
+		"%{IncludeDir.ImGui}"
 	}
 
 	filter "system:windows"

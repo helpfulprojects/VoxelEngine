@@ -4,6 +4,9 @@
     <Filter Include="Platform">
       <UniqueIdentifier>{2AC788B4-1694-E3BF-3FAD-D1672BD9184E}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Platform\OpenGL">
+      <UniqueIdentifier>{1E7D2C1D-8A08-9AE1-9319-1DD6FF23F6E1}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Platform\Windows">
       <UniqueIdentifier>{64FBD71A-50F4-F66C-7926-DCF1657ED678}</UniqueIdentifier>
     </Filter>
@@ -13,8 +16,14 @@
     <Filter Include="VoxelEngine\Events">
       <UniqueIdentifier>{8D8279F6-7966-3A4C-E2C6-349FCEC924CE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="VoxelEngine\ImGui">
+      <UniqueIdentifier>{B39A27BA-1FB1-2550-6828-B171D47DF6D7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Platform\OpenGL\imgui_impl_opengl3.h">
+      <Filter>Platform\OpenGL</Filter>
+    </ClInclude>
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h">
       <Filter>Platform\Windows</Filter>
     </ClInclude>
@@ -40,6 +49,9 @@
     <ClInclude Include="src\VoxelEngine\Events\MouseEvent.h">
       <Filter>VoxelEngine\Events</Filter>
     </ClInclude>
+    <ClInclude Include="src\VoxelEngine\ImGui\ImGuiLayer.h">
+      <Filter>VoxelEngine\ImGui</Filter>
+    </ClInclude>
     <ClInclude Include="src\VoxelEngine\Layer.h">
       <Filter>VoxelEngine</Filter>
     </ClInclude>
@@ -55,11 +67,17 @@
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp">
+      <Filter>Platform\OpenGL</Filter>
+    </ClCompile>
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>Platform\Windows</Filter>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\Application.cpp">
       <Filter>VoxelEngine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\ImGui\ImGuiLayer.cpp">
+      <Filter>VoxelEngine\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\Layer.cpp">
       <Filter>VoxelEngine</Filter>
