@@ -15,9 +15,11 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "VoxelEngine/vendor/GLFW/include"
 IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
 IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
-include "VoxelEngine/vendor/GLFW"
-include "VoxelEngine/vendor/GLAD"
-include "VoxelEngine/vendor/imgui"
+group "Dependencies"
+	include "VoxelEngine/vendor/GLFW"
+	include "VoxelEngine/vendor/GLAD"
+	include "VoxelEngine/vendor/imgui"
+group ""
 
 
 project "VoxelEngine"
@@ -67,7 +69,7 @@ project "VoxelEngine"
 		}
 		postbuildcommands 
 		{ 
-			("{COPYFILE} %{cfg.buildtarget.relpath} ../bin/" .. outputdir .. "/MinecraftClone")
+			("{COPYDIR} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/MinecraftClone/\"")
 		}
 
 	filter "configurations:Debug"
