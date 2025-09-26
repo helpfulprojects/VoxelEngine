@@ -1,12 +1,12 @@
 workspace "VoxelEngine"
 	architecture "x64"
-
 	configurations
 	{
 		"Debug",
 		"Release",
 		"Dist"
 	}
+	startproject "MinecraftClone"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
@@ -19,11 +19,13 @@ include "VoxelEngine/vendor/GLFW"
 include "VoxelEngine/vendor/GLAD"
 include "VoxelEngine/vendor/imgui"
 
+
 project "VoxelEngine"
 	location "VoxelEngine"
 	kind "SharedLib"
 	language "C++"
 	buildoptions{"/utf-8"}
+	staticruntime "Off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -55,7 +57,6 @@ project "VoxelEngine"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -71,15 +72,15 @@ project "VoxelEngine"
 
 	filter "configurations:Debug"
 		defines {"VE_DEBUG"}
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 	filter "configurations:Release"
 		defines {"VE_RELEASE"}
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 	filter "configurations:Dist"
 		defines {"VE_DIST"}
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 
 project "MinecraftClone"
@@ -87,6 +88,7 @@ project "MinecraftClone"
 	kind "ConsoleApp"
 	language "C++"
 	buildoptions{"/utf-8"}
+	staticruntime "Off"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -105,7 +107,6 @@ project "MinecraftClone"
 
 	filter "system:windows"
 		cppdialect "C++17"
-		staticruntime "On"
 		systemversion "latest"
 
 		defines
@@ -118,13 +119,13 @@ project "MinecraftClone"
 	}
 	filter "configurations:Debug"
 		defines {"VE_DEBUG"}
-		buildoptions "/MDd"
+		runtime "Debug"
 		symbols "On"
 	filter "configurations:Release"
 		defines {"VE_RELEASE"}
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
 	filter "configurations:Dist"
 		defines {"VE_DIST"}
-		buildoptions "/MD"
+		runtime "Release"
 		optimize "On"
