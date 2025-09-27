@@ -15,6 +15,8 @@ IncludeDir = {}
 IncludeDir["GLFW"] = "VoxelEngine/vendor/GLFW/include"
 IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
 IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
+IncludeDir["glm"] = "VoxelEngine/vendor/glm"
+
 group "Dependencies"
 	include "VoxelEngine/vendor/GLFW"
 	include "VoxelEngine/vendor/GLAD"
@@ -38,7 +40,10 @@ project "VoxelEngine"
 	files
 	{
 		"%{prj.name}/src/**.h",
-		"%{prj.name}/src/**.cpp"
+		"%{prj.name}/src/**.cpp",
+		"%{prj.name}/vendor/glm/glm/**.hpp",
+		"%{prj.name}/vendor/glm/glm/**.inl",
+
 	}
 
 	includedirs
@@ -47,7 +52,8 @@ project "VoxelEngine"
 		"%{prj.name}/vendor/spdlog/include",
 		"%{IncludeDir.GLFW}",
 		"%{IncludeDir.GLAD}",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}",
 	}
 
 	links{
@@ -104,7 +110,8 @@ project "MinecraftClone"
 	{
 		"VoxelEngine/vendor/spdlog/include",
 		"VoxelEngine/src",
-		"%{IncludeDir.ImGui}"
+		"%{IncludeDir.ImGui}",
+		"%{IncludeDir.glm}",
 	}
 
 	filter "system:windows"
