@@ -6,6 +6,7 @@
 #include "Events/Event.h"
 #include "VoxelEngine/Events/ApplicationEvent.h"
 
+#include "VoxelEngine/ImGui/ImGuiLayer.h"
 namespace VoxelEngine {
 	class VE_API Application
 	{
@@ -21,6 +22,7 @@ namespace VoxelEngine {
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 		std::unique_ptr<Window> m_Window;
+		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		static Application* s_Instance;
 		LayerStack m_LayerStack;

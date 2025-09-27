@@ -26,10 +26,11 @@ group ""
 
 project "VoxelEngine"
 	location "VoxelEngine"
-	kind "SharedLib"
+	kind "StaticLib"
 	language "C++"
+	cppdialect "C++17"
 	buildoptions{"/utf-8"}
-	staticruntime "Off"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -44,6 +45,11 @@ project "VoxelEngine"
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
 
+	}
+
+	defines
+	{
+		"_CRT_SECURE_NO_WARNINGS"
 	}
 
 	includedirs
@@ -64,7 +70,6 @@ project "VoxelEngine"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
 		defines
@@ -73,30 +78,26 @@ project "VoxelEngine"
 			"VE_BUILD_DLL",
 			"GLFW_INCLUDE_NONE"
 		}
-		postbuildcommands 
-		{ 
-			("{COPYDIR} %{cfg.buildtarget.relpath} \"../bin/" .. outputdir .. "/MinecraftClone/\"")
-		}
-
 	filter "configurations:Debug"
 		defines {"VE_DEBUG"}
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 	filter "configurations:Release"
 		defines {"VE_RELEASE"}
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 	filter "configurations:Dist"
 		defines {"VE_DIST"}
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 
 project "MinecraftClone"
 	location "MinecraftClone"
 	kind "ConsoleApp"
 	language "C++"
+	cppdialect "C++17"
 	buildoptions{"/utf-8"}
-	staticruntime "Off"
+	staticruntime "on"
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")
@@ -115,7 +116,6 @@ project "MinecraftClone"
 	}
 
 	filter "system:windows"
-		cppdialect "C++17"
 		systemversion "latest"
 
 		defines
@@ -124,17 +124,17 @@ project "MinecraftClone"
 		}
 	links 
 	{
-		"VoxelEngine"
+		"VoxelEngine",
 	}
 	filter "configurations:Debug"
 		defines {"VE_DEBUG"}
 		runtime "Debug"
-		symbols "On"
+		symbols "on"
 	filter "configurations:Release"
 		defines {"VE_RELEASE"}
 		runtime "Release"
-		optimize "On"
+		optimize "on"
 	filter "configurations:Dist"
 		defines {"VE_DIST"}
 		runtime "Release"
-		optimize "On"
+		optimize "on"

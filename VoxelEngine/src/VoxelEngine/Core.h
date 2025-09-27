@@ -1,10 +1,14 @@
 #pragma once
 
 #ifdef VE_PLATFORM_WINDOWS
+#if VE_DYNAMIC_LINK
 #ifdef VE_BUILD_DLL
 #define VE_API __declspec(dllexport)
 #else
 #define VE_API __declspec(dllimport)
+#endif
+#else
+#define VE_API
 #endif
 #else
 #error Voxel Engine only supports Windows!
