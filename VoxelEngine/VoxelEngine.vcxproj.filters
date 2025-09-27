@@ -67,6 +67,8 @@
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="src\VoxelEngine\Input.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
+    <ClInclude Include="src\VoxelEngine\KeyCodes.h" />
+    <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp">

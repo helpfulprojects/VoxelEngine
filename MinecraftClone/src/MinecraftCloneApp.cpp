@@ -5,10 +5,11 @@ public:
 
 	}
 	void OnUpdate() override {
-		//VE_INFO("ExampleLayer::Update");
+		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_TAB)) {
+			VE_TRACE("Tab key is pressed!");
+		}
 	}
 	void OnEvent(VoxelEngine::Event& event) override {
-		VE_TRACE(event);
 	}
 };
 class MinecraftClone : public VoxelEngine::Application {

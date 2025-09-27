@@ -168,9 +168,11 @@
     <ClInclude Include="src\VoxelEngine\Events\MouseEvent.h" />
     <ClInclude Include="src\VoxelEngine\ImGui\ImGuiLayer.h" />
     <ClInclude Include="src\VoxelEngine\Input.h" />
+    <ClInclude Include="src\VoxelEngine\KeyCodes.h" />
     <ClInclude Include="src\VoxelEngine\Layer.h" />
     <ClInclude Include="src\VoxelEngine\LayerStack.h" />
     <ClInclude Include="src\VoxelEngine\Log.h" />
+    <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h" />
     <ClInclude Include="src\VoxelEngine\Window.h" />
     <ClInclude Include="src\pch.h" />
   </ItemGroup>
