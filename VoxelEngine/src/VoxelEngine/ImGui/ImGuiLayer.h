@@ -17,7 +17,6 @@ namespace VoxelEngine {
 		void OnEvent(Event& event);
 	private:
 		static ImGuiKey GlfwKeyToImGuiKey(int keycode);
-		static bool IsKeyDownForImGuiIo(ImGuiIO& io, int keycode);
 		bool OnMouseButtonPressedEvent(MouseButtonPressedEvent& e);
 		bool OnMouseButtonReleasedEvent(MouseButtonReleasedEvent& e);
 		bool OnMouseMovedEvent(MouseMovedEvent& e);

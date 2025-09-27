@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "VoxelEngine/Application.h"
 #include <glad/glad.h>
+#include "VoxelEngine/Input.h"
 namespace VoxelEngine {
 	ImGuiLayer::ImGuiLayer() :Layer("ImGuiLayer")
 	{
@@ -186,19 +187,15 @@ namespace VoxelEngine {
 		default: return ImGuiKey_None;
 		}
 	}
-	bool ImGuiLayer::IsKeyDownForImGuiIo(ImGuiIO& io, int keycode)
-	{
-		return io.KeysData[GlfwKeyToImGuiKey(keycode) - ImGuiKey_NamedKey_BEGIN].Down;
-	}
 	bool ImGuiLayer::OnKeyPressedEvent(KeyPressedEvent& e)
 	{
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiKey imgui_key = GlfwKeyToImGuiKey(e.GetKeyCode());
 		io.AddKeyEvent(imgui_key, true);
-		io.AddKeyEvent(ImGuiMod_Ctrl, (IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_CONTROL) || IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_CONTROL)));
-		io.AddKeyEvent(ImGuiMod_Shift, (IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_SHIFT) || IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_SHIFT)));
-		io.AddKeyEvent(ImGuiMod_Alt, (IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_ALT) || IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_ALT)));
-		io.AddKeyEvent(ImGuiMod_Super, (IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_SUPER) || IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_SUPER)));
+		io.AddKeyEvent(ImGuiMod_Ctrl, (Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL) || Input::IsKeyPressed(GLFW_KEY_RIGHT_CONTROL)));
+		io.AddKeyEvent(ImGuiMod_Shift, (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) || Input::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT)));
+		io.AddKeyEvent(ImGuiMod_Alt, (Input::IsKeyPressed(GLFW_KEY_LEFT_ALT) || Input::IsKeyPressed(GLFW_KEY_RIGHT_ALT)));
+		io.AddKeyEvent(ImGuiMod_Super, (Input::IsKeyPressed(GLFW_KEY_LEFT_SUPER) || Input::IsKeyPressed(GLFW_KEY_RIGHT_SUPER)));
 		return false;
 	}
 	bool ImGuiLayer::OnKeyReleasedEvent(KeyReleasedEvent& e)
@@ -206,10 +203,10 @@ namespace VoxelEngine {
 		ImGuiIO& io = ImGui::GetIO();
 		ImGuiKey imgui_key = GlfwKeyToImGuiKey(e.GetKeyCode());
 		io.AddKeyEvent(imgui_key, false);
-		io.AddKeyEvent(ImGuiMod_Ctrl, (!IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_CONTROL) && !IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_CONTROL)));
-		io.AddKeyEvent(ImGuiMod_Shift, (!IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_SHIFT) && !IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_SHIFT)));
-		io.AddKeyEvent(ImGuiMod_Alt, (!IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_ALT) && !IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_ALT)));
-		io.AddKeyEvent(ImGuiMod_Super, (!IsKeyDownForImGuiIo(io, GLFW_KEY_LEFT_SUPER) && !IsKeyDownForImGuiIo(io, GLFW_KEY_RIGHT_SUPER)));
+		io.AddKeyEvent(ImGuiMod_Ctrl, (!Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL) && !Input::IsKeyPressed(GLFW_KEY_RIGHT_CONTROL)));
+		io.AddKeyEvent(ImGuiMod_Shift, (!Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) && !Input::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT)));
+		io.AddKeyEvent(ImGuiMod_Alt, (!Input::IsKeyPressed(GLFW_KEY_LEFT_ALT) && !Input::IsKeyPressed(GLFW_KEY_RIGHT_ALT)));
+		io.AddKeyEvent(ImGuiMod_Super, (!Input::IsKeyPressed(GLFW_KEY_LEFT_SUPER) && !Input::IsKeyPressed(GLFW_KEY_RIGHT_SUPER)));
 		return false;
 	}
 	bool ImGuiLayer::OnKeyTypedEvent(KeyTypedEvent& e)

@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Platform\OpenGL\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\VoxelEngine.h" />
     <ClInclude Include="src\VoxelEngine\Application.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="src\VoxelEngine\Events\KeyEvent.h" />
     <ClInclude Include="src\VoxelEngine\Events\MouseEvent.h" />
     <ClInclude Include="src\VoxelEngine\ImGui\ImGuiLayer.h" />
+    <ClInclude Include="src\VoxelEngine\Input.h" />
     <ClInclude Include="src\VoxelEngine\Layer.h" />
     <ClInclude Include="src\VoxelEngine\LayerStack.h" />
     <ClInclude Include="src\VoxelEngine\Log.h" />
@@ -174,6 +176,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\VoxelEngine\Application.cpp" />
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiLayer.cpp" />
