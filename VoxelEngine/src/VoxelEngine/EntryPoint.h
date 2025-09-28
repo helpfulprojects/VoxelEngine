@@ -4,8 +4,8 @@
 extern VoxelEngine::Application* VoxelEngine::CreateApplication();
 int main(int argc, char** argv) {
 	VoxelEngine::Log::Init();
-	VE_CORE_WARN("Initialized Log again!");
-	VE_INFO("Hello again!");
+	VE_CORE_WARN("Initialized Log");
+	VE_INFO("Hello From Application");
 	auto app = VoxelEngine::CreateApplication();
 	app->Run();
 	delete app;
