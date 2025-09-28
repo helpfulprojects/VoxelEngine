@@ -165,6 +165,7 @@
     <ClInclude Include="src\VoxelEngine\LayerStack.h" />
     <ClInclude Include="src\VoxelEngine\Log.h" />
     <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\Shader.h" />
     <ClInclude Include="src\VoxelEngine\Window.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -599,6 +600,7 @@
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Renderer\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
