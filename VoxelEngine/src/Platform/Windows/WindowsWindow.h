@@ -1,6 +1,7 @@
 #pragma once
 #include "VoxelEngine/Window.h"
 #include <GLFW/glfw3.h>
+#include "VoxelEngine/Renderer/GraphicsContext.h"
 namespace VoxelEngine {
 	class WindowsWindow : public Window
 	{
@@ -19,6 +20,7 @@ namespace VoxelEngine {
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();
 		GLFWwindow* m_Window;
+		GraphicsContext* m_Context;
 		struct WindowData {
 			std::string Title;
 			unsigned int Width, Height;
