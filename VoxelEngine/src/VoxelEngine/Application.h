@@ -9,6 +9,7 @@
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 
 #include "VoxelEngine/Renderer/Shader.h"
+#include "VoxelEngine/Renderer/Buffer.h"
 namespace VoxelEngine {
 	class VE_API Application
 	{
@@ -27,9 +28,12 @@ namespace VoxelEngine {
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		static Application* s_Instance;
-		unsigned int m_VertexArray, m_VertexBuffer, m_IndexBuffer;
+		unsigned int m_VertexArray;
+
 		LayerStack m_LayerStack;
 		std::unique_ptr<Shader> m_Shader;
+		std::unique_ptr<VertexBuffer> m_VertexBuffer;
+		std::unique_ptr<IndexBuffer> m_IndexBuffer;
 	};
 	// To be defined in CLIENT
 	Application* CreateApplication();
