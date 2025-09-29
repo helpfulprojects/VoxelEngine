@@ -1359,6 +1359,8 @@
     <ClInclude Include="src\VoxelEngine\Renderer\Buffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Renderer.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\VertexArray.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1393,5 +1395,7 @@
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Renderer.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\VertexArray.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
   </ItemGroup>
 </Project>

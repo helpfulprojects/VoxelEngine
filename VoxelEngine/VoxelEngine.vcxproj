@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Buffer.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Renderer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Shader.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\VertexArray.h" />
     <ClInclude Include="src\VoxelEngine\Window.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -593,6 +595,7 @@
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\VoxelEngine\Application.cpp" />
@@ -607,6 +610,7 @@
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Renderer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Shader.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\VertexArray.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">
