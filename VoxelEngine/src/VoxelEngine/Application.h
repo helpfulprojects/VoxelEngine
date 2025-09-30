@@ -11,6 +11,7 @@
 #include "VoxelEngine/Renderer/Shader.h"
 #include "VoxelEngine/Renderer/Buffer.h"
 #include "VoxelEngine/Renderer/VertexArray.h"
+#include "VoxelEngine/Renderer/OrthographicCamera.h"
 namespace VoxelEngine {
 	class VE_API Application
 	{
@@ -36,6 +37,7 @@ namespace VoxelEngine {
 		std::shared_ptr<VertexArray> m_VertexArray;
 
 		std::shared_ptr<VertexArray> m_SquareVA;
+		OrthographicCamera m_Camera;
 	};
 	// To be defined in CLIENT
 	Application* CreateApplication();

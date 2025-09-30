@@ -169,6 +169,7 @@
     <ClInclude Include="src\VoxelEngine\LayerStack.h" />
     <ClInclude Include="src\VoxelEngine\Log.h" />
     <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\OrthographicCamera.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\RenderCommand.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Renderer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\RendererAPI.h" />
@@ -612,6 +613,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Renderer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\RendererAPI.cpp" />
