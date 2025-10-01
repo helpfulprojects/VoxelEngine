@@ -1,9 +1,12 @@
 #include <VoxelEngine.h>
 #include "imgui.h"
+#include <glm/gtc/matrix_transform.hpp>
 class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
-		:Layer("Example"), m_Camera(-1.6f, 1.6f, -0.9f, 0.9f),
+		:Layer("Example"),
+		m_Camera(-1.6f, 1.6f, -0.9f, 0.9f),
+		m_SquarePosition(0.0f),
 		m_CameraPosition(0.0f)
 	{
 
@@ -28,10 +31,10 @@ public:
 
 		m_SquareVA.reset(VoxelEngine::VertexArray::Create());
 		float squareVertices[] = {
-			-0.75f, -0.75f, 0.0f,
-			 0.75f, -0.75f, 0.0f,
-			 0.75f,  0.75f, 0.0f,
-			 -0.75f,  0.75f, 0.0f,
+			-0.5f, -0.5f, 0.0f,
+			 0.5f, -0.5f, 0.0f,
+			 0.5f,  0.5f, 0.0f,
+			 -0.5f,  0.5f, 0.0f,
 		};
 		std::shared_ptr<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(vertices)));
 		VoxelEngine::BufferLayout squareLayout = {
@@ -54,13 +57,14 @@ public:
 			layout(location = 1) in vec4 a_Color;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			out vec4 v_Color;
 
 			void main()
 			{
 				v_Color = a_Color;
-				gl_Position = u_ViewProjection*a_Position;
+				gl_Position = u_ViewProjection*u_Transform*a_Position;
 			}
 		)";
 		std::string fragmentSrc = R"(
@@ -83,10 +87,11 @@ public:
 			layout(location = 0) in vec4 a_Position;
 
 			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
 
 			void main()
 			{
-				gl_Position = u_ViewProjection*a_Position;
+				gl_Position = u_ViewProjection*u_Transform*a_Position;
 			}
 		)";
 		std::string blueShaderFragmentSrc = R"(
@@ -129,13 +134,24 @@ public:
 
 		m_Camera.SetPosition(m_CameraPosition);
 		m_Camera.SetRotation(m_CameraRotation);
-		VoxelEngine::Renderer::Submit(m_BlueShader, m_SquareVA);
 
+		glm::mat4 scale = glm::scale(glm::mat4(1), glm::vec3(0.1f));
+		for (int y = 0; y < 20; y++) {
+			for (int x = 0; x < 20; x++) {
+				glm::vec3 pos(x * 0.11f, y * 0.11f, 0);
+				glm::mat4 transform = glm::translate(glm::mat4(1), pos) * scale;
+				VoxelEngine::Renderer::Submit(m_BlueShader, m_SquareVA, transform);
+			}
+		}
 		VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
 		VoxelEngine::Renderer::EndScene();
 	}
 	void OnEvent(VoxelEngine::Event& event) override {
+	}
+
+	virtual void OnImGuiRender() override {
+		ImGui::DragFloat3("Square Position", &m_SquarePosition.x, 0.01f);
 	}
 
 private:
@@ -149,6 +165,8 @@ private:
 
 	float m_CameraMoveSpeed = 5.0f;
 	float m_CameraRotationSpeed = 90.0f;
+
+	glm::vec3 m_SquarePosition;
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:
