@@ -81,7 +81,7 @@ public:
 
 		m_Shader.reset(new VoxelEngine::Shader(vertexSrc, fragmentSrc));
 
-		std::string blueShaderVertexSrc = R"(
+		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
 
 			layout(location = 0) in vec4 a_Position;
@@ -94,18 +94,19 @@ public:
 				gl_Position = u_ViewProjection*u_Transform*a_Position;
 			}
 		)";
-		std::string blueShaderFragmentSrc = R"(
+		std::string flatColorShaderFragmentSrc = R"(
 			#version 330 core
 
 			out vec4 color;
+			uniform vec4 u_Color;
 
 			void main()
 			{
-				color = vec4(0.2,0.3,0.8,1.0);
+				color = u_Color;
 			}
 		)";
 
-		m_BlueShader.reset(new VoxelEngine::Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
+		m_FlatColorShader.reset(new VoxelEngine::Shader(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
@@ -136,11 +137,20 @@ public:
 		m_Camera.SetRotation(m_CameraRotation);
 
 		glm::mat4 scale = glm::scale(glm::mat4(1), glm::vec3(0.1f));
+
+		glm::vec4 redColor(0.8f, 0.2f, 0.3f, 1.0f);
+		glm::vec4 blueColor(0.2f, 0.3f, 0.8f, 1.0f);
 		for (int y = 0; y < 20; y++) {
 			for (int x = 0; x < 20; x++) {
 				glm::vec3 pos(x * 0.11f, y * 0.11f, 0);
 				glm::mat4 transform = glm::translate(glm::mat4(1), pos) * scale;
-				VoxelEngine::Renderer::Submit(m_BlueShader, m_SquareVA, transform);
+				if (x % 2 == 0) {
+					m_FlatColorShader->UploadUniformFloat4("u_Color", redColor);
+				}
+				else {
+					m_FlatColorShader->UploadUniformFloat4("u_Color", blueColor);
+				}
+				VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
 			}
 		}
 		VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
@@ -156,7 +166,7 @@ public:
 
 private:
 	std::shared_ptr<VoxelEngine::Shader> m_Shader;
-	std::shared_ptr<VoxelEngine::Shader> m_BlueShader;
+	std::shared_ptr<VoxelEngine::Shader> m_FlatColorShader;
 	std::shared_ptr<VoxelEngine::VertexArray> m_VertexArray;
 	std::shared_ptr<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::OrthographicCamera m_Camera;
