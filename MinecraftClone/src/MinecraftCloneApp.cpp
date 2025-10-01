@@ -20,7 +20,7 @@ public:
 			 0.0f,  0.5f, 0.0f, 0.8f, 0.8f, 0.2f, 1.0f,
 		};
 
-		std::shared_ptr<VoxelEngine::VertexBuffer> triangleVB(VoxelEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
+		VoxelEngine::Ref<VoxelEngine::VertexBuffer> triangleVB(VoxelEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
 		VoxelEngine::BufferLayout layout = {
 			{VoxelEngine::ShaderDataType::Float3, "a_Position"},
 			{VoxelEngine::ShaderDataType::Float4, "a_Color"},
@@ -28,7 +28,7 @@ public:
 		triangleVB->SetLayout(layout);
 		m_VertexArray->AddVertexBuffer(triangleVB);
 		uint32_t indices[3] = { 0,1,2 };
-		std::shared_ptr<VoxelEngine::IndexBuffer> triangleIB(VoxelEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
+		VoxelEngine::Ref<VoxelEngine::IndexBuffer> triangleIB(VoxelEngine::IndexBuffer::Create(indices, sizeof(indices) / sizeof(uint32_t)));
 		m_VertexArray->SetIndexBuffer(triangleIB);
 
 		m_SquareVA.reset(VoxelEngine::VertexArray::Create());
@@ -38,7 +38,7 @@ public:
 			 0.5f,  0.5f, 0.0f,
 			 -0.5f,  0.5f, 0.0f,
 		};
-		std::shared_ptr<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(vertices)));
+		VoxelEngine::Ref<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(vertices)));
 		VoxelEngine::BufferLayout squareLayout = {
 			{VoxelEngine::ShaderDataType::Float3, "a_Position"},
 		};
@@ -48,7 +48,7 @@ public:
 			0,1,2,
 			2,3,0,
 		};
-		std::shared_ptr<VoxelEngine::IndexBuffer> squareIB(VoxelEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
+		VoxelEngine::Ref<VoxelEngine::IndexBuffer> squareIB(VoxelEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
 		m_SquareVA->SetIndexBuffer(squareIB);
 
 
@@ -163,10 +163,10 @@ public:
 	}
 
 private:
-	std::shared_ptr<VoxelEngine::Shader> m_Shader;
-	std::shared_ptr<VoxelEngine::Shader> m_FlatColorShader;
-	std::shared_ptr<VoxelEngine::VertexArray> m_VertexArray;
-	std::shared_ptr<VoxelEngine::VertexArray> m_SquareVA;
+	VoxelEngine::Ref<VoxelEngine::Shader> m_Shader;
+	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader;
+	VoxelEngine::Ref<VoxelEngine::VertexArray> m_VertexArray;
+	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
