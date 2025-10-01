@@ -6,6 +6,8 @@
 #include "Events/Event.h"
 #include "VoxelEngine/Events/ApplicationEvent.h"
 
+#include "VoxelEngine/Core/Timestep.h"
+
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 namespace VoxelEngine {
 	class Application
@@ -21,12 +23,13 @@ namespace VoxelEngine {
 		static inline Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+	private:
 		std::unique_ptr<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running = true;
 		static Application* s_Instance;
-
 		LayerStack m_LayerStack;
+		float m_LastFrameTime = 0.0f;
 	};
 	// To be defined in CLIENT
 	Application* CreateApplication();

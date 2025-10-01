@@ -2,6 +2,7 @@
 #include "VoxelEngine/Core.h"
 #include "VoxelEngine/Events/Event.h"
 
+#include "VoxelEngine/Core/Timestep.h"
 namespace VoxelEngine {
 
 	class VE_API Layer
@@ -11,7 +12,7 @@ namespace VoxelEngine {
 		virtual ~Layer();
 		virtual void OnAttach() {}
 		virtual void OnDetach() {}
-		virtual void OnUpdate() {}
+		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}
 		virtual void OnEvent(Event& event) {}
 

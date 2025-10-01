@@ -152,6 +152,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
+    <ClInclude Include="src\VoxelEngine\Core\Timestep.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Buffer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\VoxelEngine.h" />

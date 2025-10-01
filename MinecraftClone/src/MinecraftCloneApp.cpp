@@ -102,25 +102,25 @@ public:
 
 		m_BlueShader.reset(new VoxelEngine::Shader(blueShaderVertexSrc, blueShaderFragmentSrc));
 	}
-	void OnUpdate() override {
+	void OnUpdate(VoxelEngine::Timestep ts) override {
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
-			m_CameraPosition.x -= m_CameraMoveSpeed;
+			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
 		}
 		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_D)) {
-			m_CameraPosition.x += m_CameraMoveSpeed;
+			m_CameraPosition.x += m_CameraMoveSpeed * ts;
 		}
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_W)) {
-			m_CameraPosition.y += m_CameraMoveSpeed;
+			m_CameraPosition.y += m_CameraMoveSpeed * ts;
 		}
 		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_S)) {
-			m_CameraPosition.y -= m_CameraMoveSpeed;
+			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
 		}
 
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_Q)) {
-			m_CameraRotation += m_CameraRotationSpeed;
+			m_CameraRotation += m_CameraRotationSpeed * ts;
 		}
 		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_E)) {
-			m_CameraRotation -= m_CameraRotationSpeed;
+			m_CameraRotation -= m_CameraRotationSpeed * ts;
 		}
 
 		VoxelEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
@@ -145,9 +145,10 @@ private:
 	std::shared_ptr<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
-	float m_CameraMoveSpeed = 0.1f;
-	float m_CameraRotationSpeed = 0.2f;
 	float m_CameraRotation = 0.0f;
+
+	float m_CameraMoveSpeed = 5.0f;
+	float m_CameraRotationSpeed = 90.0f;
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:

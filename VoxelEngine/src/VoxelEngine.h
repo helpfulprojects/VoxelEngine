@@ -5,6 +5,8 @@
 #include "VoxelEngine/Layer.h"
 #include "VoxelEngine/Log.h"
 
+#include "VoxelEngine/Core/Timestep.h"
+
 #include "VoxelEngine/Input.h"
 #include "VoxelEngine/KeyCodes.h"
 #include "VoxelEngine/MouseButtonCodes.h"
