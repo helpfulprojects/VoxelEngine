@@ -1,6 +1,8 @@
 #include <VoxelEngine.h>
 #include "imgui.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <Platform/OpenGL/OpenGLShader.h>
+#include <glm/gtc/type_ptr.hpp>
 class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
@@ -79,7 +81,7 @@ public:
 			}
 		)";
 
-		m_Shader.reset(new VoxelEngine::Shader(vertexSrc, fragmentSrc));
+		m_Shader.reset(VoxelEngine::Shader::Create(vertexSrc, fragmentSrc));
 
 		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -98,15 +100,15 @@ public:
 			#version 330 core
 
 			out vec4 color;
-			uniform vec4 u_Color;
+			uniform vec3 u_Color;
 
 			void main()
 			{
-				color = u_Color;
+				color = vec4(u_Color,1.0);
 			}
 		)";
 
-		m_FlatColorShader.reset(new VoxelEngine::Shader(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		m_FlatColorShader.reset(VoxelEngine::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
@@ -138,18 +140,12 @@ public:
 
 		glm::mat4 scale = glm::scale(glm::mat4(1), glm::vec3(0.1f));
 
-		glm::vec4 redColor(0.8f, 0.2f, 0.3f, 1.0f);
-		glm::vec4 blueColor(0.2f, 0.3f, 0.8f, 1.0f);
+		m_FlatColorShader->Bind();
+		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
 		for (int y = 0; y < 20; y++) {
 			for (int x = 0; x < 20; x++) {
 				glm::vec3 pos(x * 0.11f, y * 0.11f, 0);
 				glm::mat4 transform = glm::translate(glm::mat4(1), pos) * scale;
-				if (x % 2 == 0) {
-					m_FlatColorShader->UploadUniformFloat4("u_Color", redColor);
-				}
-				else {
-					m_FlatColorShader->UploadUniformFloat4("u_Color", blueColor);
-				}
 				VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
 			}
 		}
@@ -161,7 +157,9 @@ public:
 	}
 
 	virtual void OnImGuiRender() override {
-		ImGui::DragFloat3("Square Position", &m_SquarePosition.x, 0.01f);
+		ImGui::Begin("Settings");
+		ImGui::ColorPicker3("Squares Color", glm::value_ptr(m_SquareColor));
+		ImGui::End();
 	}
 
 private:
@@ -177,6 +175,8 @@ private:
 	float m_CameraRotationSpeed = 90.0f;
 
 	glm::vec3 m_SquarePosition;
+
+	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.7f };
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:
