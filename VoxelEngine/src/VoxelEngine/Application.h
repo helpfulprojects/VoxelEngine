@@ -7,13 +7,8 @@
 #include "VoxelEngine/Events/ApplicationEvent.h"
 
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
-
-#include "VoxelEngine/Renderer/Shader.h"
-#include "VoxelEngine/Renderer/Buffer.h"
-#include "VoxelEngine/Renderer/VertexArray.h"
-#include "VoxelEngine/Renderer/OrthographicCamera.h"
 namespace VoxelEngine {
-	class VE_API Application
+	class Application
 	{
 	public:
 		Application();
@@ -32,12 +27,6 @@ namespace VoxelEngine {
 		static Application* s_Instance;
 
 		LayerStack m_LayerStack;
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<Shader> m_BlueShader;
-		std::shared_ptr<VertexArray> m_VertexArray;
-
-		std::shared_ptr<VertexArray> m_SquareVA;
-		OrthographicCamera m_Camera;
 	};
 	// To be defined in CLIENT
 	Application* CreateApplication();

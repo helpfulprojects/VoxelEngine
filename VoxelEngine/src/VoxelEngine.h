@@ -11,6 +11,18 @@
 
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 
-//ENTRY POINT
+#include <VoxelEngine/Events/KeyEvent.h>
+//----Renderer-------------------------------------
+#include "VoxelEngine/Renderer/Renderer.h"
+#include "VoxelEngine/Renderer/RenderCommand.h"
+
+#include "VoxelEngine/Renderer/Buffer.h"
+#include "VoxelEngine/Renderer/Shader.h"
+#include "VoxelEngine/Renderer/VertexArray.h"
+
+#include "VoxelEngine/Renderer/OrthographicCamera.h"
+//-------------------------------------------------
+
+//----Entry Point----------------------------------
 #include "VoxelEngine/EntryPoint.h"
-//ENTRY POINT
+//-------------------------------------------------
