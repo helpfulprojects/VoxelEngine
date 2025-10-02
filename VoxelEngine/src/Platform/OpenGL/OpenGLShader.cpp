@@ -101,7 +101,7 @@ namespace VoxelEngine {
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] =
 				source.substr(nextLinePos,
-					pos - (nextLinePos == std::string::npos ? source.size() - 1 : nextLinePos));
+					(pos == std::string::npos ? source.size() - 1 : pos) - nextLinePos);
 		}
 
 		return shaderSources;
