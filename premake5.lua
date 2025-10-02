@@ -16,6 +16,7 @@ IncludeDir["GLFW"] = "VoxelEngine/vendor/GLFW/include"
 IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
 IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
 IncludeDir["glm"] = "VoxelEngine/vendor/glm"
+IncludeDir["stb_image"] = "VoxelEngine/vendor/stb_image"
 
 group "Dependencies"
 	include "VoxelEngine/vendor/GLFW"
@@ -44,7 +45,8 @@ project "VoxelEngine"
 		"%{prj.name}/src/**.cpp",
 		"%{prj.name}/vendor/glm/glm/**.hpp",
 		"%{prj.name}/vendor/glm/glm/**.inl",
-
+		"%{prj.name}/vendor/stb_image/**.cpp",
+		"%{prj.name}/vendor/stb_image/**.h",
 	}
 
 	defines
@@ -60,6 +62,7 @@ project "VoxelEngine"
 		"%{IncludeDir.GLAD}",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.stb_image}",
 	}
 
 	links{

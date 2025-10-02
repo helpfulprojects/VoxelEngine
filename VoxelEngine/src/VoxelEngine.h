@@ -20,6 +20,7 @@
 
 #include "VoxelEngine/Renderer/Buffer.h"
 #include "VoxelEngine/Renderer/Shader.h"
+#include "VoxelEngine/Renderer/Texture.h"
 #include "VoxelEngine/Renderer/VertexArray.h"
 
 #include "VoxelEngine/Renderer/OrthographicCamera.h"

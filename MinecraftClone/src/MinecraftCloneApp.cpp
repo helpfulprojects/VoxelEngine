@@ -33,14 +33,15 @@ public:
 
 		m_SquareVA.reset(VoxelEngine::VertexArray::Create());
 		float squareVertices[] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			 -0.5f,  0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
+			 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
+			 -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
 		};
-		VoxelEngine::Ref<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(vertices)));
+		VoxelEngine::Ref<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
 		VoxelEngine::BufferLayout squareLayout = {
 			{VoxelEngine::ShaderDataType::Float3, "a_Position"},
+			{VoxelEngine::ShaderDataType::Float2, "a_TexCoord"},
 		};
 		squareVB->SetLayout(squareLayout);
 		m_SquareVA->AddVertexBuffer(squareVB);
@@ -109,6 +110,44 @@ public:
 		)";
 
 		m_FlatColorShader.reset(VoxelEngine::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+
+		std::string textureShaderVertexSrc = R"(
+			#version 330 core
+
+			layout(location = 0) in vec4 a_Position;
+			layout(location = 1) in vec2 a_TexCoord;
+
+			uniform mat4 u_ViewProjection;
+			uniform mat4 u_Transform;
+
+			out vec2 v_TexCoord;
+
+			void main()
+			{
+				v_TexCoord = a_TexCoord;
+				gl_Position = u_ViewProjection*u_Transform*a_Position;
+			}
+		)";
+		std::string textureShaderFragmentSrc = R"(
+			#version 330 core
+
+			out vec4 color;
+			in vec2 v_TexCoord;
+
+			uniform sampler2D u_Texture;
+
+			void main()
+			{
+				color = texture(u_Texture,v_TexCoord);
+			}
+		)";
+
+		m_TextureShader.reset(VoxelEngine::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+
+		m_Texture = VoxelEngine::Texture2D::Create("assets/textures/Checkerboard.png");
+
+		m_TextureShader->Bind();
+		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
@@ -149,7 +188,11 @@ public:
 				VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
 			}
 		}
-		VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
+
+		m_Texture->Bind();
+		VoxelEngine::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
+		//Triangle
+		//VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
 		VoxelEngine::Renderer::EndScene();
 	}
@@ -164,9 +207,10 @@ public:
 
 private:
 	VoxelEngine::Ref<VoxelEngine::Shader> m_Shader;
-	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader;
+	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader, m_TextureShader;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_VertexArray;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
+	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;
 	VoxelEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
