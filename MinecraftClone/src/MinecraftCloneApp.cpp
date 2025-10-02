@@ -145,6 +145,7 @@ public:
 		m_TextureShader.reset(VoxelEngine::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
 
 		m_Texture = VoxelEngine::Texture2D::Create("assets/textures/Checkerboard.png");
+		m_ChernoLogoTexture = VoxelEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
 
 		m_TextureShader->Bind();
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
@@ -191,6 +192,9 @@ public:
 
 		m_Texture->Bind();
 		VoxelEngine::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
+		m_ChernoLogoTexture->Bind();
+		VoxelEngine::Renderer::Submit(m_TextureShader, m_SquareVA,
+			glm::scale(glm::mat4(1), glm::vec3(1.5f)));
 		//Triangle
 		//VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
@@ -210,7 +214,7 @@ private:
 	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader, m_TextureShader;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_VertexArray;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
-	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;
+	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture, m_ChernoLogoTexture;
 	VoxelEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
