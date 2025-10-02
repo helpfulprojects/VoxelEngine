@@ -142,7 +142,7 @@ public:
 			}
 		)";
 
-		m_TextureShader.reset(VoxelEngine::Shader::Create(textureShaderVertexSrc, textureShaderFragmentSrc));
+		m_TextureShader.reset(VoxelEngine::Shader::Create("assets/shaders/Texture.glsl"));
 
 		m_Texture = VoxelEngine::Texture2D::Create("assets/textures/Checkerboard.png");
 		m_ChernoLogoTexture = VoxelEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
