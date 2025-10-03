@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "Application.h"
 
-#include "VoxelEngine/Log.h"
+#include "VoxelEngine/Core/Log.h"
 
 #include "Input.h"
 #include "VoxelEngine/Renderer/Renderer.h"

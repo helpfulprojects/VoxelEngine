@@ -1,5 +1,5 @@
 #pragma once
-#include "VoxelEngine/Core.h"
+#include "VoxelEngine/Core/Core.h"
 namespace VoxelEngine {
 	class VE_API Input {
 	public:

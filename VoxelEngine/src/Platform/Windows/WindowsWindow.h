@@ -1,5 +1,5 @@
 #pragma once
-#include "VoxelEngine/Window.h"
+#include "VoxelEngine/Core/Window.h"
 #include <GLFW/glfw3.h>
 #include "VoxelEngine/Renderer/GraphicsContext.h"
 namespace VoxelEngine {

@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "WindowsInput.h"
 #include <GLFW/glfw3.h>
-#include "VoxelEngine/Application.h"
+#include "VoxelEngine/Core/Application.h"
 namespace VoxelEngine {
 	Input* Input::s_Instance = new WindowsInput();
 	bool WindowsInput::IsKeyPressedImpl(int keycode)

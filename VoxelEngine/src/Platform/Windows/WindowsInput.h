@@ -1,5 +1,5 @@
 #pragma once
-#include "VoxelEngine/Input.h"
+#include "VoxelEngine/Core/Input.h"
 namespace VoxelEngine {
 	class WindowsInput : public Input {
 	protected:

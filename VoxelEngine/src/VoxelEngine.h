@@ -1,15 +1,15 @@
 #pragma once
 //For use by Voxel Engine applications
 
-#include "VoxelEngine/Application.h"
-#include "VoxelEngine/Layer.h"
-#include "VoxelEngine/Log.h"
+#include "VoxelEngine/Core/Application.h"
+#include "VoxelEngine/Core/Layer.h"
+#include "VoxelEngine/Core/Log.h"
 
 #include "VoxelEngine/Core/Timestep.h"
 
-#include "VoxelEngine/Input.h"
-#include "VoxelEngine/KeyCodes.h"
-#include "VoxelEngine/MouseButtonCodes.h"
+#include "VoxelEngine/Core/Input.h"
+#include "VoxelEngine/Core/KeyCodes.h"
+#include "VoxelEngine/Core/MouseButtonCodes.h"
 
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 
@@ -27,5 +27,5 @@
 //-------------------------------------------------
 
 //----Entry Point----------------------------------
-#include "VoxelEngine/EntryPoint.h"
+#include "VoxelEngine/Core/EntryPoint.h"
 //-------------------------------------------------

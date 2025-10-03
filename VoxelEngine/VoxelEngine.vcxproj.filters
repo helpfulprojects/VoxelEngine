@@ -81,17 +81,38 @@
     <ClInclude Include="src\VoxelEngine.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Application.h">
-      <Filter>src\VoxelEngine</Filter>
+    <ClInclude Include="src\VoxelEngine\Core\Application.h">
+      <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Core.h">
-      <Filter>src\VoxelEngine</Filter>
+    <ClInclude Include="src\VoxelEngine\Core\Core.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\EntryPoint.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\Input.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\KeyCodes.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\Layer.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\LayerStack.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\Log.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\MouseButtonCodes.h">
+      <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Core\Timestep.h">
       <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
-    <ClInclude Include="src\VoxelEngine\EntryPoint.h">
-      <Filter>src\VoxelEngine</Filter>
+    <ClInclude Include="src\VoxelEngine\Core\Window.h">
+      <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Events\ApplicationEvent.h">
       <Filter>src\VoxelEngine\Events</Filter>
@@ -107,24 +128,6 @@
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\ImGui\ImGuiLayer.h">
       <Filter>src\VoxelEngine\ImGui</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Input.h">
-      <Filter>src\VoxelEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\KeyCodes.h">
-      <Filter>src\VoxelEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Layer.h">
-      <Filter>src\VoxelEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\LayerStack.h">
-      <Filter>src\VoxelEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Log.h">
-      <Filter>src\VoxelEngine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\MouseButtonCodes.h">
-      <Filter>src\VoxelEngine</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Renderer\Buffer.h">
       <Filter>src\VoxelEngine\Renderer</Filter>
@@ -152,9 +155,6 @@
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Renderer\VertexArray.h">
       <Filter>src\VoxelEngine\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Window.h">
-      <Filter>src\VoxelEngine</Filter>
     </ClInclude>
     <ClInclude Include="src\pch.h">
       <Filter>src</Filter>
@@ -1442,23 +1442,23 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Application.cpp">
-      <Filter>src\VoxelEngine</Filter>
+    <ClCompile Include="src\VoxelEngine\Core\Application.cpp">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Core\Layer.cpp">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Core\LayerStack.cpp">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Core\Log.cpp">
+      <Filter>src\VoxelEngine\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiBuild.cpp">
       <Filter>src\VoxelEngine\ImGui</Filter>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiLayer.cpp">
       <Filter>src\VoxelEngine\ImGui</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Layer.cpp">
-      <Filter>src\VoxelEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VoxelEngine\LayerStack.cpp">
-      <Filter>src\VoxelEngine</Filter>
-    </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Log.cpp">
-      <Filter>src\VoxelEngine</Filter>
     </ClCompile>
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>

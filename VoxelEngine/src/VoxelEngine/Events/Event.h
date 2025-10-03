@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-#include "VoxelEngine/Core.h"
+#include "VoxelEngine/Core/Core.h"
 
 
 namespace VoxelEngine {

@@ -2,8 +2,8 @@
 #include "Core.h"
 
 #include "Window.h"
-#include "VoxelEngine/LayerStack.h"
-#include "Events/Event.h"
+#include "VoxelEngine/Core/LayerStack.h"
+#include "VoxelEngine/Events/Event.h"
 #include "VoxelEngine/Events/ApplicationEvent.h"
 
 #include "VoxelEngine/Core/Timestep.h"

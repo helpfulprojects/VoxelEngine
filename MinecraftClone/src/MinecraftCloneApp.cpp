@@ -3,6 +3,40 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Platform/OpenGL/OpenGLShader.h>
 #include <glm/gtc/type_ptr.hpp>
+#include <chrono>
+template<typename Fn>
+class Timer {
+public:
+	Timer(const char* name, Fn&& func)
+		: m_Name(name), m_Stopped(false), m_Func(func)
+	{
+		m_StartTimepoint = std::chrono::high_resolution_clock::now();
+	}
+	~Timer() {
+		if (!m_Stopped) {
+			Stop();
+		}
+	}
+	void Stop()
+	{
+		auto endTimepoint = std::chrono::high_resolution_clock::now();
+
+		long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
+		long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
+
+		m_Stopped = true;
+
+		float duration = (end - start) * 0.001f;
+		//std::cout << m_Name << ": " << duration << "ms" << std::endl;
+		m_Func({ m_Name,duration });
+	}
+private:
+	const char* m_Name;
+	std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
+	bool m_Stopped;
+	Fn m_Func;
+};
+#define PROFILE_SCOPE(name) Timer timer##__LINE__(name,[&](ProfileResult profileResult) {m_ProfileResults.push_back(profileResult); })
 class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
@@ -151,6 +185,7 @@ public:
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
+		PROFILE_SCOPE("MinecraftClone::OnUpdate");
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
 			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
 		}
@@ -205,7 +240,13 @@ public:
 
 	virtual void OnImGuiRender() override {
 		ImGui::Begin("Settings");
-		ImGui::ColorPicker3("Squares Color", glm::value_ptr(m_SquareColor));
+		for (auto& result : m_ProfileResults) {
+			char label[50];
+			strcpy(label, "%.3fms  ");
+			strcat(label, result.Name);
+			ImGui::Text(label, result.Time);
+		}
+		m_ProfileResults.clear();
 		ImGui::End();
 	}
 
@@ -219,13 +260,15 @@ private:
 	VoxelEngine::OrthographicCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
-
 	float m_CameraMoveSpeed = 5.0f;
 	float m_CameraRotationSpeed = 90.0f;
-
 	glm::vec3 m_SquarePosition;
-
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.7f };
+	struct ProfileResult {
+		const char* Name;
+		float Time;
+	};
+	std::vector<ProfileResult> m_ProfileResults;
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:

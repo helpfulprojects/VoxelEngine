@@ -1,8 +1,8 @@
 #include "pch.h"
 #include "ImGuiLayer.h"
 
-#include "VoxelEngine/Application.h"
-#include "VoxelEngine/Input.h"
+#include "VoxelEngine/Core/Application.h"
+#include "VoxelEngine/Core/Input.h"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -66,9 +66,5 @@ namespace VoxelEngine {
 			ImGui::RenderPlatformWindowsDefault();
 			glfwMakeContextCurrent(backup_current_context);
 		}
-	}
-	void ImGuiLayer::OnImGuiRender() {
-		static bool show = true;
-		ImGui::ShowDemoWindow(&show);
 	}
 }
