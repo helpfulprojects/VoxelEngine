@@ -82,7 +82,7 @@ public:
 			}
 		)";
 
-		m_Shader.reset(VoxelEngine::Shader::Create(vertexSrc, fragmentSrc));
+		m_Shader = (VoxelEngine::Shader::Create("triangleShader", vertexSrc, fragmentSrc));
 
 		std::string flatColorShaderVertexSrc = R"(
 			#version 330 core
@@ -109,7 +109,7 @@ public:
 			}
 		)";
 
-		m_FlatColorShader.reset(VoxelEngine::Shader::Create(flatColorShaderVertexSrc, flatColorShaderFragmentSrc));
+		m_FlatColorShader = VoxelEngine::Shader::Create("flatColor", flatColorShaderVertexSrc, flatColorShaderFragmentSrc);
 
 		std::string textureShaderVertexSrc = R"(
 			#version 330 core
@@ -142,13 +142,13 @@ public:
 			}
 		)";
 
-		m_TextureShader.reset(VoxelEngine::Shader::Create("assets/shaders/Texture.glsl"));
+		auto textureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
 
 		m_Texture = VoxelEngine::Texture2D::Create("assets/textures/Checkerboard.png");
 		m_ChernoLogoTexture = VoxelEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
 
-		m_TextureShader->Bind();
-		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_TextureShader)->UploadUniformInt("u_Texture", 0);
+		textureShader->Bind();
+		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
 		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
@@ -189,11 +189,11 @@ public:
 				VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
 			}
 		}
-
+		auto textureShader = m_ShaderLibrary.Get("Texture");
 		m_Texture->Bind();
-		VoxelEngine::Renderer::Submit(m_TextureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
+		VoxelEngine::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
 		m_ChernoLogoTexture->Bind();
-		VoxelEngine::Renderer::Submit(m_TextureShader, m_SquareVA,
+		VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
 			glm::scale(glm::mat4(1), glm::vec3(1.5f)));
 		//Triangle
 		//VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
@@ -210,8 +210,9 @@ public:
 	}
 
 private:
+	VoxelEngine::ShaderLibrary m_ShaderLibrary;
 	VoxelEngine::Ref<VoxelEngine::Shader> m_Shader;
-	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader, m_TextureShader;
+	VoxelEngine::Ref<VoxelEngine::Shader> m_FlatColorShader;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_VertexArray;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture, m_ChernoLogoTexture;
