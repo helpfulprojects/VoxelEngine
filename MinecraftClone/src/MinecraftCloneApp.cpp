@@ -4,39 +4,6 @@
 #include <Platform/OpenGL/OpenGLShader.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <chrono>
-template<typename Fn>
-class Timer {
-public:
-	Timer(const char* name, Fn&& func)
-		: m_Name(name), m_Stopped(false), m_Func(func)
-	{
-		m_StartTimepoint = std::chrono::high_resolution_clock::now();
-	}
-	~Timer() {
-		if (!m_Stopped) {
-			Stop();
-		}
-	}
-	void Stop()
-	{
-		auto endTimepoint = std::chrono::high_resolution_clock::now();
-
-		long long start = std::chrono::time_point_cast<std::chrono::microseconds>(m_StartTimepoint).time_since_epoch().count();
-		long long end = std::chrono::time_point_cast<std::chrono::microseconds>(endTimepoint).time_since_epoch().count();
-
-		m_Stopped = true;
-
-		float duration = (end - start) * 0.001f;
-		//std::cout << m_Name << ": " << duration << "ms" << std::endl;
-		m_Func({ m_Name,duration });
-	}
-private:
-	const char* m_Name;
-	std::chrono::time_point<std::chrono::steady_clock> m_StartTimepoint;
-	bool m_Stopped;
-	Fn m_Func;
-};
-#define PROFILE_SCOPE(name) Timer timer##__LINE__(name,[&](ProfileResult profileResult) {m_ProfileResults.push_back(profileResult); })
 class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
@@ -185,69 +152,69 @@ public:
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
-		PROFILE_SCOPE("MinecraftClone::OnUpdate");
-		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
-			m_CameraPosition.x -= m_CameraMoveSpeed * ts;
-		}
-		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_D)) {
-			m_CameraPosition.x += m_CameraMoveSpeed * ts;
-		}
-		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_W)) {
-			m_CameraPosition.y += m_CameraMoveSpeed * ts;
-		}
-		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_S)) {
-			m_CameraPosition.y -= m_CameraMoveSpeed * ts;
-		}
+		VE_PROFILE_FUNCTION();
 
-		if (VoxelEngine::Input::IsKeyPressed(VE_KEY_Q)) {
-			m_CameraRotation += m_CameraRotationSpeed * ts;
-		}
-		else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_E)) {
-			m_CameraRotation -= m_CameraRotationSpeed * ts;
-		}
+		{
+			VE_PROFILE_SCOPE("Key pooling");
+			if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
+				m_CameraPosition.x -= m_CameraMoveSpeed * ts;
+			}
+			else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_D)) {
+				m_CameraPosition.x += m_CameraMoveSpeed * ts;
+			}
+			if (VoxelEngine::Input::IsKeyPressed(VE_KEY_W)) {
+				m_CameraPosition.y += m_CameraMoveSpeed * ts;
+			}
+			else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_S)) {
+				m_CameraPosition.y -= m_CameraMoveSpeed * ts;
+			}
 
-		VoxelEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
-		VoxelEngine::RenderCommand::Clear();
-		VoxelEngine::Renderer::BeginScene(m_Camera);
-
-		m_Camera.SetPosition(m_CameraPosition);
-		m_Camera.SetRotation(m_CameraRotation);
-
-		glm::mat4 scale = glm::scale(glm::mat4(1), glm::vec3(0.1f));
-
-		m_FlatColorShader->Bind();
-		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
-		for (int y = 0; y < 20; y++) {
-			for (int x = 0; x < 20; x++) {
-				glm::vec3 pos(x * 0.11f, y * 0.11f, 0);
-				glm::mat4 transform = glm::translate(glm::mat4(1), pos) * scale;
-				VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
+			if (VoxelEngine::Input::IsKeyPressed(VE_KEY_Q)) {
+				m_CameraRotation += m_CameraRotationSpeed * ts;
+			}
+			else if (VoxelEngine::Input::IsKeyPressed(VE_KEY_E)) {
+				m_CameraRotation -= m_CameraRotationSpeed * ts;
 			}
 		}
-		auto textureShader = m_ShaderLibrary.Get("Texture");
-		m_Texture->Bind();
-		VoxelEngine::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
-		m_ChernoLogoTexture->Bind();
-		VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
-			glm::scale(glm::mat4(1), glm::vec3(1.5f)));
-		//Triangle
-		//VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
 
-		VoxelEngine::Renderer::EndScene();
+		{
+			VE_PROFILE_SCOPE("Draw");
+			VoxelEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+			VoxelEngine::RenderCommand::Clear();
+			VoxelEngine::Renderer::BeginScene(m_Camera);
+
+			m_Camera.SetPosition(m_CameraPosition);
+			m_Camera.SetRotation(m_CameraRotation);
+
+			glm::mat4 scale = glm::scale(glm::mat4(1), glm::vec3(0.1f));
+
+			m_FlatColorShader->Bind();
+			std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(m_FlatColorShader)->UploadUniformFloat3("u_Color", m_SquareColor);
+			for (int y = 0; y < 20; y++) {
+				for (int x = 0; x < 20; x++) {
+					glm::vec3 pos(x * 0.11f, y * 0.11f, 0);
+					glm::mat4 transform = glm::translate(glm::mat4(1), pos) * scale;
+					VoxelEngine::Renderer::Submit(m_FlatColorShader, m_SquareVA, transform);
+				}
+			}
+			auto textureShader = m_ShaderLibrary.Get("Texture");
+			m_Texture->Bind();
+			VoxelEngine::Renderer::Submit(textureShader, m_SquareVA, glm::scale(glm::mat4(1), glm::vec3(1.5f)));
+			m_ChernoLogoTexture->Bind();
+			VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
+				glm::scale(glm::mat4(1), glm::vec3(1.5f)));
+			//Triangle
+			//VoxelEngine::Renderer::Submit(m_Shader, m_VertexArray);
+
+			VoxelEngine::Renderer::EndScene();
+		}
 	}
 	void OnEvent(VoxelEngine::Event& event) override {
 	}
 
 	virtual void OnImGuiRender() override {
-		ImGui::Begin("Settings");
-		for (auto& result : m_ProfileResults) {
-			char label[50];
-			strcpy(label, "%.3fms  ");
-			strcat(label, result.Name);
-			ImGui::Text(label, result.Time);
-		}
-		m_ProfileResults.clear();
-		ImGui::End();
+		//ImGui::Begin("Settings");
+		//ImGui::End();
 	}
 
 private:
@@ -264,11 +231,6 @@ private:
 	float m_CameraRotationSpeed = 90.0f;
 	glm::vec3 m_SquarePosition;
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.7f };
-	struct ProfileResult {
-		const char* Name;
-		float Time;
-	};
-	std::vector<ProfileResult> m_ProfileResults;
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:

@@ -166,6 +166,7 @@
     <ClInclude Include="src\VoxelEngine\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\VoxelEngine\Core\Timestep.h" />
     <ClInclude Include="src\VoxelEngine\Core\Window.h" />
+    <ClInclude Include="src\VoxelEngine\Debug\Instrumentor.h" />
     <ClInclude Include="src\VoxelEngine\Events\ApplicationEvent.h" />
     <ClInclude Include="src\VoxelEngine\Events\Event.h" />
     <ClInclude Include="src\VoxelEngine\Events\KeyEvent.h" />
