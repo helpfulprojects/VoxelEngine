@@ -4,6 +4,7 @@
 #include <Platform/OpenGL/OpenGLShader.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <chrono>
+#include <tracy/Tracy.hpp>
 class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
@@ -152,6 +153,7 @@ public:
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
+		TracyNoop;
 		VE_PROFILE_FUNCTION();
 
 		{

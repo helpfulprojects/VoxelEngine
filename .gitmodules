@@ -10,3 +10,7 @@
 [submodule "VoxelEngine/vendor/glm"]
 	path = VoxelEngine/vendor/glm
 	url = https://github.com/helpfulprojects/glm
+
+[submodule "VoxelEngine/vendor/tracy"]
+	path = VoxelEngine/vendor/tracy
+	url = https://github.com/helpfulprojects/tracy

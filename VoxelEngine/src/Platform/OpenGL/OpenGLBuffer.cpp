@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "OpenGLBuffer.h"
 #include <glad/glad.h>
+#include <tracy/TracyOpenGL.hpp>
 namespace VoxelEngine {
 	///////////////////////////////////////////////////////////////////////////////////////////	
 	// VertexBuffer ///////////////////////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////////////////////////////////////	
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size) {
 		VE_PROFILE_FUNCTION();
+		TracyGpuZone("Create vertex buffer");
 		glCreateBuffers(1, &m_RendererID);
 		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);

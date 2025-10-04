@@ -17,6 +17,7 @@
 
 #ifdef VE_DEBUG
 #define VE_ENABLE_ASSERTS
+#define TRACY_ENABLE
 #endif
 
 #ifdef VE_ENABLE_ASSERTS

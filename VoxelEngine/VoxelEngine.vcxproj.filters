@@ -19,6 +19,9 @@
     <Filter Include="src\VoxelEngine\Core">
       <UniqueIdentifier>{B846823E-A4D5-0B08-4DF4-1F0339621CAE}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\VoxelEngine\Debug">
+      <UniqueIdentifier>{D678D70E-42E5-9209-0BD9-2A677704B571}</UniqueIdentifier>
+    </Filter>
     <Filter Include="src\VoxelEngine\Events">
       <UniqueIdentifier>{44E650ED-30E0-793F-194D-105005E6DFAB}</UniqueIdentifier>
     </Filter>
@@ -51,6 +54,12 @@
     </Filter>
     <Filter Include="vendor\stb_image">
       <UniqueIdentifier>{0DA0BA59-F998-D9AB-22CB-BE300E23B9B7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\tracy">
+      <UniqueIdentifier>{05EB99F1-F14D-2996-9AD3-614C8615F518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="vendor\tracy\public">
+      <UniqueIdentifier>{B36ADC46-1FCC-B954-A839-0007149AF013}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -113,6 +122,9 @@
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Core\Window.h">
       <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Debug\Instrumentor.h">
+      <Filter>src\VoxelEngine\Debug</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Events\ApplicationEvent.h">
       <Filter>src\VoxelEngine\Events</Filter>
@@ -1489,6 +1501,9 @@
     </ClCompile>
     <ClCompile Include="vendor\stb_image\stb_image.cpp">
       <Filter>vendor\stb_image</Filter>
+    </ClCompile>
+    <ClCompile Include="vendor\tracy\public\TracyClient.cpp">
+      <Filter>vendor\tracy\public</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include "OpenGLContext.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
+#include <tracy/TracyOpenGL.hpp>
 namespace VoxelEngine {
 	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
 	{
@@ -23,5 +24,6 @@ namespace VoxelEngine {
 	{
 		VE_PROFILE_FUNCTION();
 		glfwSwapBuffers(m_WindowHandle);
+		TracyGpuCollect;
 	}
 }

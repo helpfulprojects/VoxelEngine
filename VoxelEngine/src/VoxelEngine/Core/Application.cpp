@@ -45,20 +45,21 @@ namespace VoxelEngine {
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
 			{
-				//VE_PROFILE_SCOPE("LayerStack OnUpdate");
+				VE_PROFILE_SCOPE("LayerStack OnUpdate");
 				for (Layer* layer : m_LayerStack) {
 					layer->OnUpdate(timestep);
 				}
 			}
 			m_ImGuiLayer->Begin();
 			{
-				//VE_PROFILE_SCOPE("LayerStack OnImGuiRender");
+				VE_PROFILE_SCOPE("LayerStack OnImGuiRender");
 				for (Layer* layer : m_LayerStack) {
 					layer->OnImGuiRender();
 				}
 			}
 			m_ImGuiLayer->End();
 			m_Window->OnUpdate();
+			FrameMark;
 		}
 	}
 	void Application::OnEvent(Event& e)

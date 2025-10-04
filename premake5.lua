@@ -17,11 +17,13 @@ IncludeDir["GLAD"] = "VoxelEngine/vendor/GLAD/include"
 IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
 IncludeDir["glm"] = "VoxelEngine/vendor/glm"
 IncludeDir["stb_image"] = "VoxelEngine/vendor/stb_image"
+IncludeDir["tracy"] = "VoxelEngine/vendor/tracy/public"
 
 group "Dependencies"
 	include "VoxelEngine/vendor/GLFW"
 	include "VoxelEngine/vendor/GLAD"
 	include "VoxelEngine/vendor/imgui"
+	include "VoxelEngine/vendor/tracy"
 group ""
 
 
@@ -47,6 +49,7 @@ project "VoxelEngine"
 		"%{prj.name}/vendor/glm/glm/**.inl",
 		"%{prj.name}/vendor/stb_image/**.cpp",
 		"%{prj.name}/vendor/stb_image/**.h",
+		"%{prj.name}/vendor/tracy/public/TracyClient.cpp",
 	}
 
 	defines
@@ -63,15 +66,18 @@ project "VoxelEngine"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
+		"%{IncludeDir.tracy}",
 	}
 
 	links{
 		"GLFW",
 		"GLAD",
 		"ImGui",
+		"tracy",
 		"opengl32.lib"
 	}
-
+	filter { "%{prj.name}/vendor/tracy/public/TracyClient.cpp" }
+		flags { "NoPCH" }
 	filter "system:windows"
 		systemversion "latest"
 
@@ -116,6 +122,7 @@ project "MinecraftClone"
 		"VoxelEngine/src",
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
+		"%{IncludeDir.tracy}",
 	}
 
 	filter "system:windows"
@@ -123,7 +130,7 @@ project "MinecraftClone"
 
 		defines
 		{
-			"VE_PLATFORM_WINDOWS"
+			"VE_PLATFORM_WINDOWS",
 		}
 	links 
 	{
