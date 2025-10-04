@@ -10,6 +10,7 @@ namespace VoxelEngine {
 	Application* Application::s_Instance = nullptr;
 	Application::Application()
 	{
+		VE_PROFILE_FUNCTION();
 		VE_CORE_ASSERT(!s_Instance, "Application already exists");
 		s_Instance = this;
 		m_Window = std::unique_ptr<Window>(Window::Create());
@@ -23,27 +24,38 @@ namespace VoxelEngine {
 
 	Application::~Application()
 	{
+		VE_PROFILE_FUNCTION();
 	}
 	void Application::PushLayer(Layer* layer) {
+		VE_PROFILE_FUNCTION();
 		m_LayerStack.PushLayer(layer);
 		layer->OnAttach();
 	}
 	void Application::PushOverlay(Layer* overlay) {
+		VE_PROFILE_FUNCTION();
 		m_LayerStack.PushOverlay(overlay);
 		overlay->OnAttach();
 	}
 	void Application::Run()
 	{
+		VE_PROFILE_FUNCTION();
 		while (m_Running) {
+			VE_PROFILE_SCOPE("RunLoop");
 			float time = (float)glfwGetTime(); // Platform::GetTime
 			Timestep timestep = time - m_LastFrameTime;
 			m_LastFrameTime = time;
-			for (Layer* layer : m_LayerStack) {
-				layer->OnUpdate(timestep);
+			{
+				//VE_PROFILE_SCOPE("LayerStack OnUpdate");
+				for (Layer* layer : m_LayerStack) {
+					layer->OnUpdate(timestep);
+				}
 			}
 			m_ImGuiLayer->Begin();
-			for (Layer* layer : m_LayerStack) {
-				layer->OnImGuiRender();
+			{
+				//VE_PROFILE_SCOPE("LayerStack OnImGuiRender");
+				for (Layer* layer : m_LayerStack) {
+					layer->OnImGuiRender();
+				}
 			}
 			m_ImGuiLayer->End();
 			m_Window->OnUpdate();
@@ -51,6 +63,7 @@ namespace VoxelEngine {
 	}
 	void Application::OnEvent(Event& e)
 	{
+		VE_PROFILE_FUNCTION();
 		EventDispatcher dispatcher(e);
 		dispatcher.Dispatch<WindowCloseEvent>(VE_BIND_EVENT_FN(Application::OnWindowClose));
 		for (auto it = m_LayerStack.end(); it != m_LayerStack.begin();) {

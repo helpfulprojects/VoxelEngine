@@ -17,7 +17,9 @@ bin-int/
 mono_crash.*
 
 # Build results
+
 [Dd]ebug/
+!VoxelEngine/src/VoxelEngine/Debug/
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
@@ -361,3 +363,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/MinecraftClone/VoxelEngineProfile-Runtim.json
+/MinecraftClone/VoxelEngineProfile-Shutdown.json
+/MinecraftClone/VoxelEngineProfile-Startup.json

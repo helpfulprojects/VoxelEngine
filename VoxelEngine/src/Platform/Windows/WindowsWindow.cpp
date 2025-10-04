@@ -17,16 +17,19 @@ namespace VoxelEngine {
 	}
 	WindowsWindow::WindowsWindow(const WindowProps& props)
 	{
+		VE_PROFILE_FUNCTION();
 		Init(props);
 	}
 
 	WindowsWindow::~WindowsWindow()
 	{
+		VE_PROFILE_FUNCTION();
 		Shutdown();
 	}
 
 	void WindowsWindow::OnUpdate()
 	{
+		VE_PROFILE_FUNCTION();
 		glfwPollEvents();
 		m_Context->SwapBuffers();
 	}
@@ -49,6 +52,7 @@ namespace VoxelEngine {
 
 	void WindowsWindow::Init(const WindowProps& props)
 	{
+		VE_PROFILE_FUNCTION();
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
@@ -138,6 +142,7 @@ namespace VoxelEngine {
 
 	void WindowsWindow::Shutdown()
 	{
+		VE_PROFILE_FUNCTION();
 		glfwDestroyWindow(m_Window);
 	}
 }

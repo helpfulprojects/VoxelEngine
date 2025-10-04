@@ -6,9 +6,15 @@ namespace VoxelEngine {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		:m_Path(path)
 	{
+		VE_PROFILE_FUNCTION();
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
-		stbi_uc* data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		stbi_uc* data = nullptr;
+		{
+
+			VE_PROFILE_SCOPE("stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string&))");
+			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		}
 		VE_CORE_ASSERT(data, "Failed to load image!");
 		m_Width = width;
 		m_Height = height;
@@ -38,10 +44,12 @@ namespace VoxelEngine {
 	}
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
+		VE_PROFILE_FUNCTION();
 		glDeleteTextures(1, &m_RendererID);
 	}
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
+		VE_PROFILE_FUNCTION();
 		glBindTextureUnit(slot, m_RendererID);
 	}
 }

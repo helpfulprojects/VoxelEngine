@@ -14,6 +14,7 @@ namespace VoxelEngine {
 	OpenGLShader::OpenGLShader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 		: m_Name(name)
 	{
+		VE_PROFILE_FUNCTION();
 		std::unordered_map<GLenum, std::string> sources;
 		sources[GL_VERTEX_SHADER] = vertexSrc;
 		sources[GL_FRAGMENT_SHADER] = fragmentSrc;
@@ -21,6 +22,7 @@ namespace VoxelEngine {
 	}
 	OpenGLShader::OpenGLShader(const std::string& filepath)
 	{
+		VE_PROFILE_FUNCTION();
 		std::string source = ReadFile(filepath);
 		VE_CORE_ASSERT(!source.empty(), "Empty shader source read");
 		auto shaderSources = PreProcess(source);
@@ -36,14 +38,17 @@ namespace VoxelEngine {
 	}
 	OpenGLShader::~OpenGLShader()
 	{
+		VE_PROFILE_FUNCTION();
 		glDeleteProgram(m_RendererID);
 	}
 	void OpenGLShader::Bind() const
 	{
+		VE_PROFILE_FUNCTION();
 		glUseProgram(m_RendererID);
 	}
 	void OpenGLShader::Unbind() const
 	{
+		VE_PROFILE_FUNCTION();
 		glUseProgram(0);
 	}
 	void OpenGLShader::UploadUniformInt(const std::string& name, int value)
@@ -78,6 +83,7 @@ namespace VoxelEngine {
 	}
 	std::string OpenGLShader::ReadFile(const std::string& filepath)
 	{
+		VE_PROFILE_FUNCTION();
 		std::string result;
 		std::ifstream in(filepath, std::ios::in | std::ios::binary);
 		if (in) {
@@ -94,6 +100,7 @@ namespace VoxelEngine {
 	}
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
+		VE_PROFILE_FUNCTION();
 		std::unordered_map<GLenum, std::string> shaderSources;
 
 		const char* typeToken = "#type";
@@ -117,6 +124,7 @@ namespace VoxelEngine {
 	}
 	void OpenGLShader::Compile(const std::unordered_map<GLenum, std::string>& shaderSources)
 	{
+		VE_PROFILE_FUNCTION();
 		GLuint program = glCreateProgram();
 		VE_CORE_ASSERT(shaderSources.size() <= 2, "We only support 2 shaders");
 		std::array<GLenum, 2> glShaderIDs;
