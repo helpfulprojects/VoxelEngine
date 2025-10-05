@@ -6,7 +6,7 @@ namespace VoxelEngine {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path)
 		:m_Path(path)
 	{
-		VE_PROFILE_FUNCTION();
+		VE_PROFILE_FUNCTION;
 		int width, height, channels;
 		stbi_set_flip_vertically_on_load(1);
 		stbi_uc* data = nullptr;
@@ -44,12 +44,12 @@ namespace VoxelEngine {
 	}
 	OpenGLTexture2D::~OpenGLTexture2D()
 	{
-		VE_PROFILE_FUNCTION();
+		VE_PROFILE_FUNCTION;
 		glDeleteTextures(1, &m_RendererID);
 	}
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
-		VE_PROFILE_FUNCTION();
+		VE_PROFILE_FUNCTION;
 		glBindTextureUnit(slot, m_RendererID);
 	}
 }

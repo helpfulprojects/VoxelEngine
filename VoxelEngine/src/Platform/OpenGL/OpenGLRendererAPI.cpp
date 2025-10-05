@@ -17,6 +17,10 @@ namespace VoxelEngine {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
+	void OpenGLRendererAPI::SetViewport(int x, int y, unsigned int width, unsigned int height)
+	{
+		glViewport(x, y, width, height);
+	}
 	void OpenGLRendererAPI::DrawIndexed(const Ref<VertexArray>& vertexArray)
 	{
 		glDrawElements(GL_TRIANGLES, vertexArray->GetIndexBuffers()->GetCount(), GL_UNSIGNED_INT, nullptr);

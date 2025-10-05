@@ -13,6 +13,10 @@ namespace VoxelEngine {
 		inline static void Init() {
 			s_RendererAPI->Init();
 		};
+
+		inline static void SetViewport(int x, int y, unsigned int width, unsigned int height) {
+			s_RendererAPI->SetViewport(x, y, width, height);
+		};
 		inline static void DrawIndexed(const Ref<VertexArray>& vertexArray) {
 			s_RendererAPI->DrawIndexed(vertexArray);
 		}

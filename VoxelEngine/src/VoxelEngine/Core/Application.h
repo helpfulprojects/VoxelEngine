@@ -16,6 +16,7 @@ namespace VoxelEngine {
 		Application();
 		virtual ~Application();
 		void Run();
+		void Close();
 		void OnEvent(Event& e);
 		void PushLayer(Layer* layer);
 		void PushOverlay(Layer* overlay);
@@ -23,6 +24,7 @@ namespace VoxelEngine {
 		static inline Application& Get() { return *s_Instance; }
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+		bool OnWindowResize(WindowResizeEvent& e);
 	private:
 		std::unique_ptr<Window> m_Window;
 		ImGuiLayer* m_ImGuiLayer;
