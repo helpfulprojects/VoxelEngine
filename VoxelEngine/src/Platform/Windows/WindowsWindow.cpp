@@ -66,6 +66,8 @@ namespace VoxelEngine {
 		m_Data.Title = props.Title;
 		m_Data.Width = props.Width;
 		m_Data.Height = props.Height;
+		m_Data.lastMouseX = props.Width / 2.0f;
+		m_Data.lastMouseY = props.Height / 2.0f;
 
 		VE_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
 
@@ -88,6 +90,8 @@ namespace VoxelEngine {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
 			data.Width = width;
 			data.Height = height;
+			data.lastMouseX = width / 2.0f;
+			data.lastMouseY = height / 2.0f;
 			WindowResizeEvent event(width, height);
 			data.EventCallback(event);
 			});
@@ -139,7 +143,11 @@ namespace VoxelEngine {
 			});
 		glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xPos, double yPos) {
 			WindowData& data = *(WindowData*)glfwGetWindowUserPointer(window);
-			MouseMovedEvent event((float)xPos, (float)yPos);
+			float xOffset = (float)xPos - data.lastMouseX;
+			float yOffset = data.lastMouseY - (float)yPos;
+			MouseMovedEvent event((float)xPos, (float)yPos, xOffset, yOffset);
+			data.lastMouseX = (float)xPos;
+			data.lastMouseY = (float)yPos;
 			data.EventCallback(event);
 			});
 		glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int keycode) {

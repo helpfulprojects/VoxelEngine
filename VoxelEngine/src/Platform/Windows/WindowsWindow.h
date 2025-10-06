@@ -26,6 +26,7 @@ namespace VoxelEngine {
 		struct WindowData {
 			std::string Title;
 			unsigned int Width, Height;
+			float lastMouseX, lastMouseY;
 			bool VSync;
 			EventCallbackFn EventCallback;
 		};

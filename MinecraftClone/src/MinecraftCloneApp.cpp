@@ -41,6 +41,7 @@ public:
 
 		textureShader->Bind();
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+
 	}
 	void OnAttach() override {
 		VoxelEngine::Application::Get().GetWindow().SetMaximized(true);
@@ -100,8 +101,8 @@ public:
 			return false;
 			});
 		dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>([&](VoxelEngine::MouseMovedEvent& e) {
-			//VE_INFO("X:{0} Y:{1}", e.GetX(), e.GetY());
-			//m_Camera.AddToYawAndPitch(e.GetX(), e.GetY());
+			VE_INFO(e);
+			m_Camera.AddToYawAndPitch(e.GetXOffset(), e.GetYOffset());
 			return true;
 			});
 		dispatcher.Dispatch<VoxelEngine::WindowResizeEvent>([&](VoxelEngine::WindowResizeEvent& e) {
@@ -126,7 +127,6 @@ private:
 	float m_CameraRotationSpeed = 90.0f;
 	glm::vec3 m_SquarePosition;
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.7f };
-	//float lastX:
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:
