@@ -1428,6 +1428,7 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Renderer\PerspectiveCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1505,5 +1506,6 @@
     <ClCompile Include="vendor\tracy\public\TracyClient.cpp">
       <Filter>vendor\tracy\public</Filter>
     </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Renderer\PerspectiveCamera.cpp" />
   </ItemGroup>
 </Project>

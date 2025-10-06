@@ -175,6 +175,7 @@
     <ClInclude Include="src\VoxelEngine\Renderer\Buffer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\OrthographicCamera.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\PerspectiveCamera.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\RenderCommand.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Renderer.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\RendererAPI.h" />
@@ -619,6 +620,7 @@
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\OrthographicCamera.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\PerspectiveCamera.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Renderer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\RendererAPI.cpp" />

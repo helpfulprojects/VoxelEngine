@@ -81,12 +81,14 @@ namespace VoxelEngine {
 	}
 	bool Application::OnWindowClose(WindowCloseEvent& e)
 	{
+		VE_PROFILE_FUNCTION;
 		m_Running = false;
 		return true;
 	}
 	bool Application::OnWindowResize(WindowResizeEvent& e)
 	{
+		VE_PROFILE_FUNCTION;
 		RenderCommand::SetViewport(0, 0, e.GetWidth(), e.GetHeight());
-		return true;
+		return false;
 	}
 }

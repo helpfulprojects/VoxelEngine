@@ -9,7 +9,7 @@ class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
 		:Layer("Example"),
-		m_Camera(-1.6f, 1.6f, -0.9f, 0.9f),
+		m_Camera(90.0f, 0.1f, 1500.0f),
 		m_SquarePosition(0.0f),
 		m_CameraPosition(0.0f)
 	{
@@ -41,6 +41,8 @@ public:
 
 		textureShader->Bind();
 		std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+	}
+	void OnAttach() override {
 		VoxelEngine::Application::Get().GetWindow().SetMaximized(true);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
@@ -75,8 +77,8 @@ public:
 			VoxelEngine::RenderCommand::Clear();
 			VoxelEngine::Renderer::BeginScene(m_Camera);
 
-			m_Camera.SetPosition(m_CameraPosition);
-			m_Camera.SetRotation(m_CameraRotation);
+			//m_Camera.SetPosition(m_CameraPosition);
+			//m_Camera.SetRotation(m_CameraRotation);
 
 			auto textureShader = m_ShaderLibrary.Get("Texture");
 			m_Texture->Bind();
@@ -97,6 +99,15 @@ public:
 			}
 			return false;
 			});
+		dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>([&](VoxelEngine::MouseMovedEvent& e) {
+			//VE_INFO("X:{0} Y:{1}", e.GetX(), e.GetY());
+			//m_Camera.AddToYawAndPitch(e.GetX(), e.GetY());
+			return true;
+			});
+		dispatcher.Dispatch<VoxelEngine::WindowResizeEvent>([&](VoxelEngine::WindowResizeEvent& e) {
+			m_Camera.RecalculateProjectionMatrix();
+			return false;
+			});
 	}
 
 	virtual void OnImGuiRender() override {
@@ -108,13 +119,14 @@ private:
 	VoxelEngine::ShaderLibrary m_ShaderLibrary;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture, m_ChernoLogoTexture;
-	VoxelEngine::OrthographicCamera m_Camera;
+	VoxelEngine::PerspectiveCamera m_Camera;
 	glm::vec3 m_CameraPosition;
 	float m_CameraRotation = 0.0f;
 	float m_CameraMoveSpeed = 5.0f;
 	float m_CameraRotationSpeed = 90.0f;
 	glm::vec3 m_SquarePosition;
 	glm::vec3 m_SquareColor = { 0.2f, 0.3f, 0.7f };
+	//float lastX:
 };
 class MinecraftClone : public VoxelEngine::Application {
 public:

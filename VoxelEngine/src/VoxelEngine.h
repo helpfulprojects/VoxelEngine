@@ -14,6 +14,7 @@
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 
 #include <VoxelEngine/Events/KeyEvent.h>
+#include <VoxelEngine/Events/MouseEvent.h>
 //----Renderer-------------------------------------
 #include "VoxelEngine/Renderer/Renderer.h"
 #include "VoxelEngine/Renderer/RenderCommand.h"
@@ -24,6 +25,7 @@
 #include "VoxelEngine/Renderer/VertexArray.h"
 
 #include "VoxelEngine/Renderer/OrthographicCamera.h"
+#include "VoxelEngine/Renderer/PerspectiveCamera.h"
 //-------------------------------------------------
 
 //----Entry Point----------------------------------
