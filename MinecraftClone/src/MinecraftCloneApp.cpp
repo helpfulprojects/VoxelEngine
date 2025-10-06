@@ -91,8 +91,11 @@ public:
 	void OnEvent(VoxelEngine::Event& event) override {
 		VoxelEngine::EventDispatcher dispatcher(event);
 		dispatcher.Dispatch<VoxelEngine::KeyPressedEvent>([](VoxelEngine::KeyPressedEvent& e) {
-			VoxelEngine::Application::Get().Close();
-			return true;
+			if (e.GetKeyCode() == VE_KEY_ESCAPE) {
+				VoxelEngine::Application::Get().Close();
+				return true;
+			}
+			return false;
 			});
 	}
 
