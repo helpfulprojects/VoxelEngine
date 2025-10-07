@@ -14,8 +14,8 @@ namespace VoxelEngine {
 	void PerspectiveCamera::AddToYawAndPitch(float yawOffset, float pitchOffset)
 	{
 		VE_PROFILE_FUNCTION;
-		m_Yaw += yawOffset;
-		m_Pitch += pitchOffset;
+		m_Yaw += yawOffset * yawAndPitchSensitivity;
+		m_Pitch += pitchOffset * yawAndPitchSensitivity;
 		if (m_Pitch > 89.0f) {
 			m_Pitch = 89.0f;
 		}

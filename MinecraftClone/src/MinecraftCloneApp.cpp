@@ -9,7 +9,7 @@ class ExampleLayer : public VoxelEngine::Layer {
 public:
 	ExampleLayer()
 		:Layer("Example"),
-		m_Camera(90.0f, 0.1f, 1500.0f),
+		m_Camera(70.0f, 0.1f, 1500.0f),
 		m_SquarePosition(0.0f),
 		m_CameraPosition(0.0f)
 	{
@@ -44,7 +44,9 @@ public:
 
 	}
 	void OnAttach() override {
+		VE_PROFILE_FUNCTION;
 		VoxelEngine::Application::Get().GetWindow().SetMaximized(true);
+		VoxelEngine::Application::Get().GetWindow().SetCursorVisibility(false);
 	}
 	void OnUpdate(VoxelEngine::Timestep ts) override {
 		VE_PROFILE_FUNCTION;
@@ -101,7 +103,7 @@ public:
 			return false;
 			});
 		dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>([&](VoxelEngine::MouseMovedEvent& e) {
-			VE_INFO(e);
+			//VE_INFO(e);
 			m_Camera.AddToYawAndPitch(e.GetXOffset(), e.GetYOffset());
 			return true;
 			});

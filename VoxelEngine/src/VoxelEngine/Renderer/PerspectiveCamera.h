@@ -24,8 +24,8 @@ namespace VoxelEngine {
 		glm::mat4 m_ViewMatrix;
 		glm::mat4 m_ViewProjectionMatrix;
 
-		glm::vec3 m_Position = { 0.0f , 0.0f, 0.0f };
-		glm::vec3 m_Front = { 0.0f, 0.0f, -1.0f };
+		glm::vec3 m_Position = { 0.0f , 0.0f, -1.0f };
+		glm::vec3 m_Front = { 0.0f, 0.0f, 1.0f };
 		glm::vec3 m_WorldUp = { 0.0f, 1.0f, 0.0f };
 
 		float m_Yaw = -90.0f;
@@ -33,5 +33,7 @@ namespace VoxelEngine {
 		float m_Fov;
 		float m_ZNear;
 		float m_ZFar;
+
+		float yawAndPitchSensitivity = 0.1f;
 	};
 }

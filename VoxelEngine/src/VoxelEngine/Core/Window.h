@@ -28,6 +28,7 @@ namespace VoxelEngine {
 		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
 		virtual void SetVSync(bool enabled) = 0;
 		virtual void SetMaximized(bool enabled) = 0;
+		virtual void SetCursorVisibility(bool visible) = 0;
 		virtual bool IsVSync() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;

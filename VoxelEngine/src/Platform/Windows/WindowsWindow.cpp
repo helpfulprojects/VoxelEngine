@@ -45,6 +45,16 @@ namespace VoxelEngine {
 		m_Data.VSync = enabled;
 	}
 
+	void WindowsWindow::SetCursorVisibility(bool visible)
+	{
+		if (visible) {
+			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		else {
+			glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
+	}
+
 	bool WindowsWindow::IsVSync() const
 	{
 		return m_Data.VSync;
