@@ -5,10 +5,11 @@
 #include "VoxelEngine/Core/Application.h"
 namespace VoxelEngine {
 	PerspectiveCamera::PerspectiveCamera(float fov, float zNear, float zFar)
-		: m_Fov(fov), m_ZNear(zNear), m_ZFar(zFar), m_ViewMatrix(1)
+		: m_Fov(fov), m_ZNear(zNear), m_ZFar(zFar)
 	{
 		VE_PROFILE_FUNCTION;
 		RecalculateProjectionMatrix();
+		RecalculateViewMatrix();
 		m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 	}
 	void PerspectiveCamera::AddToYawAndPitch(float yawOffset, float pitchOffset)
@@ -26,12 +27,16 @@ namespace VoxelEngine {
 		m_Front.y = std::sin(glm::radians(m_Pitch));
 		m_Front.z = std::sin(glm::radians(m_Yaw)) * std::cos(glm::radians(m_Pitch));
 		m_Front = glm::normalize(m_Front);
+
+		m_WorldFront = m_Front;
+		m_WorldFront.y = 0;
+		m_WorldFront = glm::normalize(m_WorldFront);
+		m_WorldRight = glm::cross(m_WorldFront, m_WorldUp);
 		RecalculateViewMatrix();
 	}
 	void PerspectiveCamera::RecalculateProjectionMatrix()
 	{
 		VE_PROFILE_FUNCTION;
-		VE_CORE_INFO("Aspect ratio: {0}, Width: {1}, Height: {2},", Application::Get().GetWindow().GetAspectRatio(), Application::Get().GetWindow().GetWidth(), Application::Get().GetWindow().GetHeight());
 		m_ProjectionMatrix = glm::perspective(m_Fov, Application::Get().GetWindow().GetAspectRatio(), m_ZNear, m_ZFar);
 	}
 	void PerspectiveCamera::RecalculateViewMatrix() {
