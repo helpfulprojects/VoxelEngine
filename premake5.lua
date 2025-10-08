@@ -31,7 +31,7 @@ project "VoxelEngine"
 	location "VoxelEngine"
 	kind "StaticLib"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++23"
 	buildoptions{"/utf-8"}
 	staticruntime "on"
 
@@ -104,7 +104,7 @@ project "MinecraftClone"
 	location "MinecraftClone"
 	kind "ConsoleApp"
 	language "C++"
-	cppdialect "C++17"
+	cppdialect "C++23"
 	buildoptions{"/utf-8"}
 	staticruntime "on"
 

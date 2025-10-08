@@ -150,6 +150,9 @@
     <ClInclude Include="src\VoxelEngine\Renderer\OrthographicCamera.h">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Renderer\PerspectiveCamera.h">
+      <Filter>src\VoxelEngine\Renderer</Filter>
+    </ClInclude>
     <ClInclude Include="src\VoxelEngine\Renderer\RenderCommand.h">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClInclude>
@@ -1428,7 +1431,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Renderer\PerspectiveCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1479,6 +1481,9 @@
     <ClCompile Include="src\VoxelEngine\Renderer\OrthographicCamera.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Renderer\PerspectiveCamera.cpp">
+      <Filter>src\VoxelEngine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\VoxelEngine\Renderer\RenderCommand.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
@@ -1506,6 +1511,5 @@
     <ClCompile Include="vendor\tracy\public\TracyClient.cpp">
       <Filter>vendor\tracy\public</Filter>
     </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Renderer\PerspectiveCamera.cpp" />
   </ItemGroup>
 </Project>

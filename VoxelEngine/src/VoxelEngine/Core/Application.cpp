@@ -18,23 +18,13 @@ namespace VoxelEngine {
 
 		Renderer::Init();
 
-		m_ImGuiLayer = new ImGuiLayer;
-		PushOverlay(m_ImGuiLayer);
+		PushLayer<ImGuiLayer>();
+		m_ImGuiLayer = GetLayer<ImGuiLayer>();
 	}
 
 	Application::~Application()
 	{
 		VE_PROFILE_FUNCTION;
-	}
-	void Application::PushLayer(Layer* layer) {
-		VE_PROFILE_FUNCTION;
-		m_LayerStack.PushLayer(layer);
-		layer->OnAttach();
-	}
-	void Application::PushOverlay(Layer* overlay) {
-		VE_PROFILE_FUNCTION;
-		m_LayerStack.PushOverlay(overlay);
-		overlay->OnAttach();
 	}
 	void Application::Run()
 	{
@@ -46,18 +36,20 @@ namespace VoxelEngine {
 			m_LastFrameTime = time;
 			{
 				VE_PROFILE_SCOPE("LayerStack OnUpdate");
-				for (Layer* layer : m_LayerStack) {
+				for (const Scope<Layer>& layer : m_LayerStack) {
 					layer->OnUpdate(timestep);
 				}
 			}
-			m_ImGuiLayer->Begin();
-			{
-				VE_PROFILE_SCOPE("LayerStack OnImGuiRender");
-				for (Layer* layer : m_LayerStack) {
-					layer->OnImGuiRender();
+			if (m_ImGuiLayer) {
+				m_ImGuiLayer->Begin();
+				{
+					VE_PROFILE_SCOPE("LayerStack OnImGuiRender");
+					for (const Scope<Layer>& layer : m_LayerStack) {
+						layer->OnImGuiRender();
+					}
 				}
+				m_ImGuiLayer->End();
 			}
-			m_ImGuiLayer->End();
 			m_Window->OnUpdate();
 			FrameMark;
 		}

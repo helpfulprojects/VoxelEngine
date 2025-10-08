@@ -27,7 +27,3 @@
 #include "VoxelEngine/Renderer/OrthographicCamera.h"
 #include "VoxelEngine/Renderer/PerspectiveCamera.h"
 //-------------------------------------------------
-
-//----Entry Point----------------------------------
-#include "VoxelEngine/Core/EntryPoint.h"
-//-------------------------------------------------

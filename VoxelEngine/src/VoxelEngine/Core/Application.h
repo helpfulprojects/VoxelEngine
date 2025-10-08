@@ -18,8 +18,21 @@ namespace VoxelEngine {
 		void Run();
 		void Close();
 		void OnEvent(Event& e);
-		void PushLayer(Layer* layer);
-		void PushOverlay(Layer* overlay);
+		template<typename T>
+			requires(std::is_base_of_v<Layer, T>)
+		void PushLayer() {
+			m_LayerStack.PushLayer<T>();
+		}
+		template<typename T>
+			requires(std::is_base_of_v<Layer, T>)
+		void PushOverlay() {
+			m_LayerStack.PushOverlay<T>();
+		}
+		template<typename T>
+			requires(std::is_base_of_v<Layer, T>)
+		T* GetLayer() {
+			return m_LayerStack.GetLayer<T>();
+		}
 		inline Window& GetWindow() { return *m_Window; }
 		static inline Application& Get() { return *s_Instance; }
 	private:
