@@ -1463,9 +1463,6 @@
     <ClCompile Include="src\VoxelEngine\Core\Layer.cpp">
       <Filter>src\VoxelEngine\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Core\LayerStack.cpp">
-      <Filter>src\VoxelEngine\Core</Filter>
-    </ClCompile>
     <ClCompile Include="src\VoxelEngine\Core\Log.cpp">
       <Filter>src\VoxelEngine\Core</Filter>
     </ClCompile>

@@ -23,6 +23,11 @@ namespace VoxelEngine {
 		std::dynamic_pointer_cast<OpenGLShader>(shader)->UploadUniformMat4("u_Transform", transform);
 
 		vertexArray->Bind();
-		RenderCommand::DrawIndexed(vertexArray);
+		if (vertexArray->GetVertexBuffers().size() == 0) {
+
+		}
+		else {
+			RenderCommand::DrawIndexed(vertexArray);
+		}
 	}
 }

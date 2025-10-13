@@ -54,4 +54,18 @@ namespace VoxelEngine {
 		VE_PROFILE_FUNCTION;
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
+	/////////////////////////////////////////////////////////////////////////////////////////////	
+	//// Storage BUffer /////////////////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////	
+	//OpenGLStorageBuffer::OpenGLStorageBuffer(const void* data, uint32_t size)
+	//{
+	//	VE_PROFILE_FUNCTION;
+	//	glCreateBuffers(1, &m_RendererID);
+	//	//glNamedBufferStorage(m_RendererID, size, data, NULL);
+	//}
+	//OpenGLStorageBuffer::~OpenGLStorageBuffer()
+	//{
+	//	VE_PROFILE_FUNCTION;
+	//	glDeleteBuffers(1, &m_RendererID);
+	//}
 }

@@ -22,4 +22,13 @@ namespace VoxelEngine {
 		VE_CORE_ASSERT(false, "Unkown RendererAPI!");
 		return nullptr;
 	}
+	//StorageBuffer* StorageBuffer::Create()
+	//{
+	//	switch (Renderer::GetAPI()) {
+	//	case RendererAPI::API::None: VE_CORE_ASSERT(false, "RendererAPI::None is currently not supported!"); return nullptr;
+	//	case RendererAPI::API::OpenGL: return new OpenGLStorageBuffer();
+	//	}
+	//	VE_CORE_ASSERT(false, "Unkown RendererAPI!");
+	//	return nullptr;
+	//}
 }

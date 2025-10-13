@@ -1,0 +1,78 @@
+#type vertex
+#version 430 core
+
+layout(std430, binding = 0) readonly buffer vertexPullBuffer 
+{
+	uint packedMeshData[]; // Contains packed data for our vertices
+};
+
+const vec3 facePositions[4] = vec3[4]
+(
+	vec3(-0.5f, -0.5f, 0.0f),
+	vec3(0.5f, -0.5f, 0.0f),
+	vec3(0.5f, 0.5f, 0.0f),
+	vec3(-0.5f, 0.5f, 0.0f)
+);
+
+int indices[6] = {0, 1, 2, 2, 3, 0};
+
+uniform mat4 u_ViewProjection;
+uniform mat4 u_Transform;
+
+out vec2 v_TexCoord;
+
+void main()
+{
+	//v_TexCoord = a_TexCoord;
+	//gl_Position = u_ViewProjection*u_Transform*a_Position;
+
+	// Create a custom index to access the mesh data in the right order
+	const int index = gl_VertexID / 6;
+	const uint packedData = packedMeshData[index];
+	const int currVertexID = gl_VertexID % 6;
+
+	// Unpack the data we retrieved
+	const uint x = (packedData) & 1023;
+	const uint y = (packedData >> 10) & 1023;
+	const uint z = (packedData >> 20) & 1023;
+	vec3 position = vec3(x, y, z);
+
+	// Apply the offsets for our face so we can form the 2 triangles
+	position += facePositions[indices[currVertexID]];
+
+	// Output our position
+	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#type fragment
+#version 330 core
+
+out vec4 color;
+//in vec2 v_TexCoord;
+
+uniform sampler2D u_Texture;
+
+void main()
+{
+	//color = texture(u_Texture,v_TexCoord);
+	color = vec4(1.0f,0.0f,0.0f,1.0f);
+}

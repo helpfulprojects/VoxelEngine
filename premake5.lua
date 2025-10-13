@@ -123,6 +123,7 @@ project "MinecraftClone"
 		"%{IncludeDir.ImGui}",
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.tracy}",
+		"%{IncludeDir.GLAD}",
 	}
 
 	filter "system:windows"
