@@ -151,6 +151,7 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureAtlas.h" />
     <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
@@ -165,6 +166,7 @@
     <ClInclude Include="src\VoxelEngine\Core\Log.h" />
     <ClInclude Include="src\VoxelEngine\Core\MouseButtonCodes.h" />
     <ClInclude Include="src\VoxelEngine\Core\Timestep.h" />
+    <ClInclude Include="src\VoxelEngine\Core\Utils.h" />
     <ClInclude Include="src\VoxelEngine\Core\Window.h" />
     <ClInclude Include="src\VoxelEngine\Debug\Instrumentor.h" />
     <ClInclude Include="src\VoxelEngine\Events\ApplicationEvent.h" />
@@ -181,6 +183,7 @@
     <ClInclude Include="src\VoxelEngine\Renderer\RendererAPI.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Shader.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\Texture.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\TextureSubImage2D.h" />
     <ClInclude Include="src\VoxelEngine\Renderer\VertexArray.h" />
     <ClInclude Include="src\pch.h" />
     <ClInclude Include="vendor\glm\glm\common.hpp" />
@@ -609,6 +612,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTextureAtlas.cpp" />
     <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
@@ -625,6 +629,7 @@
     <ClCompile Include="src\VoxelEngine\Renderer\RendererAPI.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Shader.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Texture.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\TextureSubImage2D.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\VertexArray.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>

@@ -23,6 +23,7 @@
 #include "VoxelEngine/Renderer/Shader.h"
 #include "VoxelEngine/Renderer/Texture.h"
 #include "VoxelEngine/Renderer/VertexArray.h"
+#include "VoxelEngine/Renderer/TextureSubImage2D.h"
 
 #include "VoxelEngine/Renderer/OrthographicCamera.h"
 #include "VoxelEngine/Renderer/PerspectiveCamera.h"

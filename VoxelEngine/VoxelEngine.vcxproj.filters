@@ -1431,6 +1431,9 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureAtlas.h" />
+    <ClInclude Include="src\VoxelEngine\Core\Utils.h" />
+    <ClInclude Include="src\VoxelEngine\Renderer\TextureSubImage2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp">
@@ -1508,5 +1511,7 @@
     <ClCompile Include="vendor\tracy\public\TracyClient.cpp">
       <Filter>vendor\tracy\public</Filter>
     </ClCompile>
+    <ClCompile Include="src\Platform\OpenGL\OpenGLTextureAtlas.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\TextureSubImage2D.cpp" />
   </ItemGroup>
 </Project>

@@ -4,12 +4,25 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
 
+struct FaceData {
+	uint32_t packedPos;
+};
+
 GameLayer::GameLayer()
 	:Layer("Example"),
 	m_Camera(70.0f, 0.1f, 1500.0f),
 	m_SquarePosition(0, 0, -1),
 	m_CameraPosition(0, 0, 0)
 {
+	m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> cobblestone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/cobblestone.png");
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
+	m_TerrainAtlas->Add(dirt);
+	m_TerrainAtlas->Add(cobblestone);
+	m_TerrainAtlas->Add(tnt_side);
+	m_TerrainAtlas->Bake();
+
 	m_SquareVA.reset(VoxelEngine::VertexArray::Create());
 	float squareVertices[] = {
 		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
@@ -41,20 +54,18 @@ GameLayer::GameLayer()
 
 	//SSBO
 	auto ssboShader = m_ShaderLibrary.Load("assets/shaders/Ssbo.glsl");
-
 	uint32_t ssbo;
 	m_SsboVao.reset(VoxelEngine::VertexArray::Create());
 	m_SsboVao->Bind();
 	glCreateBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	std::vector<int> ssboVertices;
+	std::vector<FaceData> ssboVertices;
 
 	glm::ivec3 position = glm::ivec3(0);
-	int vertex = (position.x | position.y << 10 | position.z << 20);
-	ssboVertices.push_back(vertex);
-
-	//glNamedBufferStorage(ssbo, ssboVertices.size() * sizeof(int), ssboVertices.data(), NULL);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(int), ssboVertices.data(), NULL);
+	int normal = 0;
+	uint32_t vertex = (position.x | position.y << 10 | position.z << 20);
+	ssboVertices.push_back({ vertex });
+	glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(FaceData), ssboVertices.data(), NULL);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
 }
@@ -102,17 +113,21 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 		m_Camera.SetPosition(m_CameraPosition);
 
-		//auto textureShader = m_ShaderLibrary.Get("Texture");
-		//m_Texture->Bind();
-		auto ssboShader = m_ShaderLibrary.Get("Ssbo");
-		VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
-		);
-		glDrawArrays(GL_TRIANGLES, 0, 1 * 6);
-		//m_ChernoLogoTexture->Bind();
-		//VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
-		//	glm::translate(glm::mat4(1), m_SquarePosition)
+		auto textureShader = m_ShaderLibrary.Get("Texture");
+		m_Texture->Bind();
+
+		//auto ssboShader = m_ShaderLibrary.Get("Ssbo");
+		//m_TerrainAtlas->Bind();
+		//VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
+		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		//);
+		//glDrawArrays(GL_TRIANGLES, 0, 1 * 6);
+
+		//m_ChernoLogoTexture->Bind();
+		m_TerrainAtlas->Bind();
+		VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
+			glm::translate(glm::mat4(1), m_SquarePosition)
+		);
 
 
 		VoxelEngine::Renderer::EndScene();

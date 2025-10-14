@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
+#include "VoxelEngine/Core/Utils.h"
 namespace VoxelEngine {
 	static GLenum ShaderTypeFromString(const std::string& type) {
 		if (type == "vertex") return GL_VERTEX_SHADER;
@@ -28,13 +29,7 @@ namespace VoxelEngine {
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
 
-		// Extract name from filepath
-		auto lastSlash = filepath.find_last_of("/\\");
-		lastSlash = (lastSlash == std::string::npos ? 0 : lastSlash + 1);
-		auto lastDot = filepath.rfind('.');
-
-		auto count = lastDot == std::string::npos ? filepath.size() - lastSlash : lastDot - lastSlash;
-		m_Name = filepath.substr(lastSlash, count);
+		m_Name = Utils::ExtractNameFromFilePath(filepath);
 	}
 	OpenGLShader::~OpenGLShader()
 	{

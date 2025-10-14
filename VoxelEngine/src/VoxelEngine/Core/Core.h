@@ -37,5 +37,6 @@ namespace VoxelEngine {
 	using Scope = std::unique_ptr<T>;
 	template<typename T>
 	using Ref = std::shared_ptr<T>;
+	typedef unsigned char texture_data;
 }
 #define GLM_ENABLE_EXPERIMENTAL

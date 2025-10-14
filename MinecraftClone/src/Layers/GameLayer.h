@@ -15,6 +15,7 @@ private:
 	VoxelEngine::ShaderLibrary m_ShaderLibrary;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
 	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture, m_ChernoLogoTexture;
+	VoxelEngine::Ref<VoxelEngine::TextureAtlas> m_TerrainAtlas;
 	VoxelEngine::PerspectiveCamera m_Camera;
 	glm::vec3 m_SquarePosition;
 	glm::vec3 m_CameraPosition;
