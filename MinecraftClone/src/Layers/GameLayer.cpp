@@ -18,9 +18,13 @@ GameLayer::GameLayer()
 	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
 	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> cobblestone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/cobblestone.png");
 	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_top.png");
+	glm::vec3 grassColor = glm::vec3(112.0f, 160.0f, 70.0f);
+	grass_block_top->Colorize(grassColor);
 	m_TerrainAtlas->Add(dirt);
 	m_TerrainAtlas->Add(cobblestone);
 	m_TerrainAtlas->Add(tnt_side);
+	m_TerrainAtlas->Add(grass_block_top);
 	m_TerrainAtlas->Bake();
 
 	m_SquareVA.reset(VoxelEngine::VertexArray::Create());

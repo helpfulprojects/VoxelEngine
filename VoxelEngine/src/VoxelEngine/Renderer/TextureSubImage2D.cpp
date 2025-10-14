@@ -15,6 +15,7 @@ namespace VoxelEngine {
 			data = stbi_load(path.c_str(), &width, &height, &channels, 0);
 		}
 		VE_CORE_ASSERT(data, "Failed to load image!");
+		VE_CORE_ASSERT(channels == 4 || channels == 3, "Format not supported!");
 		m_Width = width;
 		m_Height = height;
 		m_Channels = channels;
@@ -25,6 +26,17 @@ namespace VoxelEngine {
 	{
 		if (m_Data) {
 			FreeData();
+		}
+	}
+	void TextureSubImage2D::Colorize(glm::vec3& color)
+	{
+		color = color / 256.0f;
+		int numPixels = m_Width * m_Height;
+		for (int i = 0; i < numPixels; i++) {
+			int idx = i * m_Channels;
+			m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * color.r);
+			m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * color.g);
+			m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * color.b);
 		}
 	}
 	void TextureSubImage2D::FreeData()

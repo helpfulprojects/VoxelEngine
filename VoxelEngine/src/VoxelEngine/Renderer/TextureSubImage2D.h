@@ -8,6 +8,7 @@ namespace VoxelEngine {
 		~TextureSubImage2D();
 		const std::string& GetName() const { return m_Name; };
 		const texture_data* GetData() const { return m_Data; };
+		void Colorize(glm::vec3& color);
 		void FreeData();
 	private:
 		uint32_t m_Id, m_Width, m_Height, m_Channels;
