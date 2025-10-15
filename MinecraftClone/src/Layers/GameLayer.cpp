@@ -8,23 +8,25 @@ struct FaceData {
 	uint32_t packedPos;
 };
 
+struct FaceModel {
+	glm::vec2 texCoordsOrigin[4];
+};
+
 GameLayer::GameLayer()
 	:Layer("Example"),
 	m_Camera(70.0f, 0.1f, 1500.0f),
-	m_SquarePosition(0, 0, -1),
+	m_SquarePosition(-1.1f, 0, -0.5f),
 	m_CameraPosition(0, 0, 0)
 {
 	m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
 	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> cobblestone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/cobblestone.png");
 	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_top.png");
-	glm::vec3 grassColor = glm::vec3(112.0f, 160.0f, 70.0f);
-	grass_block_top->Colorize(grassColor);
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
+	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
 	m_TerrainAtlas->Add(dirt);
-	m_TerrainAtlas->Add(cobblestone);
+	m_TerrainAtlas->Add(tnt_bottom);
 	m_TerrainAtlas->Add(tnt_side);
-	m_TerrainAtlas->Add(grass_block_top);
+	m_TerrainAtlas->Add(tnt_top);
 	m_TerrainAtlas->Bake();
 
 	m_SquareVA.reset(VoxelEngine::VertexArray::Create());
@@ -58,20 +60,35 @@ GameLayer::GameLayer()
 
 	//SSBO
 	auto ssboShader = m_ShaderLibrary.Load("assets/shaders/Ssbo.glsl");
-	uint32_t ssbo;
+	uint32_t ssbo, quadInfo;
 	m_SsboVao.reset(VoxelEngine::VertexArray::Create());
 	m_SsboVao->Bind();
 	glCreateBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 	std::vector<FaceData> ssboVertices;
 
-	glm::ivec3 position = glm::ivec3(0);
-	int normal = 0;
-	uint32_t vertex = (position.x | position.y << 10 | position.z << 20);
+	glm::ivec3 position = glm::ivec3(0, 0, 0);
+	uint32_t normalId = 4;
+	uint32_t texId = 3;
+	uint32_t vertex = (position.x | position.y << 4 | position.z << 8 | normalId << 16 | texId << 19);
+
 	ssboVertices.push_back({ vertex });
-	glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(FaceData), ssboVertices.data(), NULL);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(FaceData), ssboVertices.data(), GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
+	glCreateBuffers(1, &quadInfo);
+
+	FaceModel faceModel = {
+	{
+		{0.0f,0.0f},
+		{0.5f,0.0f},
+		{0.0f,0.5f},
+		{0.5f,0.5f},
+	}
+	};
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quadInfo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(FaceModel), &faceModel, GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, quadInfo);
 }
 GameLayer::~GameLayer()
 {
@@ -118,14 +135,15 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		m_Camera.SetPosition(m_CameraPosition);
 
 		auto textureShader = m_ShaderLibrary.Get("Texture");
-		m_Texture->Bind();
+		//m_Texture->Bind();
 
-		//auto ssboShader = m_ShaderLibrary.Get("Ssbo");
-		//m_TerrainAtlas->Bind();
-		//VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
-		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
-		//);
-		//glDrawArrays(GL_TRIANGLES, 0, 1 * 6);
+		auto ssboShader = m_ShaderLibrary.Get("Ssbo");
+		m_TerrainAtlas->Bind();
+		VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
+		);
+		//glDrawArrays(GL_TRIANGLES, 0, 6);
+		glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6, 1, 22);
 
 		//m_ChernoLogoTexture->Bind();
 		m_TerrainAtlas->Bind();

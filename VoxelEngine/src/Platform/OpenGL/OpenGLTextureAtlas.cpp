@@ -52,7 +52,7 @@ namespace VoxelEngine {
 				Ref<TextureSubImage2D>& subTexture = m_SubTextures[subTextureKey];
 				m_SubTexturesBakeQueue.pop();
 				uint32_t xoffset = subTextureSize * x;
-				uint32_t yoffset = m_Height - subTextureSize * (y + 1);
+				uint32_t yoffset = subTextureSize * y;
 				glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset, subTextureSize, subTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
 				subTexture->FreeData();
 			}
