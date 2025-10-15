@@ -5,53 +5,46 @@ struct FaceData{
 	uint packedPos;
 };
 
-struct FaceModel {
-    vec2 texCoordsOrigin[4];
-};
-
 layout(std430, binding = 0) readonly buffer vertexPullBuffer 
 {
 	FaceData packedMeshData[]; 
 };
-layout(std430, binding = 1) readonly buffer faceModelBuffer
+layout(std430, binding = 1) readonly buffer terrainAtlasCoordsBuffer
 {
-	FaceModel faceModel; 
+	vec2 terrainAtlasCoords[]; 
 };
-const float texOffset = 0.5;
-const vec2 texturePositions[4] = vec2[4](
-        vec2(0.0,  0.0),
-        vec2(texOffset,  0.0),
-        vec2(texOffset,  texOffset),
-        vec2(0.0,  texOffset)
-);
+layout(std430, binding = 2) readonly buffer texturePositionOffsetsBuffer
+{
+	vec2 texturePositionOffsets[]; 
+};
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
     vec3[4](
-        vec3(-0.5,  0.5, -0.5),
         vec3( 0.5,  0.5, -0.5),
-        vec3( 0.5,  0.5,  0.5),
-        vec3(-0.5,  0.5,  0.5)
+        vec3(-0.5,  0.5, -0.5),
+        vec3(-0.5,  0.5,  0.5),
+        vec3( 0.5,  0.5,  0.5)
     ),
     // -Y (bottom)
     vec3[4](
-        vec3(-0.5, -0.5,  0.5),
         vec3( 0.5, -0.5,  0.5),
-        vec3( 0.5, -0.5, -0.5),
-        vec3(-0.5, -0.5, -0.5)
+        vec3(-0.5, -0.5,  0.5),
+        vec3(-0.5, -0.5, -0.5),
+        vec3( 0.5, -0.5, -0.5)
     ),
     // +X (east)
     vec3[4](
-        vec3( 0.5, -0.5, -0.5),
         vec3( 0.5, -0.5,  0.5),
-        vec3( 0.5,  0.5,  0.5),
-        vec3( 0.5,  0.5, -0.5)
+        vec3( 0.5, -0.5, -0.5),
+        vec3( 0.5,  0.5, -0.5),
+        vec3( 0.5,  0.5,  0.5)
     ),
     // -X (west)
     vec3[4](
-        vec3(-0.5, -0.5,  0.5),
         vec3(-0.5, -0.5, -0.5),
-        vec3(-0.5,  0.5, -0.5),
-        vec3(-0.5,  0.5,  0.5)
+        vec3(-0.5, -0.5,  0.5),
+        vec3(-0.5,  0.5,  0.5),
+        vec3(-0.5,  0.5, -0.5)
     ),
     // +Z (south)
     vec3[4](
@@ -81,7 +74,7 @@ void main()
 	const uint MASK_3_BITS = (1u << 3) - 1u;
 	const uint MASK_4_BITS = (1u << 4) - 1u;
 	const uint MASK_8_BITS = (1u << 8) - 1u;
-	const int index = 0;
+	const int index = gl_VertexID/6;
 	const FaceData packedData = packedMeshData[index];
 	const int currVertexID = gl_VertexID % 6;
 
@@ -95,7 +88,7 @@ void main()
 
 	position += facePositions[normalId][indices[currVertexID]];
 
-    v_TexCoord = faceModel.texCoordsOrigin[texId]+texturePositions[indices[currVertexID]];
+    v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
     
 	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
 }

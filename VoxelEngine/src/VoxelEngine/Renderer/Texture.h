@@ -21,6 +21,8 @@ namespace VoxelEngine {
 		virtual void Add(const Ref<TextureSubImage2D>& textureSubImage) = 0;
 		virtual bool Exists(const std::string& name) const = 0;
 		static Ref<TextureSubImage2D> CreateTextureSubImage(const std::string& path);
+		virtual uint32_t GetSubImageId(const std::string& name)const = 0;
+		virtual const std::vector<glm::vec2>& GetSubImagesCoordsList()const = 0;
 		virtual void Bake() = 0;
 		static Ref<TextureAtlas> Create();
 	};

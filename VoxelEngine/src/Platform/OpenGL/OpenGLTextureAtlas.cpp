@@ -19,6 +19,16 @@ namespace VoxelEngine {
 		VE_PROFILE_FUNCTION;
 		glBindTextureUnit(slot, m_RendererID);
 	}
+	uint32_t OpenGLTextureAtlas::GetSubImageId(const std::string& name) const
+	{
+		auto subTexture = m_SubTextures.find(name);
+		if (subTexture == m_SubTextures.end()) {
+			return 0;
+		}
+		else {
+			return subTexture->second->GetId();
+		}
+	}
 	void OpenGLTextureAtlas::Add(const Ref<TextureSubImage2D>& textureSubImage)
 	{
 		auto& name = textureSubImage->GetName();
@@ -42,7 +52,7 @@ namespace VoxelEngine {
 
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
+		uint32_t id = 0;
 		for (int y = 0; y < width; y++) {
 			for (int x = 0; x < width; x++) {
 				if (m_SubTexturesBakeQueue.empty()) {
@@ -53,7 +63,10 @@ namespace VoxelEngine {
 				m_SubTexturesBakeQueue.pop();
 				uint32_t xoffset = subTextureSize * x;
 				uint32_t yoffset = subTextureSize * y;
-				glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset, subTextureSize, subTextureSize, GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
+				subTexture->SetId(id++);
+				//subTexture->SetTexCoords({ xoffset / m_Width,yoffset / m_Height });
+				m_SubImagesCoordsList.push_back({ (float)xoffset / m_Width,(float)yoffset / m_Height });
+				glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset, subTexture->GetWidth(), subTexture->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
 				subTexture->FreeData();
 			}
 		}
