@@ -62,17 +62,37 @@ GameLayer::GameLayer()
 
 	//SSBO
 	auto ssboShader = m_ShaderLibrary.Load("assets/shaders/Ssbo.glsl");
-	uint32_t ssbo, quadInfo, textureOffsets;
-	m_SsboVao.reset(VoxelEngine::VertexArray::Create());
-	m_SsboVao->Bind();
+	uint32_t dirtBlockSsbo, ssbo, quadInfo, textureOffsets;
 	glCreateBuffers(1, &ssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 	std::vector<FaceData> ssboVertices;
 
+	m_SsboVao.reset(VoxelEngine::VertexArray::Create());
+	m_SsboVao->Bind();
 	for (int i = 0; i < 6; i++) {
 		uint32_t normalId = i;
 		glm::ivec3 position = glm::ivec3(0, 0, 0);
-		uint32_t texId = m_TerrainAtlas->GetSubImageId("dirt");
+		uint32_t texId = 0;
+		switch (i) {
+		case 0:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_top");
+			break;
+		case 1:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_bottom");
+			break;
+		case 2:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
+			break;
+		case 3:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
+			break;
+		case 4:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
+			break;
+		case 5:
+			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
+			break;
+		}
 		uint32_t vertex = (position.x | position.y << 4 | position.z << 8 | normalId << 16 | texId << 19);
 		ssboVertices.push_back({ vertex });
 	}
@@ -96,6 +116,23 @@ GameLayer::GameLayer()
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureOffsets);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(textureOffsetsData), textureOffsetsData, GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, textureOffsets);
+
+
+	glCreateBuffers(1, &dirtBlockSsbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, dirtBlockSsbo);
+	std::vector<FaceData> dirtBlockVerts;
+
+	m_DirtBlock.reset(VoxelEngine::VertexArray::Create());
+	m_DirtBlock->Bind();
+	for (int i = 0; i < 6; i++) {
+		uint32_t normalId = i;
+		glm::ivec3 position = glm::ivec3(2, 0, 0);
+		uint32_t texId = m_TerrainAtlas->GetSubImageId("dirt");
+		uint32_t vertex = (position.x | position.y << 4 | position.z << 8 | normalId << 16 | texId << 19);
+		dirtBlockVerts.push_back({ vertex });
+	}
+	glBufferData(GL_SHADER_STORAGE_BUFFER, dirtBlockVerts.size() * sizeof(FaceData), dirtBlockVerts.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, dirtBlockSsbo);
 }
 GameLayer::~GameLayer()
 {
@@ -147,6 +184,11 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto ssboShader = m_ShaderLibrary.Get("Ssbo");
 		m_TerrainAtlas->Bind();
 		VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
+		);
+		glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
+
+		VoxelEngine::Renderer::Submit(ssboShader, m_DirtBlock,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
 		glDrawArrays(GL_TRIANGLES, 0, 6 * 6);

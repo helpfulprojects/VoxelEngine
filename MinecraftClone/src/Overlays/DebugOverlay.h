@@ -12,6 +12,6 @@ public:
 	virtual void OnImGuiRender() override;
 	virtual void OnEvent(VoxelEngine::Event& event) override;
 private:
-	bool m_Visible = true;
+	bool m_Visible = false;
 	//VoxelEngine::OrthographicCamera m_Camera;
 };

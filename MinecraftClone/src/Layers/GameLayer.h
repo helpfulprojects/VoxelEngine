@@ -21,4 +21,5 @@ private:
 	glm::vec3 m_CameraPosition;
 	float m_CameraMoveSpeed = 5.0f;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
+	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
 };

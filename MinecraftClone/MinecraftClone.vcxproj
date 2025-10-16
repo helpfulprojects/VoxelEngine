@@ -137,8 +137,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\SimpleExamples\SimpleExample2.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />
     <ClInclude Include="src\Layers\GameLayer.h" />
     <ClInclude Include="src\Overlays\DebugOverlay.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample3.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp" />
@@ -149,6 +152,11 @@
     <ProjectReference Include="..\VoxelEngine\VoxelEngine.vcxproj">
       <Project>{C9F2F76B-35A8-7061-BE9C-6A382A516765}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
+    <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />
+    <None Include="assets\shaders\SimpleExamples\SimpleExample3.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
