@@ -1,40 +1,25 @@
 #pragma once
 #include <VoxelEngine.h>
 #include <glad/glad.h>
-class SimpleExample2 : public VoxelEngine::Layer {
+class SimpleExample4 : public VoxelEngine::Layer {
 public:
-	SimpleExample2()
+	SimpleExample4()
 		: m_Camera(70.0f, 0.1f, 1500.0f),
 		m_CameraPosition(0, 0, 0)
 	{
 		VE_PROFILE_FUNCTION;
-		float vertices[] = {
-			 0.5f,  0.5f, 0.0f,  // top right
-			 0.5f, -0.5f, 0.0f,  // bottom right
-			-0.5f, -0.5f, 0.0f,  // bottom left
-			-0.5f,  0.5f, 0.0f   // top left
-		};
-		glGenVertexArrays(1, &m_VAO);
-		glBindVertexArray(m_VAO);
-		unsigned int indices[] = {
-			0, 1, 3,
-			1, 2, 3
-		};
-		unsigned int EBO;
-		glGenBuffers(1, &EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-		unsigned int VBO;
-		glGenBuffers(1, &VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
+		uint32_t ssbo;
+		glCreateBuffers(1, &ssbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+		std::vector<glm::vec2> ssboVertices;
+		ssboVertices.push_back({ 0.0f,0.0f });
+		glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(glm::vec2), ssboVertices.data(), GL_STATIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
-		auto shader = m_ShaderLibrary.Load("assets/shaders/SimpleExamples/SimpleExample2.glsl");
+		auto shader = m_ShaderLibrary.Load("assets/shaders/SimpleExamples/SimpleExample4.glsl");
 	};
-	~SimpleExample2() {
+	~SimpleExample4() {
 		VE_PROFILE_FUNCTION;
 	};
 	void OnAttach() override {
@@ -74,10 +59,9 @@ public:
 		VoxelEngine::Renderer::BeginScene(m_Camera);
 		m_Camera.SetPosition(m_CameraPosition);
 
-		auto shader = m_ShaderLibrary.Get("SimpleExample2");
+		auto shader = m_ShaderLibrary.Get("SimpleExample4");
 		VoxelEngine::Renderer::Submit(shader, glm::translate(glm::mat4(1), glm::vec3(0, 0, -1)));
-		glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 		VoxelEngine::Renderer::EndScene();
 	};

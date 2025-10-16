@@ -142,6 +142,7 @@
     <ClInclude Include="src\Layers\GameLayer.h" />
     <ClInclude Include="src\Overlays\DebugOverlay.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample3.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample4.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp" />
@@ -157,6 +158,7 @@
     <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample3.glsl" />
+    <None Include="assets\shaders\SimpleExamples\SimpleExample4.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

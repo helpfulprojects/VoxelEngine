@@ -18,6 +18,7 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample2.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample3.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample4.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">
@@ -32,5 +33,6 @@
     <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample3.glsl" />
+    <None Include="assets\shaders\SimpleExamples\SimpleExample4.glsl" />
   </ItemGroup>
 </Project>

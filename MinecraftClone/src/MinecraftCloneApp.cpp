@@ -1,10 +1,10 @@
 #include <VoxelEngine.h>
 #include <VoxelEngine/Core/EntryPoint.h>
-#include "SimpleExamples/SimpleExample3.h"
+#include "SimpleExamples/SimpleExample4.h"
 class MinecraftClone : public VoxelEngine::Application {
 public:
 	MinecraftClone() {
-		PushLayer<SimpleExample3>();
+		PushLayer<SimpleExample4>();
 	}
 	~MinecraftClone() {
 
