@@ -1,14 +1,14 @@
 #include "pch.h"
-#include "OpenGLContext.h"
+#include "GraphicsContext.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <tracy/TracyOpenGL.hpp>
 namespace VoxelEngine {
-	OpenGLContext::OpenGLContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
+	GraphicsContext::GraphicsContext(GLFWwindow* windowHandle) : m_WindowHandle(windowHandle)
 	{
 		VE_CORE_ASSERT(windowHandle, "Window handle is null!");
 	}
-	void OpenGLContext::Init()
+	void GraphicsContext::Init()
 	{
 		VE_PROFILE_FUNCTION;
 		glfwMakeContextCurrent(m_WindowHandle);
@@ -20,7 +20,7 @@ namespace VoxelEngine {
 		VE_CORE_INFO("  Renderer: {0}", (const char*)glGetString(GL_RENDERER));
 		VE_CORE_INFO("  Version: {0}", (const char*)glGetString(GL_VERSION));
 	}
-	void OpenGLContext::SwapBuffers()
+	void GraphicsContext::SwapBuffers()
 	{
 		VE_PROFILE_FUNCTION;
 		glfwSwapBuffers(m_WindowHandle);

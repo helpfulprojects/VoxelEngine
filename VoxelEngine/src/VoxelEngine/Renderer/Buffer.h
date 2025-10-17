@@ -77,28 +77,29 @@ namespace VoxelEngine {
 	};
 	class VertexBuffer {
 	public:
-		virtual ~VertexBuffer() {}
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-		virtual void SetLayout(const BufferLayout& layout) = 0;
-		virtual const BufferLayout GetLayout() const = 0;
+		VertexBuffer(float* vertices, uint32_t size);
+		~VertexBuffer();
+		void Bind() const;
+		void Unbind() const;
+		inline void SetLayout(const BufferLayout& layout) {
+			m_Layout = layout;
+		};
+		inline const BufferLayout GetLayout() const { return m_Layout; };
 		static VertexBuffer* Create(float* vertices, uint32_t size);
+	private:
+		uint32_t m_RendererID;
+		BufferLayout m_Layout;
 	};
 	class IndexBuffer {
 	public:
-		virtual ~IndexBuffer() {}
-		virtual void Bind() const = 0;
-		virtual void Unbind() const = 0;
-		virtual uint32_t GetCount() const = 0;
+		IndexBuffer(uint32_t* indices, uint32_t count);
+		~IndexBuffer();
+		void Bind() const;
+		void Unbind() const;
+		uint32_t GetCount() const { return m_Count; };
 		static IndexBuffer* Create(uint32_t* indices, uint32_t size);
+	private:
+		uint32_t m_RendererID;
+		uint32_t m_Count;
 	};
-	//class StorageBuffer {
-	//public:
-	//	virtual ~StorageBuffer() {}
-	//	virtual void Bind() const = 0;
-	//	virtual void Unbind() const = 0;
-	//	virtual void SetLayout(const BufferLayout& layout) = 0;
-	//	virtual const BufferLayout GetLayout() const = 0;
-	//	static StorageBuffer* Create(float* vertices, uint32_t size);
-	//};
 }

@@ -1,6 +1,5 @@
 #include "GameLayer.h"
 #include "../Overlays/DebugOverlay.h"
-#include <Platform/OpenGL/OpenGLShader.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glad/glad.h>
 
@@ -58,7 +57,7 @@ GameLayer::GameLayer()
 	m_ChernoLogoTexture = VoxelEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
 
 	textureShader->Bind();
-	std::dynamic_pointer_cast<VoxelEngine::OpenGLShader>(textureShader)->UploadUniformInt("u_Texture", 0);
+	textureShader->UploadUniformInt("u_Texture", 0);
 
 	//SSBO
 	auto ssboShader = m_ShaderLibrary.Load("assets/shaders/Ssbo.glsl");

@@ -146,13 +146,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="src\Platform\OpenGL\OpenGLBuffer.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLContext.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLRendererAPI.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLShader.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLTexture.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLTextureAtlas.h" />
-    <ClInclude Include="src\Platform\OpenGL\OpenGLVertexArray.h" />
     <ClInclude Include="src\Platform\Windows\WindowsInput.h" />
     <ClInclude Include="src\Platform\Windows\WindowsWindow.h" />
     <ClInclude Include="src\VoxelEngine.h" />
@@ -607,13 +600,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Platform\OpenGL\OpenGLBuffer.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLContext.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLRendererAPI.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLShader.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLTexture.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLTextureAtlas.cpp" />
-    <ClCompile Include="src\Platform\OpenGL\OpenGLVertexArray.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp" />
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp" />
     <ClCompile Include="src\VoxelEngine\Core\Application.cpp" />
@@ -622,6 +608,7 @@
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\VoxelEngine\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\VoxelEngine\Renderer\GraphicsContext.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\OrthographicCamera.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\PerspectiveCamera.cpp" />
     <ClCompile Include="src\VoxelEngine\Renderer\RenderCommand.cpp" />
