@@ -10,6 +10,7 @@ namespace VoxelEngine {
 	static GLenum ShaderTypeFromString(const std::string& type) {
 		if (type == "vertex") return GL_VERTEX_SHADER;
 		if (type == "fragment") return GL_FRAGMENT_SHADER;
+		if (type == "compute") return GL_COMPUTE_SHADER;
 
 		VE_CORE_ASSERT(false, "Unknown shader type!");
 		return 0;
@@ -97,7 +98,7 @@ namespace VoxelEngine {
 			pos = source.find(typeToken, nextLinePos);
 			shaderSources[ShaderTypeFromString(type)] =
 				source.substr(nextLinePos,
-					(pos == std::string::npos ? source.size() - 1 : pos) - nextLinePos);
+					(pos == std::string::npos ? source.size() : pos) - nextLinePos);
 		}
 
 		return shaderSources;
@@ -185,7 +186,9 @@ namespace VoxelEngine {
 	{
 		return std::make_shared<Shader>(name, vertexSrc, fragmentSrc);
 	}
+
 	// ------------------------------------------------------------
+
 	void ShaderLibrary::Add(const Ref<Shader>& shader)
 	{
 		auto& name = shader->GetName();

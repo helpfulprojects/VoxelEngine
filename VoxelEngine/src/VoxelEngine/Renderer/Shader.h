@@ -27,10 +27,10 @@ namespace VoxelEngine {
 
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		static Ref<Shader> Create(const std::string& filePath);
-	private:
+	protected:
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
-	private:
+	protected:
 		uint32_t m_RendererID;
 		std::string m_Name;
 	};
