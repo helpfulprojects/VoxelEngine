@@ -8,6 +8,7 @@
 #include "VoxelEngine/Core/Timestep.h"
 
 #include "VoxelEngine/Core/Input.h"
+#include "VoxelEngine/Core/Utils.h"
 #include "VoxelEngine/Core/KeyCodes.h"
 #include "VoxelEngine/Core/MouseButtonCodes.h"
 

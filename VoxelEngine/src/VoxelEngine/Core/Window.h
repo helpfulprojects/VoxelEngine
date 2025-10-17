@@ -31,6 +31,7 @@ namespace VoxelEngine {
 		virtual void SetCursorVisibility(bool visible) = 0;
 		virtual void ToggleCursorVisibility() = 0;
 		virtual bool IsVSync() const = 0;
+		virtual double GetTime() const = 0;
 
 		virtual void* GetNativeWindow() const = 0;
 

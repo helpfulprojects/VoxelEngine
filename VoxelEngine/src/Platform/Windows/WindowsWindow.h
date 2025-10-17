@@ -20,6 +20,7 @@ namespace VoxelEngine {
 		bool IsVSync() const override;
 		virtual void SetMaximized(bool enabled) override;
 		inline virtual void* GetNativeWindow() const override { return m_Window; };
+		virtual double GetTime() const override { return glfwGetTime(); };
 	private:
 		virtual void Init(const WindowProps& props);
 		virtual void Shutdown();

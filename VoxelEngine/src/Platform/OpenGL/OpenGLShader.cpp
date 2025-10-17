@@ -4,6 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <fstream>
 #include "VoxelEngine/Core/Utils.h"
+#include "VoxelEngine/Core/Utils.h"
 namespace VoxelEngine {
 	static GLenum ShaderTypeFromString(const std::string& type) {
 		if (type == "vertex") return GL_VERTEX_SHADER;
@@ -24,7 +25,7 @@ namespace VoxelEngine {
 	OpenGLShader::OpenGLShader(const std::string& filepath)
 	{
 		VE_PROFILE_FUNCTION;
-		std::string source = ReadFile(filepath);
+		std::string source = Utils::ReadFile(filepath);
 		VE_CORE_ASSERT(!source.empty(), "Empty shader source read");
 		auto shaderSources = PreProcess(source);
 		Compile(shaderSources);
@@ -75,23 +76,6 @@ namespace VoxelEngine {
 	{
 		GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(matrix));
-	}
-	std::string OpenGLShader::ReadFile(const std::string& filepath)
-	{
-		VE_PROFILE_FUNCTION;
-		std::string result;
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
-		if (in) {
-			in.seekg(0, std::ios::end);
-			result.resize(in.tellg());
-			in.seekg(0, std::ios::beg);
-			in.read(&result[0], result.size());
-			in.close();
-		}
-		else {
-			VE_CORE_ERROR("Could not open file {0}", filepath);
-		}
-		return result;
 	}
 	std::unordered_map<GLenum, std::string> OpenGLShader::PreProcess(const std::string& source)
 	{
