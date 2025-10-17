@@ -136,7 +136,7 @@ public:
 		GLint location = glGetUniformLocation(m_CompileShaderProgram, "t");
 		VoxelEngine::Window& window = VoxelEngine::Application::Get().GetWindow();
 		glUniform1f(location, window.GetTime());
-		glDispatchCompute((unsigned int)m_TEXTURE_WIDTH, (unsigned int)m_TEXTURE_HEIGHT, 1);
+		glDispatchCompute((unsigned int)m_TEXTURE_WIDTH / 10, (unsigned int)m_TEXTURE_HEIGHT / 10, 1);
 
 		// make sure writing to image has finished before read
 		glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
@@ -183,5 +183,5 @@ private:
 	glm::vec3 m_CameraPosition;
 	float m_CameraMoveSpeed = 5.0f;
 	unsigned int m_VAO;
-	const unsigned int m_TEXTURE_WIDTH = 512, m_TEXTURE_HEIGHT = 512;
+	const unsigned int m_TEXTURE_WIDTH = 1000, m_TEXTURE_HEIGHT = 1000;
 };

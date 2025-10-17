@@ -1,6 +1,6 @@
 #version 430 core
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
 layout(rgba32f, binding = 0) uniform image2D imgOutput;
 layout (location = 0) uniform float t;
 void main() {
@@ -9,9 +9,9 @@ void main() {
     float speed = 100;
     float width = 1000;
 	
-    //value.x = float(texelCoord.x)/(gl_NumWorkGroups.x);
-    value.x = mod(float(texelCoord.x)+t*speed,width)/(gl_NumWorkGroups.x);
-    value.y = float(texelCoord.y)/(gl_NumWorkGroups.y);
+    //value.x = float(texelCoord.x)/(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
+    value.x = mod(float(texelCoord.x)+t*speed,width)/(gl_NumWorkGroups.x*gl_WorkGroupSize.x);
+    value.y = float(texelCoord.y)/(gl_NumWorkGroups.y*gl_WorkGroupSize.y);
 	
     imageStore(imgOutput, texelCoord, value);
 }
