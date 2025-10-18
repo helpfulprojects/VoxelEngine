@@ -10,6 +10,16 @@ struct FaceData {
 struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
+const int CHUNK_WIDTH = 4;
+const int WORLD_WIDTH = 1;
+
+struct Chunk {
+	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+};
+
+struct ChunkQuads {
+	uint32_t blockQuads[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * 6];
+};
 
 GameLayer::GameLayer()
 	:Layer("Example"),
@@ -59,79 +69,50 @@ GameLayer::GameLayer()
 	textureShader->Bind();
 	textureShader->UploadUniformInt("u_Texture", 0);
 
-	//SSBO
-	auto ssboShader = m_ShaderLibrary.Load("assets/shaders/Ssbo.glsl");
-	uint32_t dirtBlockSsbo, ssbo, quadInfo, textureOffsets;
-	glCreateBuffers(1, &ssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-	std::vector<FaceData> ssboVertices;
-
-	m_SsboVao.reset(VoxelEngine::VertexArray::Create());
-	m_SsboVao->Bind();
-	for (int i = 0; i < 6; i++) {
-		uint32_t normalId = i;
-		glm::ivec3 position = glm::ivec3(0, 0, 0);
-		uint32_t texId = 0;
-		switch (i) {
-		case 0:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_top");
-			break;
-		case 1:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_bottom");
-			break;
-		case 2:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
-			break;
-		case 3:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
-			break;
-		case 4:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
-			break;
-		case 5:
-			texId = m_TerrainAtlas->GetSubImageId("tnt_side");
-			break;
+	//TERRAIN
+	//0 air 1 dirt
+	//std::vector<uint32_t> terrainData;
+	Chunk terrainData[WORLD_WIDTH][WORLD_WIDTH][WORLD_WIDTH];
+	for (int x = 0; x < WORLD_WIDTH; x++) {
+		for (int y = 0; y < WORLD_WIDTH; y++) {
+			for (int z = 0; z < WORLD_WIDTH; z++) {
+				// Fill each block in the chunk with 1
+				for (int bx = 0; bx < CHUNK_WIDTH; bx++) {
+					for (int by = 0; by < CHUNK_WIDTH; by++) {
+						for (int bz = 0; bz < CHUNK_WIDTH; bz++) {
+							terrainData[x][y][z].blockTypes[bx][by][bz] = 1;
+						}
+					}
+				}
+			}
 		}
-		uint32_t vertex = (position.x | position.y << 4 | position.z << 8 | normalId << 16 | texId << 19);
-		ssboVertices.push_back({ vertex });
 	}
-	glBufferData(GL_SHADER_STORAGE_BUFFER, ssboVertices.size() * sizeof(FaceData), ssboVertices.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
-	glCreateBuffers(1, &quadInfo);
-	const std::vector<glm::vec2>& subImagesCoordsList = m_TerrainAtlas->GetSubImagesCoordsList();
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quadInfo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, subImagesCoordsList.size() * sizeof(glm::vec2), subImagesCoordsList.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, quadInfo);
+	uint32_t chunksSsbo;
+	glCreateBuffers(1, &chunksSsbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(Chunk), terrainData, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
 
-	float textureOffset = 16.0f / m_TerrainAtlas->GetWidth();
-	glCreateBuffers(1, &textureOffsets);
-	glm::vec2 textureOffsetsData[] = {
-		{0.0,  0.0},
-		{textureOffset,  0.0},
-		{textureOffset,  textureOffset},
-		{0.0, textureOffset},
-	};
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureOffsets);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(textureOffsetsData), textureOffsetsData, GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, textureOffsets);
+	//NEIGHBOURS
+	auto computeShader = m_ShaderLibrary.Load("assets/shaders/compute/getNeighbours.glsl");
+	computeShader->Bind();
+	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+	//GEN QUADS
+	uint32_t genQuadsSsbo;
+	glCreateBuffers(1, &genQuadsSsbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, genQuadsSsbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(ChunkQuads), nullptr, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
 
-	glCreateBuffers(1, &dirtBlockSsbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, dirtBlockSsbo);
-	std::vector<FaceData> dirtBlockVerts;
+	auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
+	generateQuadsCompute->Bind();
+	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
 
-	m_DirtBlock.reset(VoxelEngine::VertexArray::Create());
-	m_DirtBlock->Bind();
-	for (int i = 0; i < 6; i++) {
-		uint32_t normalId = i;
-		glm::ivec3 position = glm::ivec3(2, 0, 0);
-		uint32_t texId = m_TerrainAtlas->GetSubImageId("dirt");
-		uint32_t vertex = (position.x | position.y << 4 | position.z << 8 | normalId << 16 | texId << 19);
-		dirtBlockVerts.push_back({ vertex });
-	}
-	glBufferData(GL_SHADER_STORAGE_BUFFER, dirtBlockVerts.size() * sizeof(FaceData), dirtBlockVerts.data(), GL_STATIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, dirtBlockSsbo);
 }
 GameLayer::~GameLayer()
 {
@@ -180,17 +161,20 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto textureShader = m_ShaderLibrary.Get("Texture");
 		//m_Texture->Bind();
 
-		auto ssboShader = m_ShaderLibrary.Get("Ssbo");
-		m_TerrainAtlas->Bind();
-		VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
-		);
-		glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
+		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
+		//m_TerrainAtlas->Bind();
+		//VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
+		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
+		//);
+		//glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
 
-		VoxelEngine::Renderer::Submit(ssboShader, m_DirtBlock,
+		VoxelEngine::Renderer::Submit(drawTerrainShader,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
-		glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
+		int vertsPerQuad = 6;
+		int quadsPerBlock = 6;
+		int blocks = 4 * 4 * 4;
+		glDrawArrays(GL_TRIANGLES, 0, blocks * quadsPerBlock * vertsPerQuad);
 		//glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6 * 6, 1, 22);
 
 		//m_ChernoLogoTexture->Bind();

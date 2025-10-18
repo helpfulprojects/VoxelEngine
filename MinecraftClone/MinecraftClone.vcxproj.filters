@@ -40,5 +40,6 @@
     <None Include="assets\shaders\SimpleExamples\SimpleExample5.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample6Compute.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample6.glsl" />
+    <None Include="assets\shaders\DrawTerrain.glsl" />
   </ItemGroup>
 </Project>

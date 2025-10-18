@@ -157,6 +157,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\DrawTerrain.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample3.glsl" />

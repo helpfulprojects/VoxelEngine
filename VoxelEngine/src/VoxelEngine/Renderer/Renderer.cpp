@@ -22,7 +22,9 @@ namespace VoxelEngine {
 		shader->UploadUniformMat4("u_Transform", transform);
 
 		vertexArray->Bind();
-		RenderCommand::DrawIndexed(vertexArray);
+		if (!vertexArray->GetVertexBuffers().empty()) {
+			RenderCommand::DrawIndexed(vertexArray);
+		}
 	}
 	void Renderer::Submit(const Ref<Shader>& shader, const glm::mat4& transform)
 	{
