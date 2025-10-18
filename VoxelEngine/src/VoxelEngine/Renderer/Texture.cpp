@@ -4,6 +4,21 @@
 #include <stb_image.h>
 #include <glad/glad.h>
 namespace VoxelEngine {
+	Texture2D::Texture2D(uint32_t width, uint32_t height)
+	{
+		VE_PROFILE_FUNCTION;
+		m_Width = width;
+		m_Height = height;
+		glGenTextures(1, &m_RendererID);
+		//glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_RendererID);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_Width, m_Height, 0, GL_RGBA,
+			GL_FLOAT, NULL);
+	}
 	Texture2D::Texture2D(const std::string& path)
 		:m_Path(path)
 	{
@@ -53,9 +68,18 @@ namespace VoxelEngine {
 		VE_PROFILE_FUNCTION;
 		glBindTextureUnit(slot, m_RendererID);
 	}
+	void Texture2D::BindImageTexture(uint32_t slot) const
+	{
+		glBindImageTexture(slot, m_RendererID, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+	}
 	Ref<Texture2D> Texture2D::Create(const std::string& path)
 	{
 		return std::make_shared<Texture2D>(path);
+	}
+
+	Ref<Texture2D> Texture2D::Create(uint32_t width, uint32_t height)
+	{
+		return std::make_shared<Texture2D>(width, height);
 	}
 
 	///////////////////////////////////////////////////////////////////////////

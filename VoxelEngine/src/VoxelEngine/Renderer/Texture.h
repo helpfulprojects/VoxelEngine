@@ -14,12 +14,15 @@ namespace VoxelEngine {
 
 	class Texture2D : public Texture {
 	public:
+		Texture2D(uint32_t width, uint32_t height);
 		Texture2D(const std::string& path);
 		virtual ~Texture2D() override;
 		virtual uint32_t GetWidth() const override { return m_Width; }
 		virtual uint32_t GetHeight() const override { return m_Height; }
 		virtual void Bind(uint32_t slot = 0) const override;
+		virtual void BindImageTexture(uint32_t slot = 0) const;
 		static Ref<Texture2D> Create(const std::string& path);
+		static Ref<Texture2D> Create(uint32_t width, uint32_t height);
 	private:
 		std::string m_Path;
 		uint32_t m_Width, m_Height;

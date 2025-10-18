@@ -10,20 +10,8 @@ public:
 		VE_PROFILE_FUNCTION;
 
 		auto computeShader = m_ShaderLibrary.Load("assets/shaders/SimpleExamples/SimpleExample6Compute.glsl");
-
-		unsigned int texture;
-
-		glGenTextures(1, &texture);
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, m_TEXTURE_WIDTH, m_TEXTURE_HEIGHT, 0, GL_RGBA,
-			GL_FLOAT, NULL);
-
-		glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+		m_Texture = VoxelEngine::Texture2D::Create(m_TEXTURE_WIDTH, m_TEXTURE_HEIGHT);
+		m_Texture->BindImageTexture();
 		auto shader = m_ShaderLibrary.Load("assets/shaders/SimpleExamples/SimpleExample6.glsl");
 
 		m_SquareVA.reset(VoxelEngine::VertexArray::Create());
@@ -131,9 +119,8 @@ public:
 private:
 	VoxelEngine::ShaderLibrary m_ShaderLibrary;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
+	VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;
 	VoxelEngine::PerspectiveCamera m_Camera;
-	//uint32_t m_CompileShaderProgram;
-	//glm::vec3 m_SquarePosition;
 	glm::vec3 m_CameraPosition;
 	float m_CameraMoveSpeed = 5.0f;
 	unsigned int m_VAO;
