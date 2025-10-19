@@ -16,6 +16,7 @@ struct Chunk {
 	int x;
 	int y;
 	int z;
+	int quadsCount;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
@@ -86,6 +87,7 @@ GameLayer::GameLayer()
 							terrainData[index].x = x * CHUNK_WIDTH;
 							terrainData[index].y = y * CHUNK_WIDTH;
 							terrainData[index].z = z * CHUNK_WIDTH;
+							terrainData[index].quadsCount = 0;
 							terrainData[index].blockTypes[bx][by][bz] = 1;
 						}
 					}
@@ -122,7 +124,8 @@ GameLayer::GameLayer()
 	auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
 	generateQuadsCompute->Bind();
 	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
 
 	uint32_t quadInfo;
@@ -152,12 +155,25 @@ GameLayer::GameLayer()
 	int blocks = 16 * 16 * 16;
 	int chunks = 2 * 2 * 2;
 	int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
-	for (int i = 0; i < chunks; i++) {
-		m_Cmd[i].count = vertsPerChunk;
-		m_Cmd[i].instanceCount = 1;
-		m_Cmd[i].first = 0;
-		m_Cmd[i].baseInstance = i;
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
+	Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	if (gpuData) {
+		for (int i = 0; i < WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH; i++) {
+			m_Cmd[i].count = gpuData[i].quadsCount * vertsPerQuad;
+			m_Cmd[i].instanceCount = 1;
+			m_Cmd[i].first = 0;
+			m_Cmd[i].baseInstance = i;
+		}
+
+		// Always unmap after you’re done
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	}
+	//for (int i = 0; i < chunks; i++) {
+	//	m_Cmd[i].count = vertsPerChunk;
+	//	m_Cmd[i].instanceCount = 1;
+	//	m_Cmd[i].first = 0;
+	//	m_Cmd[i].baseInstance = i;
+	//}
 	GLuint indirectBuffer;
 	glGenBuffers(1, &indirectBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);

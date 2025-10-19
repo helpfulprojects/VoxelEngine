@@ -7,6 +7,7 @@ struct Chunk {
 	int x;
 	int y;
 	int z;
+	int quadsCount;
 	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
