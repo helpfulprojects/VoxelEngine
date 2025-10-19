@@ -1,15 +1,26 @@
 #type vertex
-#version 430 core
-#define CHUNK_WIDTH 10
-#define WORLD_WIDTH 1
+#version 460 core
+#define CHUNK_WIDTH 16
+#define WORLD_WIDTH 2
 
+struct Chunk {
+	int x;
+	int y;
+	int z;
+	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+};
 
 struct ChunkQuads {
 	uint blockQuads[CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH*6];
 };
+
+layout(std430, binding = 0) readonly buffer buffer0 
+{
+	Chunk chunksData[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
+};
 layout(std430, binding = 1) readonly buffer buffer1 
 {
-	ChunkQuads chunksQuads[WORLD_WIDTH][WORLD_WIDTH][WORLD_WIDTH]; 
+	ChunkQuads chunksQuads[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
 };
 
 layout(std430, binding = 2) readonly buffer terrainAtlasCoordsBuffer
@@ -19,6 +30,11 @@ layout(std430, binding = 2) readonly buffer terrainAtlasCoordsBuffer
 layout(std430, binding = 3) readonly buffer texturePositionOffsetsBuffer
 {
 	vec2 texturePositionOffsets[]; 
+};
+
+layout(std430, binding = 4) readonly buffer buffer4
+{
+	uvec3 debugBuffer[];
 };
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
@@ -78,17 +94,23 @@ void main()
 	const uint MASK_4_BITS = (1u << 4) - 1u;
 	const uint MASK_8_BITS = (1u << 8) - 1u;
 	const int index = gl_VertexID/6;
-    const uvec3 chunkId = uvec3(0,0,0);
-	const uint packedData = chunksQuads[chunkId.x][chunkId.y][chunkId.z].blockQuads[index];
+
+    const uint chunkId = gl_BaseInstance;
+    int chunkX = chunksData[chunkId].x;
+    int chunkY = chunksData[chunkId].y;
+    int chunkZ = chunksData[chunkId].z;
+
+	const uint packedData = chunksQuads[chunkId].blockQuads[index];
 	const int currVertexID = gl_VertexID % 6;
 
 	const uint x = (packedData) & MASK_4_BITS;
 	const uint y = (packedData >> 4) & MASK_4_BITS;
 	const uint z = (packedData >> 8) & MASK_8_BITS;
+
 	const uint normalId = (packedData >> 16) & MASK_3_BITS;
 	const uint texId = (packedData >> 19) & MASK_3_BITS;
 	
-	vec3 position = vec3(x, y, z);
+	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
 
 	position += facePositions[normalId][indices[currVertexID]];
 

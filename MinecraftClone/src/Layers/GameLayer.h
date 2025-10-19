@@ -1,5 +1,12 @@
 #pragma once
+#include <glad/glad.h>
 #include <VoxelEngine.h>
+struct DrawArraysIndirectCommand {
+	GLuint count;        // number of vertices per draw
+	GLuint instanceCount; // usually 1
+	GLuint first;        // starting vertex
+	GLuint baseInstance;  // optional (for per-chunk uniforms)
+};
 class GameLayer : public VoxelEngine::Layer {
 public:
 	GameLayer();
@@ -22,4 +29,5 @@ private:
 	float m_CameraMoveSpeed = 5.0f;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
+	DrawArraysIndirectCommand m_Cmd[8];
 };

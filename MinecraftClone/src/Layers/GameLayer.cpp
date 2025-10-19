@@ -1,7 +1,6 @@
 #include "GameLayer.h"
 #include "../Overlays/DebugOverlay.h"
 #include <glm/gtc/matrix_transform.hpp>
-#include <glad/glad.h>
 
 struct FaceData {
 	uint32_t packedPos;
@@ -11,9 +10,12 @@ struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
 const int CHUNK_WIDTH = 16;
-const int WORLD_WIDTH = 1;
+const int WORLD_WIDTH = 2;
 
 struct Chunk {
+	int x;
+	int y;
+	int z;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
@@ -72,15 +74,19 @@ GameLayer::GameLayer()
 	//TERRAIN
 	//0 air 1 dirt
 	//std::vector<uint32_t> terrainData;
-	Chunk terrainData[WORLD_WIDTH][WORLD_WIDTH][WORLD_WIDTH];
+	Chunk terrainData[WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH];
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int y = 0; y < WORLD_WIDTH; y++) {
 			for (int z = 0; z < WORLD_WIDTH; z++) {
+				int index = x + y * WORLD_WIDTH + z * WORLD_WIDTH * WORLD_WIDTH;
 				// Fill each block in the chunk with 1
 				for (int bx = 0; bx < CHUNK_WIDTH; bx++) {
 					for (int by = 0; by < CHUNK_WIDTH; by++) {
 						for (int bz = 0; bz < CHUNK_WIDTH; bz++) {
-							terrainData[x][y][z].blockTypes[bx][by][bz] = 1;
+							terrainData[index].x = x * CHUNK_WIDTH;
+							terrainData[index].y = y * CHUNK_WIDTH;
+							terrainData[index].z = z * CHUNK_WIDTH;
+							terrainData[index].blockTypes[bx][by][bz] = 1;
 						}
 					}
 				}
@@ -99,6 +105,12 @@ GameLayer::GameLayer()
 	//computeShader->Bind();
 	//glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
 	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	uint32_t debugSssbo;
+	glCreateBuffers(1, &debugSssbo);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, 5 * 3 * 2 * 2 * 2 * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugSssbo);
 
 	//GEN QUADS
 	uint32_t genQuadsSsbo;
@@ -133,6 +145,23 @@ GameLayer::GameLayer()
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(textureOffsetsData), textureOffsetsData, GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, textureOffsets);
 
+	m_ShaderLibrary.Load("assets/shaders/compute/debug.glsl");
+
+	int vertsPerQuad = 6;
+	int quadsPerBlock = 6;
+	int blocks = 16 * 16 * 16;
+	int chunks = 2 * 2 * 2;
+	int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
+	for (int i = 0; i < chunks; i++) {
+		m_Cmd[i].count = vertsPerChunk;
+		m_Cmd[i].instanceCount = 1;
+		m_Cmd[i].first = 0;
+		m_Cmd[i].baseInstance = i;
+	}
+	GLuint indirectBuffer;
+	glGenBuffers(1, &indirectBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+	glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(m_Cmd), m_Cmd, GL_STATIC_DRAW);
 }
 GameLayer::~GameLayer()
 {
@@ -191,10 +220,14 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
-		int vertsPerQuad = 6;
-		int quadsPerBlock = 6;
-		int blocks = 16 * 16 * 16;
-		glDrawArrays(GL_TRIANGLES, 0, blocks * quadsPerBlock * vertsPerQuad);
+
+		glMultiDrawArraysIndirect(GL_TRIANGLES, 0, 2 * 2 * 2, 0);
+		//glDrawArrays(GL_TRIANGLES, 0, chunks * blocks * quadsPerBlock * vertsPerQuad);
+
+		auto debugCompute = m_ShaderLibrary.Get("debug");
+		debugCompute->Bind();
+		glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		//glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6 * 6, 1, 22);
 
 		//m_ChernoLogoTexture->Bind();
