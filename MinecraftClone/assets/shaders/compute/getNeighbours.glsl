@@ -1,9 +1,9 @@
 #type compute
 #version 430 core
 
-#define CHUNK_WIDTH 4
+#define CHUNK_WIDTH 10
 #define WORLD_WIDTH 1
-#define WORKGROUP_SIZE_X CHUNK_WIDTH
+#define WORKGROUP_SIZE_X 10
 
 layout (local_size_x = WORKGROUP_SIZE_X, local_size_y = WORKGROUP_SIZE_X, local_size_z = WORKGROUP_SIZE_X) in;
 

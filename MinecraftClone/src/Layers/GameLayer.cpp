@@ -10,7 +10,7 @@ struct FaceData {
 struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
-const int CHUNK_WIDTH = 4;
+const int CHUNK_WIDTH = 16;
 const int WORLD_WIDTH = 1;
 
 struct Chunk {
@@ -95,10 +95,10 @@ GameLayer::GameLayer()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
 
 	//NEIGHBOURS
-	auto computeShader = m_ShaderLibrary.Load("assets/shaders/compute/getNeighbours.glsl");
-	computeShader->Bind();
-	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//auto computeShader = m_ShaderLibrary.Load("assets/shaders/compute/getNeighbours.glsl");
+	//computeShader->Bind();
+	//glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
+	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	//GEN QUADS
 	uint32_t genQuadsSsbo;
@@ -112,6 +112,26 @@ GameLayer::GameLayer()
 	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
+
+	uint32_t quadInfo;
+	glCreateBuffers(1, &quadInfo);
+	const std::vector<glm::vec2>& subImagesCoordsList = m_TerrainAtlas->GetSubImagesCoordsList();
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, quadInfo);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, subImagesCoordsList.size() * sizeof(glm::vec2), subImagesCoordsList.data(), GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, quadInfo);
+
+	float textureOffset = 16.0f / m_TerrainAtlas->GetWidth();
+	uint32_t textureOffsets;
+	glCreateBuffers(1, &textureOffsets);
+	glm::vec2 textureOffsetsData[] = {
+		{0.0,  0.0},
+		{textureOffset,  0.0},
+		{textureOffset,  textureOffset},
+		{0.0, textureOffset},
+	};
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, textureOffsets);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(textureOffsetsData), textureOffsetsData, GL_STATIC_DRAW);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, textureOffsets);
 
 }
 GameLayer::~GameLayer()
@@ -162,7 +182,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		//m_Texture->Bind();
 
 		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
-		//m_TerrainAtlas->Bind();
+		m_TerrainAtlas->Bind();
 		//VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
 		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		//);
@@ -173,7 +193,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		);
 		int vertsPerQuad = 6;
 		int quadsPerBlock = 6;
-		int blocks = 4 * 4 * 4;
+		int blocks = 16 * 16 * 16;
 		glDrawArrays(GL_TRIANGLES, 0, blocks * quadsPerBlock * vertsPerQuad);
 		//glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6 * 6, 1, 22);
 

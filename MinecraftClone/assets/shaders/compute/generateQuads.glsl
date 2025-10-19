@@ -1,7 +1,7 @@
 #type compute
 #version 430 core
 
-#define CHUNK_WIDTH 4
+#define CHUNK_WIDTH 16
 #define WORLD_WIDTH 1
 #define WORKGROUP_SIZE_X 1
 
@@ -29,7 +29,7 @@ void main() {
 	uvec3 chunkId = gl_WorkGroupID;
 //	ivec3 chunkPos = chunkId*CHUNK_WIDTH;
 //See how to get a reference
-	Chunk chunkData = chunksData[chunkId.x][chunkId.y][chunkId.z];
+	Chunk chunkData = chunksData[0][0][0];
 	//ChunkQuads chunkQuads = chunksQuads[chunkId.x][chunkId.y][chunkId.z];
 	uint index = 0;
 	for(int x=0;x<CHUNK_WIDTH;x++){
@@ -39,7 +39,7 @@ void main() {
 					ivec3 blockLocalPosition = ivec3(x,y,z);
 					uint blockLocalPositionBinary = blockLocalPosition.x | blockLocalPosition.y<<4 | blockLocalPosition.z <<8;
 					for(int i = 0;i<6;i++){
-						chunksQuads[chunkId.x][chunkId.y][chunkId.z].blockQuads[index] = blockLocalPositionBinary | i << 16;
+						chunksQuads[0][0][0].blockQuads[index] = blockLocalPositionBinary | i << 16 | 0 << 19 ;
 						index++;
 					}
 				}
