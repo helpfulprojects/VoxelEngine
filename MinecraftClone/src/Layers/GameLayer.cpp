@@ -111,7 +111,7 @@ GameLayer::GameLayer()
 	uint32_t debugSssbo;
 	glCreateBuffers(1, &debugSssbo);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, 5 * 3 * 2 * 2 * 2 * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugSssbo);
 
 	//GEN QUADS
@@ -152,8 +152,8 @@ GameLayer::GameLayer()
 
 	int vertsPerQuad = 6;
 	int quadsPerBlock = 6;
-	int blocks = 16 * 16 * 16;
-	int chunks = 2 * 2 * 2;
+	int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
+	int chunks = WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH;
 	int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
 	Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
@@ -178,6 +178,20 @@ GameLayer::GameLayer()
 	glGenBuffers(1, &indirectBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(m_Cmd), m_Cmd, GL_STATIC_DRAW);
+
+
+
+
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
+	uint32_t* debug = (uint32_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+	uint32_t test[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH];
+	if (debug) {
+		for (int i = 0; i < CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH; i++) {
+			test[i] = debug[i];
+		}
+		// Always unmap after you’re done
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	}
 }
 GameLayer::~GameLayer()
 {
@@ -237,7 +251,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
 
-		glMultiDrawArraysIndirect(GL_TRIANGLES, 0, 2 * 2 * 2, 0);
+		glMultiDrawArraysIndirect(GL_TRIANGLES, 0, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH, 0);
 		//glDrawArrays(GL_TRIANGLES, 0, chunks * blocks * quadsPerBlock * vertsPerQuad);
 
 		auto debugCompute = m_ShaderLibrary.Get("debug");
