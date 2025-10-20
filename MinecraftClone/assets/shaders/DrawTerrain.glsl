@@ -1,7 +1,6 @@
 #type vertex
 #version 460 core
 #define CHUNK_WIDTH 16
-#define WORLD_WIDTH 2
 
 struct Chunk {
 	int x;
@@ -17,11 +16,11 @@ struct ChunkQuads {
 
 layout(std430, binding = 0) readonly buffer buffer0 
 {
-	Chunk chunksData[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
+	Chunk chunksData[]; 
 };
 layout(std430, binding = 1) readonly buffer buffer1 
 {
-	ChunkQuads chunksQuads[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
+	ChunkQuads chunksQuads[]; 
 };
 
 layout(std430, binding = 2) readonly buffer terrainAtlasCoordsBuffer

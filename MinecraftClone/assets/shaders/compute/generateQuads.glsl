@@ -2,7 +2,8 @@
 #version 430 core
 
 #define CHUNK_WIDTH 16
-#define WORLD_WIDTH 2
+#define WORLD_WIDTH 65
+#define WORLD_HEIGHT 16
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -20,12 +21,12 @@ struct ChunkQuads {
 
 layout(std430, binding = 0) buffer buffer0 
 {
-	Chunk chunksData[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
+	Chunk chunksData[]; 
 };
 
 layout(std430, binding = 1) buffer buffer1 
 {
-	ChunkQuads chunksQuads[WORLD_WIDTH*WORLD_WIDTH*WORLD_WIDTH]; 
+	ChunkQuads chunksQuads[]; 
 };
 layout(std430, binding = 4) buffer buffer4
 {
@@ -42,7 +43,7 @@ ivec3 offsets[6] = ivec3[6](
 );
 
 void main() {
-	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_WIDTH;
+	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	int index = 0;
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int y=0;y<CHUNK_WIDTH;y++){
@@ -68,11 +69,11 @@ void main() {
 															gl_WorkGroupID.y + neighbourChunkOffset.y,
 															gl_WorkGroupID.z + neighbourChunkOffset.z
 															);	
-						if(!(neighbourChunkPosition.x>=WORLD_WIDTH ||neighbourChunkPosition.y>=WORLD_WIDTH ||neighbourChunkPosition.z>=WORLD_WIDTH ||
+						if(!(neighbourChunkPosition.x>=WORLD_WIDTH ||neighbourChunkPosition.y>=WORLD_HEIGHT ||neighbourChunkPosition.z>=WORLD_WIDTH ||
 						neighbourChunkPosition.x<0 ||neighbourChunkPosition.y<0 ||neighbourChunkPosition.z<0)){
 							uint neighbourChunkIndex = neighbourChunkPosition.x
 												 + neighbourChunkPosition.y * WORLD_WIDTH
-												 + neighbourChunkPosition.z * WORLD_WIDTH * WORLD_WIDTH;
+												 + neighbourChunkPosition.z * WORLD_WIDTH * WORLD_HEIGHT;
 							neighbourType = chunksData[neighbourChunkIndex]
 								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 						}

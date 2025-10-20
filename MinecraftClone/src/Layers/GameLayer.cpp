@@ -10,7 +10,8 @@ struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
 const int CHUNK_WIDTH = 16;
-const int WORLD_WIDTH = 2;
+const int WORLD_WIDTH = 65;
+const int WORLD_HEIGHT = 16;
 
 struct Chunk {
 	int x;
@@ -30,102 +31,67 @@ GameLayer::GameLayer()
 	m_SquarePosition(-1.1f, 0, -0.5f),
 	m_CameraPosition(0, 0, 0)
 {
-	m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
-	m_TerrainAtlas->Add(dirt);
-	m_TerrainAtlas->Add(tnt_bottom);
-	m_TerrainAtlas->Add(tnt_side);
-	m_TerrainAtlas->Add(tnt_top);
-	m_TerrainAtlas->Add(stone);
-	m_TerrainAtlas->Bake();
+	VE_PROFILE_FUNCTION;
+	{
+		VE_PROFILE_SCOPE("Bake texture atlas");
+		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
+		m_TerrainAtlas->Add(dirt);
+		m_TerrainAtlas->Add(tnt_bottom);
+		m_TerrainAtlas->Add(tnt_side);
+		m_TerrainAtlas->Add(tnt_top);
+		m_TerrainAtlas->Add(stone);
+		m_TerrainAtlas->Bake();
 
-	m_SquareVA.reset(VoxelEngine::VertexArray::Create());
-	float squareVertices[] = {
-		-0.5f, -0.5f, 0.0f, 0.0f, 0.0f,
-		 0.5f, -0.5f, 0.0f, 1.0f, 0.0f,
-		 0.5f,  0.5f, 0.0f, 1.0f, 1.0f,
-		 -0.5f,  0.5f, 0.0f, 0.0f, 1.0f
-	};
-	VoxelEngine::Ref<VoxelEngine::VertexBuffer> squareVB(VoxelEngine::VertexBuffer::Create(squareVertices, sizeof(squareVertices)));
-	VoxelEngine::BufferLayout squareLayout = {
-		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
-		{VoxelEngine::ShaderDataType::Float2, "a_TexCoord"},
-	};
-	squareVB->SetLayout(squareLayout);
-	m_SquareVA->AddVertexBuffer(squareVB);
-	uint32_t squareIndices[] = {
-		0,1,2,
-		2,3,0,
-	};
-	VoxelEngine::Ref<VoxelEngine::IndexBuffer> squareIB(VoxelEngine::IndexBuffer::Create(squareIndices, sizeof(squareIndices) / sizeof(uint32_t)));
-	m_SquareVA->SetIndexBuffer(squareIB);
-
-	auto textureShader = m_ShaderLibrary.Load("assets/shaders/Texture.glsl");
-
-	m_Texture = VoxelEngine::Texture2D::Create("assets/textures/Checkerboard.png");
-	m_ChernoLogoTexture = VoxelEngine::Texture2D::Create("assets/textures/ChernoLogo.png");
-
-	textureShader->Bind();
-	textureShader->UploadUniformInt("u_Texture", 0);
-
-	//TERRAIN
-	//0 air 1 dirt
-	//std::vector<uint32_t> terrainData;
-	Chunk terrainData[WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH];
-	for (int x = 0; x < WORLD_WIDTH; x++) {
-		for (int y = 0; y < WORLD_WIDTH; y++) {
-			for (int z = 0; z < WORLD_WIDTH; z++) {
-				int index = x + y * WORLD_WIDTH + z * WORLD_WIDTH * WORLD_WIDTH;
-				// Fill each block in the chunk with 1
-				for (int bx = 0; bx < CHUNK_WIDTH; bx++) {
-					for (int by = 0; by < CHUNK_WIDTH; by++) {
-						for (int bz = 0; bz < CHUNK_WIDTH; bz++) {
-							terrainData[index].x = x * CHUNK_WIDTH;
-							terrainData[index].y = y * CHUNK_WIDTH;
-							terrainData[index].z = z * CHUNK_WIDTH;
-							terrainData[index].quadsCount = 0;
-							terrainData[index].blockTypes[bx][by][bz] = 1;
-						}
-					}
-				}
-			}
-		}
 	}
 
 	uint32_t chunksSsbo;
-	glCreateBuffers(1, &chunksSsbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(Chunk), terrainData, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
+	{
+		VE_PROFILE_SCOPE("Init chunks data ssbo");
+		glCreateBuffers(1, &chunksSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH * sizeof(Chunk), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
+	}
 
-	//NEIGHBOURS
-	//auto computeShader = m_ShaderLibrary.Load("assets/shaders/compute/getNeighbours.glsl");
-	//computeShader->Bind();
-	//glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
-	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	//uint32_t debugSssbo;
+	//glCreateBuffers(1, &debugSssbo);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
+	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int), nullptr, GL_DYNAMIC_DRAW);
+	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugSssbo);
 
-	uint32_t debugSssbo;
-	glCreateBuffers(1, &debugSssbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(int), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugSssbo);
 
-	//GEN QUADS
+	{
+		VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
+		//GEN BLOCKS
+		auto generateBlocksCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl");
+		generateBlocksCompute->Bind();
+		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	}
+
 	uint32_t genQuadsSsbo;
-	glCreateBuffers(1, &genQuadsSsbo);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, genQuadsSsbo);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH * sizeof(ChunkQuads), nullptr, GL_DYNAMIC_DRAW);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
+	{
+		VE_PROFILE_SCOPE("Init quads for render ssbo");
+		//GEN QUADS
+		glCreateBuffers(1, &genQuadsSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, genQuadsSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH * sizeof(ChunkQuads), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
+	}
 
-	auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
-	generateQuadsCompute->Bind();
-	glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
-	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	{
+		VE_PROFILE_SCOPE("Compute Shader: Generate quads");
+		auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
+		generateQuadsCompute->Bind();
+		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	}
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
 
 	uint32_t quadInfo;
@@ -150,47 +116,32 @@ GameLayer::GameLayer()
 
 	m_ShaderLibrary.Load("assets/shaders/compute/debug.glsl");
 
-	int vertsPerQuad = 6;
-	int quadsPerBlock = 6;
-	int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
-	int chunks = WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH;
-	int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
-	Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	if (gpuData) {
-		for (int i = 0; i < WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH; i++) {
-			m_Cmd[i].count = gpuData[i].quadsCount * vertsPerQuad;
-			m_Cmd[i].instanceCount = 1;
-			m_Cmd[i].first = 0;
-			m_Cmd[i].baseInstance = i;
+	{
+		VE_PROFILE_SCOPE("Set up indirect buffer");
+		int vertsPerQuad = 6;
+		int quadsPerBlock = 6;
+		int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
+		int chunks = WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH;
+		int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
+		Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+		if (gpuData) {
+			for (int i = 0; i < WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH; i++) {
+				DrawArraysIndirectCommand cmd;
+				cmd.count = gpuData[i].quadsCount * vertsPerQuad;
+				cmd.instanceCount = 1;
+				cmd.first = 0;
+				cmd.baseInstance = i;
+				m_Cmd.push_back(cmd);
+			}
+
+			// Always unmap after you’re done
+			glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 		}
-
-		// Always unmap after you’re done
-		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-	}
-	//for (int i = 0; i < chunks; i++) {
-	//	m_Cmd[i].count = vertsPerChunk;
-	//	m_Cmd[i].instanceCount = 1;
-	//	m_Cmd[i].first = 0;
-	//	m_Cmd[i].baseInstance = i;
-	//}
-	GLuint indirectBuffer;
-	glGenBuffers(1, &indirectBuffer);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, sizeof(m_Cmd), m_Cmd, GL_STATIC_DRAW);
-
-
-
-
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
-	uint32_t* debug = (uint32_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-	uint32_t test[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH];
-	if (debug) {
-		for (int i = 0; i < CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH; i++) {
-			test[i] = debug[i];
-		}
-		// Always unmap after you’re done
-		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+		GLuint indirectBuffer;
+		glGenBuffers(1, &indirectBuffer);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_Cmd.size() * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
 	}
 }
 GameLayer::~GameLayer()
@@ -236,37 +187,15 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::BeginScene(m_Camera);
 
 		m_Camera.SetPosition(m_CameraPosition);
-
-		auto textureShader = m_ShaderLibrary.Get("Texture");
-		//m_Texture->Bind();
-
 		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
 		m_TerrainAtlas->Bind();
-		//VoxelEngine::Renderer::Submit(ssboShader, m_SsboVao,
-		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
-		//);
-		//glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
-
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
-
-		glMultiDrawArraysIndirect(GL_TRIANGLES, 0, WORLD_WIDTH * WORLD_WIDTH * WORLD_WIDTH, 0);
-		//glDrawArrays(GL_TRIANGLES, 0, chunks * blocks * quadsPerBlock * vertsPerQuad);
-
-		auto debugCompute = m_ShaderLibrary.Get("debug");
-		debugCompute->Bind();
-		glDispatchCompute(WORLD_WIDTH, WORLD_WIDTH, WORLD_WIDTH);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-		//glDrawArraysInstancedBaseInstance(GL_TRIANGLES, 0, 6 * 6, 1, 22);
-
-		//m_ChernoLogoTexture->Bind();
-		//m_TerrainAtlas->Bind();
-		//VoxelEngine::Renderer::Submit(textureShader, m_SquareVA,
-		//	glm::translate(glm::mat4(1), m_SquarePosition)
-		//);
-
-
+		{
+			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
+			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH, 0);
+		}
 		VoxelEngine::Renderer::EndScene();
 	}
 }
