@@ -12,6 +12,7 @@ struct FaceModel {
 const int CHUNK_WIDTH = 16;
 const int WORLD_WIDTH = 65;
 const int WORLD_HEIGHT = 16;
+const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 
 struct Chunk {
 	int x;
@@ -22,7 +23,7 @@ struct Chunk {
 };
 
 struct ChunkQuads {
-	uint32_t blockQuads[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH * 6];
+	uint32_t blockQuads[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH / 2 * 6];
 };
 
 GameLayer::GameLayer()
@@ -54,16 +55,9 @@ GameLayer::GameLayer()
 		VE_PROFILE_SCOPE("Init chunks data ssbo");
 		glCreateBuffers(1, &chunksSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH * sizeof(Chunk), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(Chunk), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
 	}
-
-	//uint32_t debugSssbo;
-	//glCreateBuffers(1, &debugSssbo);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, debugSssbo);
-	//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(int), nullptr, GL_DYNAMIC_DRAW);
-	//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, debugSssbo);
-
 
 	{
 		VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
@@ -80,7 +74,7 @@ GameLayer::GameLayer()
 		//GEN QUADS
 		glCreateBuffers(1, &genQuadsSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, genQuadsSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH * sizeof(ChunkQuads), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(ChunkQuads), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
 	}
 
@@ -121,12 +115,14 @@ GameLayer::GameLayer()
 		int vertsPerQuad = 6;
 		int quadsPerBlock = 6;
 		int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
-		int chunks = WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH;
+		int chunks = TOTAL_CHUNKS;
 		int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
 		Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 		if (gpuData) {
-			for (int i = 0; i < WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH; i++) {
+			for (int i = 0; i < TOTAL_CHUNKS; i++) {
+				int count = gpuData[i].quadsCount;
+				if (count == 0) continue;
 				DrawArraysIndirectCommand cmd;
 				cmd.count = gpuData[i].quadsCount * vertsPerQuad;
 				cmd.instanceCount = 1;
@@ -194,7 +190,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		);
 		{
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
-			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, WORLD_WIDTH * WORLD_HEIGHT * WORLD_WIDTH, 0);
+			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, m_Cmd.size(), 0);
 		}
 		VoxelEngine::Renderer::EndScene();
 	}

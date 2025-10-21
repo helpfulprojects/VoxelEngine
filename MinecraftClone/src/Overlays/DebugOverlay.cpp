@@ -20,6 +20,7 @@ void DebugOverlay::OnImGuiRender() {
 		if (gameLayer) {
 			VoxelEngine::PerspectiveCamera camera = gameLayer->GetCamera();
 			float cameraYaw = camera.GetYaw();
+			glm::vec3 cameraPosition = camera.GetPosition();
 			std::string directionLookingAt = "";
 			if (cameraYaw >= -45.0f && cameraYaw < 45.0f) {
 				directionLookingAt = "Facing: south (Towards positive Z)";
@@ -35,6 +36,7 @@ void DebugOverlay::OnImGuiRender() {
 			}
 			ImGui::Begin("Debug Menu");
 			ImGui::Text("%s (%.1f / %.1f)", directionLookingAt.c_str(), camera.GetYaw(), camera.GetPitch());
+			ImGui::Text("Position X:%.0f, Y:%.0f, Z:%.0f", cameraPosition.x, cameraPosition.y, cameraPosition.z);
 			ImGui::End();
 		}
 	}

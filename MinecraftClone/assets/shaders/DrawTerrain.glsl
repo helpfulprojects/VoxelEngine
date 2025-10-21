@@ -11,7 +11,7 @@ struct Chunk {
 };
 
 struct ChunkQuads {
-	uint blockQuads[CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH*6];
+	uint blockQuads[CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH/2*6];
 };
 
 layout(std430, binding = 0) readonly buffer buffer0 
