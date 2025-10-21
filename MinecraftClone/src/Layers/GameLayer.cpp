@@ -186,7 +186,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 	{
 		VE_PROFILE_SCOPE("Draw");
-		//VoxelEngine::RenderCommand::SetClearColor({ 0.43529f, 0.60784f, 0.92941f, 1 });
 		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
 
 		VoxelEngine::RenderCommand::Clear();

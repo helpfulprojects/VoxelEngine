@@ -87,7 +87,13 @@ uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
 
 out vec2 v_TexCoord;
-
+out vec4 v_StaticLight;
+#define top 0
+#define bottom 1
+#define east 2
+#define west 3
+#define south 4
+#define north 5
 void main()
 {
 	const uint MASK_3_BITS = (1u << 3) - 1u;
@@ -115,6 +121,14 @@ void main()
 	position += facePositions[normalId][indices[currVertexID]];
 
     v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+    v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+    if(normalId == east || normalId == west){
+		v_StaticLight = vec4(0.8,0.8,0.8,1.0);
+    }else if(normalId == south || normalId == north){
+		v_StaticLight = vec4(0.7,0.7,0.7,1.0);
+    }else{
+		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+    }
     
 	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
 }
@@ -143,11 +157,12 @@ void main()
 
 out vec4 color;
 in vec2 v_TexCoord;
+in vec4 v_StaticLight;
 
 uniform sampler2D u_Texture;
 
 void main()
 {
-	color = texture(u_Texture,v_TexCoord);
+	color = texture(u_Texture,v_TexCoord)*v_StaticLight;
 	//color = vec4(1.0f,0.0f,0.0f,1.0f);
 }
