@@ -28,15 +28,28 @@ namespace VoxelEngine {
 			FreeData();
 		}
 	}
-	void TextureSubImage2D::Colorize(glm::vec3& color)
+	void TextureSubImage2D::Combine(const Ref<TextureSubImage2D> other)
 	{
-		color = color / 256.0f;
+
+		const texture_data* otherData = other->GetData();
 		int numPixels = m_Width * m_Height;
 		for (int i = 0; i < numPixels; i++) {
 			int idx = i * m_Channels;
-			m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * color.r);
-			m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * color.g);
-			m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * color.b);
+			if (otherData[idx + 3] == 0)continue;
+			m_Data[idx + 0] = otherData[idx + 0];
+			m_Data[idx + 1] = otherData[idx + 1];
+			m_Data[idx + 2] = otherData[idx + 2];
+		}
+	}
+	void TextureSubImage2D::Colorize(const glm::vec3& color)
+	{
+		glm::vec3 colorNormalized = color / 256.0f;
+		int numPixels = m_Width * m_Height;
+		for (int i = 0; i < numPixels; i++) {
+			int idx = i * m_Channels;
+			m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * colorNormalized.r);
+			m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
+			m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
 		}
 	}
 	void TextureSubImage2D::FreeData()

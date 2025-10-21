@@ -37,15 +37,23 @@ GameLayer::GameLayer()
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_top.png");
+		grass_block_top->Colorize(m_GrassColorOverlay);
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side_overlay = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side_overlay.png");
+		grass_block_side_overlay->Colorize(m_GrassColorOverlay);
+		grass_block_side->Combine(grass_block_side_overlay);
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
 		m_TerrainAtlas->Add(dirt);
+		m_TerrainAtlas->Add(grass_block_top);
+		m_TerrainAtlas->Add(grass_block_side);
+		m_TerrainAtlas->Add(stone);
 		m_TerrainAtlas->Add(tnt_bottom);
 		m_TerrainAtlas->Add(tnt_side);
 		m_TerrainAtlas->Add(tnt_top);
-		m_TerrainAtlas->Add(stone);
 		m_TerrainAtlas->Bake();
 
 	}

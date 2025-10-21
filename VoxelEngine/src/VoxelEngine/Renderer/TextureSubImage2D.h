@@ -12,9 +12,10 @@ namespace VoxelEngine {
 		const uint32_t GetId() const { return m_Id; };
 		const uint32_t GetHeight() const { return m_Height; };
 		const glm::vec2& GetTexCoords() const { return m_TexCoords; };
+		void Combine(const Ref<TextureSubImage2D> other);
 		void SetId(uint32_t id) { m_Id = id; }
 		void SetTexCoords(glm::vec2 texCoords) { m_TexCoords = texCoords; }
-		void Colorize(glm::vec3& color);
+		void Colorize(const glm::vec3& color);
 		void FreeData();
 	private:
 		uint32_t m_Id, m_Width, m_Height, m_Channels;

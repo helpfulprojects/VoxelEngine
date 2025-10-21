@@ -51,7 +51,11 @@ void main() {
 				chunksData[chunkIndex].x = gl_WorkGroupID.x * CHUNK_WIDTH;
 				chunksData[chunkIndex].y = gl_WorkGroupID.y * CHUNK_WIDTH;
 				chunksData[chunkIndex].z = gl_WorkGroupID.z * CHUNK_WIDTH;
-				chunksData[chunkIndex].blockTypes[x][y][z] = 1;
+				if(y==15&&gl_WorkGroupID.y==15){
+					chunksData[chunkIndex].blockTypes[x][y][z] = 2;
+				}else{
+					chunksData[chunkIndex].blockTypes[x][y][z] = 1;
+				}
 				chunksData[chunkIndex].quadsCount = 0;
 			}
 		}

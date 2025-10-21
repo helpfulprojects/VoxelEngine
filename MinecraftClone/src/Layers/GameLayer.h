@@ -30,4 +30,5 @@ private:
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
 	std::vector<DrawArraysIndirectCommand> m_Cmd;
+	const glm::vec3 m_GrassColorOverlay{ 112.0f,160.0f,70.0f };
 };

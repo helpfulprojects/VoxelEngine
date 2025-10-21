@@ -42,14 +42,46 @@ ivec3 offsets[6] = ivec3[6](
     ivec3(0, 0, -1)
 );
 
+#define dirt 0
+#define grass_block_top 1
+#define grass_block_side 2
+#define stone 3
+#define tnt_bottom 4
+#define tnt_side 5
+#define tnt_top 6
+
+int blockTypeAndNormalToTextureId(uint blockType, int normal){
+	switch(blockType){
+	case 0://AIR
+		return dirt;
+	case 1://DIRT
+		return dirt;
+	case 2://GRASS_BLOCK
+		switch(normal){
+		case 0://positive y
+			return grass_block_top;
+		case 1://negative y
+			return dirt;
+		case 2://positive x
+			return grass_block_side;
+		case 3://negative x
+			return grass_block_side;
+		case 4://positive z
+			return grass_block_side;
+		case 5://negative z
+			return grass_block_side;
+		}
+	}
+}
+
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	int index = 0;
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int y=0;y<CHUNK_WIDTH;y++){
 			for(int z=0;z<CHUNK_WIDTH;z++){
-
-				if(chunksData[chunkIndex].blockTypes[x][y][z] == 1){
+				uint blockType = chunksData[chunkIndex].blockTypes[x][y][z];
+				if(blockType != 0){
 					ivec3 blockLocalPosition = ivec3(x,y,z);
 					uint blockLocalPositionBinary = blockLocalPosition.x | blockLocalPosition.y<<4 | blockLocalPosition.z <<8;
 					for(int n = 0;n<6;n++){
@@ -78,7 +110,7 @@ void main() {
 								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 						}
 						if (neighbourType == 0) {
-							chunksQuads[chunkIndex].blockQuads[index] = blockLocalPositionBinary | n << 16 | 0 << 19;
+							chunksQuads[chunkIndex].blockQuads[index] = blockLocalPositionBinary | n << 12 | blockTypeAndNormalToTextureId(blockType, n) << 15;
 							index++;
 						}
 					}

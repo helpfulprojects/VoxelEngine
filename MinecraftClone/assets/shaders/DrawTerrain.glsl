@@ -105,10 +105,10 @@ void main()
 
 	const uint x = (packedData) & MASK_4_BITS;
 	const uint y = (packedData >> 4) & MASK_4_BITS;
-	const uint z = (packedData >> 8) & MASK_8_BITS;
+	const uint z = (packedData >> 8) & MASK_4_BITS;
 
-	const uint normalId = (packedData >> 16) & MASK_3_BITS;
-	const uint texId = (packedData >> 19) & MASK_3_BITS;
+	const uint normalId = (packedData >> 12) & MASK_3_BITS;
+	const uint texId = (packedData >> 15) & MASK_4_BITS;
 	
 	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
 
