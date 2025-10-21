@@ -186,7 +186,9 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 	{
 		VE_PROFILE_SCOPE("Draw");
-		VoxelEngine::RenderCommand::SetClearColor({ 0.1f, 0.1f, 0.1f, 1 });
+		//VoxelEngine::RenderCommand::SetClearColor({ 0.43529f, 0.60784f, 0.92941f, 1 });
+		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
+
 		VoxelEngine::RenderCommand::Clear();
 		VoxelEngine::Renderer::BeginScene(m_Camera);
 
@@ -194,7 +196,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
 		m_TerrainAtlas->Bind();
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
+			glm::translate(glm::mat4(1), glm::vec3(-CHUNK_WIDTH * WORLD_WIDTH / 2, -CHUNK_WIDTH * WORLD_HEIGHT, -CHUNK_WIDTH * WORLD_WIDTH / 2))
 		);
 		{
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
