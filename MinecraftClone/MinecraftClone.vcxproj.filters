@@ -22,6 +22,7 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample5.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample6.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample7.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample8.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">

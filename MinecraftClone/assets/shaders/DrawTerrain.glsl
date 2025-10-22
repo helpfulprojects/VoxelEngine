@@ -1,17 +1,18 @@
 #type vertex
 #version 460 core
 #define CHUNK_WIDTH 16
+#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
+#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
 
 struct Chunk {
 	int x;
 	int y;
 	int z;
-	int quadsCount;
 	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
 struct ChunkQuads {
-	uint blockQuads[CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH/2*6];
+	uint blockQuads[FACES_PER_CHUNK];
 };
 
 layout(std430, binding = 0) readonly buffer buffer0 

@@ -13,17 +13,18 @@ const int CHUNK_WIDTH = 16;
 const int WORLD_WIDTH = 65;
 const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
+const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
+const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 
 struct Chunk {
 	int x;
 	int y;
 	int z;
-	int quadsCount;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
 struct ChunkQuads {
-	uint32_t blockQuads[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH / 2 * 6];
+	uint32_t blockQuads[FACES_PER_CHUNK];
 };
 
 GameLayer::GameLayer()
@@ -65,6 +66,14 @@ GameLayer::GameLayer()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(Chunk), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, chunksSsbo);
+	}
+	uint32_t renderDataSsbo;
+	{
+		VE_PROFILE_SCOPE("Init renderDataSsbo ssbo");
+		glCreateBuffers(1, &renderDataSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderDataSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderDataSsbo);
 	}
 
 	{
@@ -125,14 +134,14 @@ GameLayer::GameLayer()
 		int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 		int chunks = TOTAL_CHUNKS;
 		int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, chunksSsbo);
-		Chunk* gpuData = (Chunk*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderDataSsbo);
+		uint32_t* gpuData = (uint32_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 		if (gpuData) {
 			for (int i = 0; i < TOTAL_CHUNKS; i++) {
-				int count = gpuData[i].quadsCount;
+				int count = gpuData[i];
 				if (count == 0) continue;
 				DrawArraysIndirectCommand cmd;
-				cmd.count = gpuData[i].quadsCount * vertsPerQuad;
+				cmd.count = count * vertsPerQuad;
 				cmd.instanceCount = 1;
 				cmd.first = 0;
 				cmd.baseInstance = i;

@@ -4,6 +4,8 @@
 #define CHUNK_WIDTH 16
 #define WORLD_WIDTH 65
 #define WORLD_HEIGHT 16
+#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
+#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -11,12 +13,11 @@ struct Chunk {
 	int x;
 	int y;
 	int z;
-	int quadsCount;
 	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
 struct ChunkQuads {
-	uint blockQuads[CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH/2*6];
+	uint blockQuads[FACES_PER_CHUNK];
 };
 
 layout(std430, binding = 0) buffer buffer0 
@@ -31,6 +32,10 @@ layout(std430, binding = 1) buffer buffer1
 layout(std430, binding = 4) buffer buffer4
 {
 	uint debugBuffer[];
+};
+layout(std430, binding = 5) buffer buffer5
+{
+	uint renderData[];
 };
 
 ivec3 offsets[6] = ivec3[6](
@@ -96,7 +101,7 @@ void main() {
 						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
 						else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
-						uint neighbourType = 0;
+						uint neighbourType = 1;
 						uvec3 neighbourChunkPosition = uvec3( gl_WorkGroupID.x + neighbourChunkOffset.x,
 															gl_WorkGroupID.y + neighbourChunkOffset.y,
 															gl_WorkGroupID.z + neighbourChunkOffset.z
@@ -124,6 +129,6 @@ void main() {
 			}
 		}
 	}
-	chunksData[chunkIndex].quadsCount = index;
+	renderData[chunkIndex] = index;
 
 }
