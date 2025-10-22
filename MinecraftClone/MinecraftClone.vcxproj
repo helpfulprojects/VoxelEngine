@@ -161,6 +161,7 @@
   <ItemGroup>
     <None Include="assets\shaders\compute\generateBlocks.glsl" />
     <None Include="assets\shaders\compute\generateQuads.glsl" />
+    <None Include="assets\shaders\TntInstancing.glsl" />
     <None Include="assets\shaders\DrawTerrain.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
     <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />

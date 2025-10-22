@@ -46,5 +46,6 @@
     <None Include="assets\shaders\SimpleExamples\SimpleExample7.glsl" />
     <None Include="assets\shaders\compute\generateBlocks.glsl" />
     <None Include="assets\shaders\compute\generateQuads.glsl" />
+    <None Include="assets\shaders\TntInstancing.glsl" />
   </ItemGroup>
 </Project>

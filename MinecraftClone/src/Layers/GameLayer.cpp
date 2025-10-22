@@ -104,6 +104,7 @@ GameLayer::GameLayer()
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 	}
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
+	m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl");
 
 	uint32_t quadInfo;
 	glCreateBuffers(1, &quadInfo);
@@ -210,6 +211,10 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
 			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, m_Cmd.size(), 0);
 		}
+		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
+		);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 1000000);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
