@@ -149,7 +149,7 @@ namespace VoxelEngine {
 				uint32_t xoffset = subTextureSize * x;
 				uint32_t yoffset = subTextureSize * y;
 				subTexture->SetId(id++);
-				//subTexture->SetTexCoords({ xoffset / m_Width,yoffset / m_Height });
+				subTexture->SetTexCoords({ (float)xoffset / m_Width,(float)yoffset / m_Height });
 				m_SubImagesCoordsList.push_back({ (float)xoffset / m_Width,(float)yoffset / m_Height });
 				glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset, subTexture->GetWidth(), subTexture->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
 				subTexture->FreeData();
