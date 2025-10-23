@@ -34,30 +34,30 @@ GameLayer::GameLayer()
 	m_CameraPosition(0, 0, 0)
 {
 	VE_PROFILE_FUNCTION;
+	{
+		VE_PROFILE_SCOPE("Bake texture atlas");
+		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_top.png");
+		grass_block_top->Colorize(m_GrassColorOverlay);
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side_overlay = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side_overlay.png");
+		grass_block_side_overlay->Colorize(m_GrassColorOverlay);
+		grass_block_side->Combine(grass_block_side_overlay);
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
+		m_TerrainAtlas->Add(dirt);
+		m_TerrainAtlas->Add(grass_block_top);
+		m_TerrainAtlas->Add(grass_block_side);
+		m_TerrainAtlas->Add(stone);
+		m_TerrainAtlas->Add(tnt_bottom);
+		m_TerrainAtlas->Add(tnt_side);
+		m_TerrainAtlas->Add(tnt_top);
+		m_TerrainAtlas->Bake();
 
-	m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/dirt.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_top.png");
-	grass_block_top->Colorize(m_GrassColorOverlay);
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side_overlay = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/grass_block_side_overlay.png");
-	grass_block_side_overlay->Colorize(m_GrassColorOverlay);
-	grass_block_side->Combine(grass_block_side_overlay);
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_side.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
-	VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
-	m_TerrainAtlas->Add(dirt);
-	m_TerrainAtlas->Add(grass_block_top);
-	m_TerrainAtlas->Add(grass_block_side);
-	m_TerrainAtlas->Add(stone);
-	m_TerrainAtlas->Add(tnt_bottom);
-	m_TerrainAtlas->Add(tnt_side);
-	m_TerrainAtlas->Add(tnt_top);
-	m_TerrainAtlas->Bake();
-
-
-
+	}
 
 	uint32_t chunksSsbo;
 	{
@@ -157,77 +157,6 @@ GameLayer::GameLayer()
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
 		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_Cmd.size() * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
 	}
-
-	m_Tnt.reset(VoxelEngine::VertexArray::Create());
-	glm::vec3 origin = { 0.0f, 0.0f, 0.0f };
-	float half = 0.5f;
-
-	// get coords from your TextureSubImage2D
-	glm::vec2 sideMin = tnt_side->GetTexCoords();
-	glm::vec2 sideMax = sideMin + glm::vec2(textureOffset);
-
-	glm::vec2 topMin = tnt_top->GetTexCoords();
-	glm::vec2 topMax = topMin + glm::vec2(textureOffset);
-
-	glm::vec2 bottomMin = tnt_bottom->GetTexCoords();
-	glm::vec2 bottomMax = bottomMin + glm::vec2(textureOffset);
-
-	// vertex format: x, y, z, u, v
-	float cubeVertices[] = {
-		// Front (Z+)
-		origin.x - half, origin.y - half, origin.z + half,   sideMin.x, sideMax.y,
-		origin.x + half, origin.y - half, origin.z + half,   sideMax.x, sideMax.y,
-		origin.x + half, origin.y + half, origin.z + half,   sideMax.x, sideMin.y,
-		origin.x - half, origin.y + half, origin.z + half,   sideMin.x, sideMin.y,
-
-		// Back (Z-)
-		origin.x + half, origin.y - half, origin.z - half,   sideMin.x, sideMax.y,
-		origin.x - half, origin.y - half, origin.z - half,   sideMax.x, sideMax.y,
-		origin.x - half, origin.y + half, origin.z - half,   sideMax.x, sideMin.y,
-		origin.x + half, origin.y + half, origin.z - half,   sideMin.x, sideMin.y,
-
-		// Left (X-)
-		origin.x - half, origin.y - half, origin.z - half,   sideMin.x, sideMax.y,
-		origin.x - half, origin.y - half, origin.z + half,   sideMax.x, sideMax.y,
-		origin.x - half, origin.y + half, origin.z + half,   sideMax.x, sideMin.y,
-		origin.x - half, origin.y + half, origin.z - half,   sideMin.x, sideMin.y,
-
-		// Right (X+)
-		origin.x + half, origin.y - half, origin.z + half,   sideMin.x, sideMax.y,
-		origin.x + half, origin.y - half, origin.z - half,   sideMax.x, sideMax.y,
-		origin.x + half, origin.y + half, origin.z - half,   sideMax.x, sideMin.y,
-		origin.x + half, origin.y + half, origin.z + half,   sideMin.x, sideMin.y,
-
-		// Top (Y+)
-		origin.x - half, origin.y + half, origin.z + half,   topMin.x, topMax.y,
-		origin.x + half, origin.y + half, origin.z + half,   topMax.x, topMax.y,
-		origin.x + half, origin.y + half, origin.z - half,   topMax.x, topMin.y,
-		origin.x - half, origin.y + half, origin.z - half,   topMin.x, topMin.y,
-
-		// Bottom (Y-)
-		origin.x - half, origin.y - half, origin.z - half,   bottomMin.x, bottomMax.y,
-		origin.x + half, origin.y - half, origin.z - half,   bottomMax.x, bottomMax.y,
-		origin.x + half, origin.y - half, origin.z + half,   bottomMax.x, bottomMin.y,
-		origin.x - half, origin.y - half, origin.z + half,   bottomMin.x, bottomMin.y,
-	};
-
-	uint32_t cubeIndices[] = {
-		0, 1, 2, 2, 3, 0,       // Front
-		4, 5, 6, 6, 7, 4,       // Back
-		8, 9,10,10,11, 8,       // Left
-	   12,13,14,14,15,12,       // Right
-	   16,17,18,18,19,16,       // Top
-	   20,21,22,22,23,20        // Bottom
-	};
-	VoxelEngine::Ref<VoxelEngine::VertexBuffer> tntVB(VoxelEngine::VertexBuffer::Create(cubeVertices, sizeof(cubeVertices)));
-	VoxelEngine::BufferLayout tntLayout = {
-		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
-		{VoxelEngine::ShaderDataType::Float2, "a_TexCoord"},
-	};
-	tntVB->SetLayout(tntLayout);
-	m_Tnt->AddVertexBuffer(tntVB);
-	VoxelEngine::Ref<VoxelEngine::IndexBuffer> tntIB(VoxelEngine::IndexBuffer::Create(cubeIndices, sizeof(cubeIndices) / sizeof(uint32_t)));
-	m_Tnt->SetIndexBuffer(tntIB);
 }
 GameLayer::~GameLayer()
 {
@@ -285,8 +214,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
-		m_Tnt->Bind();
-		glDrawElementsInstanced(GL_TRIANGLES, 6 * 6, GL_UNSIGNED_INT, 0, 1000000);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 1000000);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
