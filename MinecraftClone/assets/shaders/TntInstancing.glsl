@@ -37,6 +37,11 @@ layout(std430, binding = 4) readonly buffer buffer4
 {
 	uvec3 debugBuffer[];
 };
+
+layout(std430, binding = 6) readonly buffer buffer6
+{
+	vec3 tntPositions[];
+};
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
     vec3[4](
@@ -107,16 +112,6 @@ void main()
 	const int index = gl_VertexID/6;
 
 	const int currVertexID = gl_VertexID % 6;
-
-	const uint x = 0;
-	const uint y = 0;
-	const uint z = 0;
-    
-    const int size = 100;
-    int xOffset = gl_InstanceID%size;
-    int yOffset = (gl_InstanceID/size)%size;
-    int zOffset = gl_InstanceID/(size*size);
-     
 	const uint normalId = index;
 	uint texId = 0;
     switch(normalId){
@@ -140,7 +135,7 @@ void main()
             break;
     }
 	
-	vec3 position = vec3(x+xOffset, y+yOffset, z+zOffset);
+	vec3 position = tntPositions[gl_InstanceID];
 
 	position += facePositions[normalId][indices[currVertexID]];
 

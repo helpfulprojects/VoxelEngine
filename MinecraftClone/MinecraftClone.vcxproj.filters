@@ -23,6 +23,7 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample6.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample7.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample8.h" />
+    <ClInclude Include="assets\shaders\compute\initTntTransforms.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">

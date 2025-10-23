@@ -15,6 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
+const int TNT_COUNT = 1000000;
 
 struct Chunk {
 	int x;
@@ -100,7 +101,6 @@ GameLayer::GameLayer()
 		auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
 		generateQuadsCompute->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 	}
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
@@ -157,6 +157,26 @@ GameLayer::GameLayer()
 		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
 		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_Cmd.size() * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
 	}
+
+	uint32_t tntPositionsSsbo;
+	{
+		VE_PROFILE_SCOPE("Init tntPositionsSsbo ssbo");
+		glCreateBuffers(1, &tntPositionsSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntPositionsSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntPositionsSsbo);
+	}
+	uint32_t tntVelocitiesSsbo;
+	{
+		VE_PROFILE_SCOPE("Init tntVelocitiesSsbo ssbo");
+		glCreateBuffers(1, &tntVelocitiesSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntVelocitiesSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntVelocitiesSsbo);
+	}
+	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl")->Bind();
+	glDispatchCompute(500000, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 GameLayer::~GameLayer()
 {
@@ -211,10 +231,15 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
 			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, m_Cmd.size(), 0);
 		}
+
+		//auto initTntTransformsCompute = m_ShaderLibrary.Get("initTntTransforms");
+		//initTntTransformsCompute->Bind();
+		//glDispatchCompute(500000, 1, 1);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, -1))
 		);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 1000000);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 500000);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
