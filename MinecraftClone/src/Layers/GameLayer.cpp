@@ -16,6 +16,7 @@ const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 const int TNT_COUNT = 1000000;
+const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 struct Chunk {
 	int x;
@@ -32,9 +33,10 @@ GameLayer::GameLayer()
 	:Layer("Example"),
 	m_Camera(70.0f, 0.1f, 1500.0f),
 	m_SquarePosition(-1.1f, 0, -0.5f),
-	m_CameraPosition(0, 0, 0)
+	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
+	m_CameraPosition.y -= 100;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -227,7 +229,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
 		m_TerrainAtlas->Bind();
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
-			glm::translate(glm::mat4(1), glm::vec3(-CHUNK_WIDTH * WORLD_WIDTH / 2, -CHUNK_WIDTH * WORLD_HEIGHT, -CHUNK_WIDTH * WORLD_WIDTH / 2))
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		{
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
@@ -240,7 +242,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		glDispatchCompute(500000, 1, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
-			glm::translate(glm::mat4(1), glm::vec3(0, 1000, -100))
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 500000);
 		VoxelEngine::Renderer::EndScene();
