@@ -1,0 +1,27 @@
+#type compute
+#version 430 core
+
+#define CHUNK_WIDTH 16
+#define WORLD_WIDTH 65
+#define WORLD_HEIGHT 16
+#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
+#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
+#define GRAVITY -28.57
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(std430, binding = 6) buffer buffer6
+{
+	vec3 tntPositions[];
+};
+layout(std430, binding = 7) buffer buffer7
+{
+	vec3 tntVelocities[];
+};
+uniform float u_DeltaTime;
+
+void main() {
+	uint index = gl_WorkGroupID.x+gl_LocalInvocationIndex;
+	tntVelocities[index].y = tntVelocities[index].y+GRAVITY*u_DeltaTime;
+	tntPositions[index] = tntPositions[index]+tntVelocities[index]*u_DeltaTime;
+}

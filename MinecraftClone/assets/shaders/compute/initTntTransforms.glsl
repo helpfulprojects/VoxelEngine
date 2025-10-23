@@ -19,11 +19,22 @@ layout(std430, binding = 7) buffer buffer7
 };
 
 void main() {
-	uint index = gl_WorkGroupID.x+gl_LocalInvocationIndex;
+	uint index = gl_WorkGroupID.x + gl_LocalInvocationIndex;
     const int size = 100;
-    uint xOffset = index%size;
-    uint yOffset = (index/size)%size;
-    uint zOffset = index/(size*size);
-	tntPositions[index] = vec3(xOffset,yOffset,zOffset);
-	tntVelocities[index] = vec3(0,0,0);
+
+    uint xOffset = index % size;
+    uint yOffset = (index / size) % size;
+    uint zOffset = index / (size * size);
+    tntPositions[index] = vec3(xOffset, yOffset, zOffset);
+
+    float seed = float(index);
+
+    float rand1 = fract(sin(seed * 12.9898) * 43758.5453);
+    float rand2 = fract(sin((seed + 1.0) * 78.233) * 43758.5453);
+    float rand3 = fract(sin((seed + 2.0) * 45.164) * 43758.5453);
+
+    vec3 randomDir = normalize(vec3(rand1 * 2.0 - 1.0,rand2, rand3 * 2.0 - 1.0));
+
+    float speed = 30; 
+    tntVelocities[index] = randomDir * speed;
 }
