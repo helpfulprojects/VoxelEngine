@@ -10,13 +10,15 @@
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
+struct TntEntity{
+    bool visible; 
+	vec3 position;
+	vec3 velocity;
+};
+
 layout(std430, binding = 6) buffer buffer6
 {
-	vec3 tntPositions[];
-};
-layout(std430, binding = 7) buffer buffer7
-{
-	vec3 tntVelocities[];
+	TntEntity tnts[];
 };
 
 void main() {
@@ -26,7 +28,7 @@ void main() {
     uint xOffset = index % size;
     uint yOffset = (index / size) % size;
     uint zOffset = index / (size * size);
-    tntPositions[index] = DEFAULT_SPAWN + vec3(xOffset, yOffset, zOffset);
+    tnts[index].position = DEFAULT_SPAWN + vec3(xOffset, yOffset, zOffset);
 
     float seed = float(index);
 
@@ -37,5 +39,8 @@ void main() {
     vec3 randomDir = normalize(vec3(rand1 * 2.0 - 1.0,rand2, rand3 * 2.0 - 1.0));
 
     float speed = 30; 
-    tntVelocities[index] = randomDir * speed;
+    tnts[index].velocity = randomDir * speed;
+    //if(index==499999){ tnts[index].visible = true; }else{
+	tnts[index].visible = true;
+    //}
 }

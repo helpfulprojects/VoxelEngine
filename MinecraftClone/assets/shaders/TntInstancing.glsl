@@ -38,9 +38,15 @@ layout(std430, binding = 4) readonly buffer buffer4
 	uvec3 debugBuffer[];
 };
 
-layout(std430, binding = 6) readonly buffer buffer6
+struct TntEntity{
+    bool visible; 
+	vec3 position;
+	vec3 velocity;
+};
+
+layout(std430, binding = 6) buffer buffer6
 {
-	vec3 tntPositions[];
+	TntEntity tnts[];
 };
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
@@ -135,21 +141,27 @@ void main()
             break;
     }
 	
-	vec3 position = tntPositions[gl_InstanceID];
+    bool showldDraw = tnts[gl_InstanceID].visible;
+    if(showldDraw){
+		vec3 position = tnts[gl_InstanceID].position;
 
-	position += facePositions[normalId][indices[currVertexID]];
+		position += facePositions[normalId][indices[currVertexID]];
 
-    v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
-    v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-    if(normalId == east || normalId == west){
-		v_StaticLight = vec4(0.8,0.8,0.8,1.0);
-    }else if(normalId == south || normalId == north){
-		v_StaticLight = vec4(0.7,0.7,0.7,1.0);
-    }else{
+		v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
 		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+		if(normalId == east || normalId == west){
+			v_StaticLight = vec4(0.8,0.8,0.8,1.0);
+		}else if(normalId == south || normalId == north){
+			v_StaticLight = vec4(0.7,0.7,0.7,1.0);
+		}else{
+			v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+		}
+		
+		gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
+    }else{
+		v_StaticLight = vec4(0.0,0.0,0.0,0.0);
+		gl_Position = vec4(0,0,0,0);
     }
-    
-	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
 }
 
 
@@ -182,5 +194,8 @@ uniform sampler2D u_Texture;
 
 void main()
 {
+    if(v_StaticLight.a==0){
+        discard;
+    }
 	color = texture(u_Texture,v_TexCoord)*v_StaticLight;
 }

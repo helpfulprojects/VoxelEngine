@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 1000000;
+const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 struct Chunk {
@@ -29,6 +29,7 @@ struct ChunkQuads {
 	uint32_t blockQuads[FACES_PER_CHUNK];
 };
 
+
 GameLayer::GameLayer()
 	:Layer("Example"),
 	m_Camera(70.0f, 0.1f, 1500.0f),
@@ -37,6 +38,7 @@ GameLayer::GameLayer()
 {
 	VE_PROFILE_FUNCTION;
 	m_CameraPosition.y -= 100;
+	m_CameraPosition.x -= 200;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -160,21 +162,13 @@ GameLayer::GameLayer()
 		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_Cmd.size() * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
 	}
 
-	uint32_t tntPositionsSsbo;
+	uint32_t tntEntitiesSsbo;
 	{
-		VE_PROFILE_SCOPE("Init tntPositionsSsbo ssbo");
-		glCreateBuffers(1, &tntPositionsSsbo);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntPositionsSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntPositionsSsbo);
-	}
-	uint32_t tntVelocitiesSsbo;
-	{
-		VE_PROFILE_SCOPE("Init tntVelocitiesSsbo ssbo");
-		glCreateBuffers(1, &tntVelocitiesSsbo);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntVelocitiesSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 3 * sizeof(float), nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntVelocitiesSsbo);
+		VE_PROFILE_SCOPE("Init tntEntitiesSsbo ssbo");
+		glCreateBuffers(1, &tntEntitiesSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntEntitiesSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl")->Bind();
 	glDispatchCompute(500000, 1, 1);
@@ -239,7 +233,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
 		updateTntTransformsCompute->Bind();
 		updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-		glDispatchCompute(500000, 1, 1);
+		glDispatchCompute(250000, 1, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
