@@ -20,10 +20,15 @@ layout(std430, binding = 6) buffer buffer6
 {
 	TntEntity tnts[];
 };
-
+vec3 hash33(vec3 p)
+{
+    p = fract(p * 0.1031);
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.xxy + p.yzz) * p.zyx);
+}
 void main() {
 	uint index = gl_WorkGroupID.x + gl_LocalInvocationIndex;
-    const int size = 100;
+    const int size = 80;
 
     uint xOffset = index % size;
     uint yOffset = (index / size) % size;
@@ -32,15 +37,16 @@ void main() {
 
     float seed = float(index);
 
-    float rand1 = fract(sin(seed * 12.9898) * 43758.5453);
-    float rand2 = fract(sin((seed + 1.0) * 78.233) * 43758.5453);
-    float rand3 = fract(sin((seed + 2.0) * 45.164) * 43758.5453);
+	vec3 rand = hash33(vec3(index, index + 1.0, index + 2.0));
+	vec3 randomDir = normalize(rand * 2.0 - 1.0);
 
-    vec3 randomDir = normalize(vec3(rand1 * 2.0 - 1.0,rand2, rand3 * 2.0 - 1.0));
-
-    float speed = 30; 
+    float speed = 35; 
     tnts[index].velocity = randomDir * speed;
-    //if(index==499999){ tnts[index].visible = true; }else{
+//    if(index>(1000000-2)){ 
+//		tnts[index].visible = true;
+//    }else{
+//		tnts[index].visible = false;
+//    }
+//
 	tnts[index].visible = true;
-    //}
 }

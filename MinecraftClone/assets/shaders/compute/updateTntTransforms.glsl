@@ -8,7 +8,7 @@
 #define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
 #define GRAVITY -28.57
 
-layout (local_size_x = 2, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 1, local_size_y = 2, local_size_z = 1) in;
 
 struct Chunk {
 	int x;

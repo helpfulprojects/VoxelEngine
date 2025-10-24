@@ -171,7 +171,7 @@ GameLayer::GameLayer()
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl")->Bind();
-	glDispatchCompute(500000, 1, 1);
+	glDispatchCompute(TNT_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl");
@@ -233,12 +233,12 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
 		updateTntTransformsCompute->Bind();
 		updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-		glDispatchCompute(250000, 1, 1);
+		glDispatchCompute(TNT_COUNT / 2, 1, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, 500000);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
