@@ -10,6 +10,8 @@
 
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 namespace VoxelEngine {
+	const int TICKS_PER_SECOND = 20;
+	const float SECONDS_PER_TICK = 1.0f / TICKS_PER_SECOND;
 	class Application
 	{
 	public:
@@ -45,6 +47,7 @@ namespace VoxelEngine {
 		static Application* s_Instance;
 		LayerStack m_LayerStack;
 		float m_LastFrameTime = 0.0f;
+		float m_TimeSinceLastTick = 0.0f;
 	};
 	// To be defined in CLIENT
 	Application* CreateApplication();

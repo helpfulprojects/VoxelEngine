@@ -13,6 +13,7 @@ public:
 	~GameLayer();
 	void OnAttach() override;
 	void OnUpdate(VoxelEngine::Timestep ts) override;
+	void OnTick() override;
 	void OnEvent(VoxelEngine::Event& event) override;
 	virtual void OnImGuiRender() override;
 	virtual void OnDetach() override;

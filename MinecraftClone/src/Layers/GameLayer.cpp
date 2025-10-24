@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 500000;
+const int TNT_COUNT = 5000000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 struct Chunk {
@@ -230,17 +230,20 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, m_Cmd.size(), 0);
 		}
 
-		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
-		updateTntTransformsCompute->Bind();
-		updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-		glDispatchCompute(TNT_COUNT / 2, 1, 1);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
 		VoxelEngine::Renderer::EndScene();
 	}
+}
+void GameLayer::OnTick()
+{
+	auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
+	updateTntTransformsCompute->Bind();
+	updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", VoxelEngine::SECONDS_PER_TICK);
+	glDispatchCompute(TNT_COUNT / 2, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {
 	VoxelEngine::EventDispatcher dispatcher(event);

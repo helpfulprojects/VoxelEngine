@@ -28,7 +28,7 @@ vec3 hash33(vec3 p)
 }
 void main() {
 	uint index = gl_WorkGroupID.x + gl_LocalInvocationIndex;
-    const int size = 80;
+    const int size = 171;
 
     uint xOffset = index % size;
     uint yOffset = (index / size) % size;
