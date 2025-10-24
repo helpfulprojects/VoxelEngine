@@ -10,7 +10,7 @@
 
 #include "VoxelEngine/ImGui/ImGuiLayer.h"
 namespace VoxelEngine {
-	const int TICKS_PER_SECOND = 20;
+	const int TICKS_PER_SECOND = 60;
 	const float SECONDS_PER_TICK = 1.0f / TICKS_PER_SECOND;
 	class Application
 	{
