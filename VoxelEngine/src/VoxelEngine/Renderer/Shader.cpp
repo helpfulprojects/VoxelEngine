@@ -34,6 +34,24 @@ namespace VoxelEngine {
 
 		m_Name = Utils::ExtractNameFromFilePath(filepath);
 	}
+	Shader::Shader(const std::string& filepath, const std::string& globalDefines)
+	{
+		VE_PROFILE_FUNCTION;
+		std::string source = Utils::ReadFile(filepath);
+		VE_CORE_ASSERT(!source.empty(), "Empty shader source read");
+		std::unordered_map<GLenum, std::string> shaderSources = PreProcess(source);
+		for (auto&& [key, value] : shaderSources) {
+			GLenum type = key;
+			if (type == GL_FRAGMENT_SHADER) {
+				continue;
+			}
+			const std::string& source = value;
+			shaderSources[key] = globalDefines + source;
+		}
+		Compile(shaderSources);
+
+		m_Name = Utils::ExtractNameFromFilePath(filepath);
+	}
 	Shader::~Shader()
 	{
 		VE_PROFILE_FUNCTION;
@@ -182,6 +200,10 @@ namespace VoxelEngine {
 	Ref<Shader> Shader::Create(const std::string& filePath) {
 		return std::make_shared<Shader>(filePath);
 	}
+	Ref<Shader> Shader::Create(const std::string& filePath, const std::string& globalDefines)
+	{
+		return std::make_shared<Shader>(filePath, globalDefines);
+	}
 	Ref<Shader> Shader::Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc)
 	{
 		return std::make_shared<Shader>(name, vertexSrc, fragmentSrc);
@@ -205,12 +227,18 @@ namespace VoxelEngine {
 		Add(shader);
 		return shader;
 	}
-	Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
+	Ref<Shader> ShaderLibrary::Load(const std::string& filepath, const std::string& globalDefines)
 	{
-		auto shader = Shader::Create(filepath);
-		Add(name, shader);
+		auto shader = Shader::Create(filepath, globalDefines);
+		Add(shader);
 		return shader;
 	}
+	//Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string& filepath)
+	//{
+	//	auto shader = Shader::Create(filepath);
+	//	Add(name, shader);
+	//	return shader;
+	//}
 	Ref<Shader> ShaderLibrary::Get(const std::string& name)
 	{
 		VE_CORE_ASSERT(Exists(name), "Shader doesn't exists");

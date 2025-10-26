@@ -1,19 +1,4 @@
 #type vertex
-#version 460 core
-#define CHUNK_WIDTH 16
-#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
-#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
-
-struct Chunk {
-	int x;
-	int y;
-	int z;
-	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
-};
-
-struct ChunkQuads {
-	uint blockQuads[FACES_PER_CHUNK];
-};
 
 layout(std430, binding = 0) readonly buffer buffer0 
 {
@@ -89,12 +74,6 @@ uniform mat4 u_Transform;
 
 out vec2 v_TexCoord;
 out vec4 v_StaticLight;
-#define top 0
-#define bottom 1
-#define east 2
-#define west 3
-#define south 4
-#define north 5
 void main()
 {
 	const uint MASK_3_BITS = (1u << 3) - 1u;
@@ -103,9 +82,9 @@ void main()
 	const int index = gl_VertexID/6;
 
     const uint chunkId = gl_BaseInstance;
-    int chunkX = chunksData[chunkId].x;
-    int chunkY = chunksData[chunkId].y;
-    int chunkZ = chunksData[chunkId].z;
+    uint chunkX = chunksData[chunkId].x;
+    uint chunkY = chunksData[chunkId].y;
+    uint chunkZ = chunksData[chunkId].z;
 
 	const uint packedData = chunksQuads[chunkId].blockQuads[index];
 	const int currVertexID = gl_VertexID % 6;

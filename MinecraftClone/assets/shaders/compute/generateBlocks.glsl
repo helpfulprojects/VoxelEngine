@@ -1,14 +1,29 @@
 #type compute
-#version 430 core
-
-#define CHUNK_WIDTH 16
-#define WORLD_WIDTH 65
-#define WORLD_HEIGHT 16
-#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
-#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
+layout(std430, binding = 0) buffer buffer0 
+{
+	Chunk chunksData[]; 
+};
+
+layout(std430, binding = 1) buffer buffer1 
+{
+	ChunkQuads chunksQuads[]; 
+};
+layout(std430, binding = 4) buffer buffer4
+{
+	uint debugBuffer[];
+};
+
+ivec3 offsets[6] = ivec3[6](
+    ivec3(0, 1, 0),
+    ivec3(0, -1, 0),
+    ivec3(1, 0, 0),
+    ivec3(-1, 0, 0),
+    ivec3(0, 0, 1),
+    ivec3(0, 0, -1)
+);
 //
 // GLSL textureless classic 2D noise "cnoise",
 // with an RSL-style periodic variant "pnoise".
@@ -78,39 +93,7 @@ float cnoise(vec2 P)
   return 2.3 * n_xy;
 }
 
-struct Chunk {
-	uint x;
-	uint y;
-	uint z;
-	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
-};
 
-struct ChunkQuads {
-	uint blockQuads[FACES_PER_CHUNK];
-};
-
-layout(std430, binding = 0) buffer buffer0 
-{
-	Chunk chunksData[]; 
-};
-
-layout(std430, binding = 1) buffer buffer1 
-{
-	ChunkQuads chunksQuads[]; 
-};
-layout(std430, binding = 4) buffer buffer4
-{
-	uint debugBuffer[];
-};
-
-ivec3 offsets[6] = ivec3[6](
-    ivec3(0, 1, 0),
-    ivec3(0, -1, 0),
-    ivec3(1, 0, 0),
-    ivec3(-1, 0, 0),
-    ivec3(0, 0, 1),
-    ivec3(0, 0, -1)
-);
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;

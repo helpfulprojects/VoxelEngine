@@ -18,11 +18,59 @@ const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
+const std::string GLOBAL_SHADER_DEFINES = R"(
+#version 460 core
+
+#define CHUNK_WIDTH 16
+#define WORLD_WIDTH 65
+#define WORLD_HEIGHT 16
+#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
+#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
+#define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
+#define GRAVITY -28.57
+
+struct Chunk {
+	uint x;
+	uint y;
+	uint z;
+	vec3 position;
+	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+	uint explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+};
+
+struct ChunkQuads {
+	uint blockQuads[FACES_PER_CHUNK];
+};
+
+struct TntEntity{
+    bool visible; 
+	vec3 position;
+	vec3 velocity;
+};
+
+#define top 0
+#define bottom 1
+#define east 2
+#define west 3
+#define south 4
+#define north 5
+
+
+#define dirt 0
+#define grass_block_top 1
+#define grass_block_side 2
+#define stone 3
+#define tnt_bottom 4
+#define tnt_side 5
+#define tnt_top 6
+)";
+
 struct Chunk {
 	int x;
 	int y;
 	int z;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+	uint32_t explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
 
 struct ChunkQuads {
@@ -84,7 +132,7 @@ GameLayer::GameLayer()
 	{
 		VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
 		//GEN BLOCKS
-		auto generateBlocksCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl");
+		auto generateBlocksCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl", GLOBAL_SHADER_DEFINES);
 		generateBlocksCompute->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
@@ -102,13 +150,13 @@ GameLayer::GameLayer()
 
 	{
 		VE_PROFILE_SCOPE("Compute Shader: Generate quads");
-		auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
+		auto generateQuadsCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl", GLOBAL_SHADER_DEFINES);
 		generateQuadsCompute->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 	}
-	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl");
-	m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl");
+	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl", GLOBAL_SHADER_DEFINES);
+	m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl", GLOBAL_SHADER_DEFINES);
 
 	uint32_t quadInfo;
 	glCreateBuffers(1, &quadInfo);
@@ -130,7 +178,6 @@ GameLayer::GameLayer()
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(textureOffsetsData), textureOffsetsData, GL_STATIC_DRAW);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, textureOffsets);
 
-	m_ShaderLibrary.Load("assets/shaders/compute/debug.glsl");
 
 	{
 		VE_PROFILE_SCOPE("Set up indirect buffer");
@@ -170,11 +217,11 @@ GameLayer::GameLayer()
 		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
-	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl")->Bind();
+	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES)->Bind();
 	glDispatchCompute(TNT_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl");
+	m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl", GLOBAL_SHADER_DEFINES);
 }
 GameLayer::~GameLayer()
 {
@@ -243,6 +290,7 @@ void GameLayer::OnTick()
 	updateTntTransformsCompute->Bind();
 	updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", VoxelEngine::SECONDS_PER_TICK);
 	glDispatchCompute(TNT_COUNT / 2, 1, 1);
+	//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {

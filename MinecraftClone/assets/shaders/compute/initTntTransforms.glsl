@@ -1,20 +1,6 @@
 #type compute
-#version 430 core
-
-#define CHUNK_WIDTH 16
-#define WORLD_WIDTH 65
-#define WORLD_HEIGHT 16
-#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
-#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
-#define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-
-struct TntEntity{
-    bool visible; 
-	vec3 position;
-	vec3 velocity;
-};
 
 layout(std430, binding = 6) buffer buffer6
 {

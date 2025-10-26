@@ -8,6 +8,7 @@ namespace VoxelEngine {
 	public:
 		Shader(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		Shader(const std::string& filepath);
+		Shader(const std::string& filepath, const std::string& globalDefines);
 		~Shader();
 
 		void Bind() const;
@@ -27,6 +28,7 @@ namespace VoxelEngine {
 
 		static Ref<Shader> Create(const std::string& name, const std::string& vertexSrc, const std::string& fragmentSrc);
 		static Ref<Shader> Create(const std::string& filePath);
+		static Ref<Shader> Create(const std::string& filePath, const std::string& globalDefines);
 	protected:
 		std::unordered_map<GLenum, std::string> PreProcess(const std::string& source);
 		void Compile(const std::unordered_map<GLenum, std::string>& shaderSources);
@@ -40,7 +42,8 @@ namespace VoxelEngine {
 		void Add(const Ref<Shader>& shader);
 		void Add(const std::string& name, const Ref<Shader>& shader);
 		Ref<Shader> Load(const std::string& filepath);
-		Ref<Shader> Load(const std::string& name, const std::string& filepath);
+		Ref<Shader> Load(const std::string& filepath, const std::string& globalDefines);
+		//Ref<Shader> Load(const std::string& name, const std::string& filepath);
 
 		Ref<Shader> Get(const std::string& name);
 		bool Exists(const std::string& name) const;
