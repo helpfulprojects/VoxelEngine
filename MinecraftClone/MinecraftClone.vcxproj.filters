@@ -49,5 +49,6 @@
     <None Include="assets\shaders\compute\generateQuads.glsl" />
     <None Include="assets\shaders\TntInstancing.glsl" />
     <None Include="assets\shaders\compute\updateTntTransforms.glsl" />
+    <None Include="assets\shaders\compute\propagateExplosions.glsl" />
   </ItemGroup>
 </Project>

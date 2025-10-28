@@ -25,6 +25,7 @@ namespace VoxelEngine {
 		Compile(sources);
 	}
 	Shader::Shader(const std::string& filepath)
+		:m_Filepath(filepath)
 	{
 		VE_PROFILE_FUNCTION;
 		std::string source = Utils::ReadFile(filepath);
@@ -35,6 +36,7 @@ namespace VoxelEngine {
 		m_Name = Utils::ExtractNameFromFilePath(filepath);
 	}
 	Shader::Shader(const std::string& filepath, const std::string& globalDefines)
+		:m_Filepath(filepath)
 	{
 		VE_PROFILE_FUNCTION;
 		std::string source = Utils::ReadFile(filepath);
@@ -150,7 +152,7 @@ namespace VoxelEngine {
 				// We don't need the shader anymore.
 				glDeleteShader(shader);
 
-				VE_CORE_ERROR("{0}", infoLog.data());
+				VE_CORE_ERROR("{0} -> {1}", m_Filepath, infoLog.data());
 				VE_CORE_ASSERT(false, "Shader compilation failure!");
 				break;
 			}

@@ -10,8 +10,8 @@ struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
 const int CHUNK_WIDTH = 16;
-const int WORLD_WIDTH = 65;
-const int WORLD_HEIGHT = 16;
+const int WORLD_WIDTH = 3;
+const int WORLD_HEIGHT = 1;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
@@ -21,19 +21,20 @@ const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_H
 const std::string GLOBAL_SHADER_DEFINES = R"(
 #version 460 core
 
-#define CHUNK_WIDTH 16
-#define WORLD_WIDTH 65
-#define WORLD_HEIGHT 16
+#define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) + R"(
+#define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) + R"(
+#define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) + R"(
 #define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
 #define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
 #define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
+#define TNT_EXPLOSION_STRENGTH 4
 
 struct Chunk {
 	uint x;
 	uint y;
 	uint z;
-	vec3 position;
+	bool hasExplosion;
 	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 	uint explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
@@ -63,12 +64,18 @@ struct TntEntity{
 #define tnt_bottom 4
 #define tnt_side 5
 #define tnt_top 6
+
+#define MASK_3_BITS  0x7u
+#define MASK_4_BITS  0xFu
+#define MASK_8_BITS  0xFFu
+#define MASK_24_BITS 0xFFFFFFu
 )";
 
 struct Chunk {
 	int x;
 	int y;
 	int z;
+	int hasExplosion;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 	uint32_t explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
@@ -85,8 +92,8 @@ GameLayer::GameLayer()
 	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
-	m_CameraPosition.y -= 80;
-	m_CameraPosition.x -= 300;
+	//m_CameraPosition.y -= 80;
+	//m_CameraPosition.x -= 300;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -135,7 +142,7 @@ GameLayer::GameLayer()
 		auto generateBlocksCompute = m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl", GLOBAL_SHADER_DEFINES);
 		generateBlocksCompute->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
 	uint32_t genQuadsSsbo;
@@ -222,6 +229,7 @@ GameLayer::GameLayer()
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl", GLOBAL_SHADER_DEFINES);
+	m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl", GLOBAL_SHADER_DEFINES);
 }
 GameLayer::~GameLayer()
 {

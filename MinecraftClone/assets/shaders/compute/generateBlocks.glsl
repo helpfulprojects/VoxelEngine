@@ -113,7 +113,7 @@ void main() {
 			uint blockZ = z+chunkZ;
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
-			int surfaceLevel = int(noise * amplitude + baseHeight);
+			int surfaceLevel = 14;
 
 			for(int y=0;y<CHUNK_WIDTH;y++){
 				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;
@@ -126,6 +126,9 @@ void main() {
 				} else{
 					chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 				}
+
+				chunksData[chunkIndex].explosions[x][y][z] = 0;
+				chunksData[chunkIndex].hasExplosion = false;
 			}
 		}
 	}

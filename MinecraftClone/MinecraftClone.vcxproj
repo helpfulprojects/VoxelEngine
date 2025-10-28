@@ -162,6 +162,7 @@
   <ItemGroup>
     <None Include="assets\shaders\compute\generateBlocks.glsl" />
     <None Include="assets\shaders\compute\generateQuads.glsl" />
+    <None Include="assets\shaders\compute\propagateExplosions.glsl" />
     <None Include="assets\shaders\compute\updateTntTransforms.glsl" />
     <None Include="assets\shaders\TntInstancing.glsl" />
     <None Include="assets\shaders\DrawTerrain.glsl" />

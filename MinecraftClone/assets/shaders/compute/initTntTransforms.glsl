@@ -34,5 +34,5 @@ void main() {
 //		tnts[index].visible = false;
 //    }
 //
-	tnts[index].visible = true;
+	tnts[index].visible = false;
 }

@@ -76,9 +76,6 @@ out vec2 v_TexCoord;
 out vec4 v_StaticLight;
 void main()
 {
-	const uint MASK_3_BITS = (1u << 3) - 1u;
-	const uint MASK_4_BITS = (1u << 4) - 1u;
-	const uint MASK_8_BITS = (1u << 8) - 1u;
 	const int index = gl_VertexID/6;
 
     const uint chunkId = gl_BaseInstance;
