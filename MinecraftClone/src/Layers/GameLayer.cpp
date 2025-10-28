@@ -18,9 +18,8 @@ const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
-const std::string GLOBAL_SHADER_DEFINES = R"(
+const std::string GLOBAL_SHADER_DEFINES = R"( 
 #version 460 core
-
 #define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) + R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) + R"(
 #define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) + R"(
@@ -35,6 +34,7 @@ struct Chunk {
 	uint y;
 	uint z;
 	bool hasExplosion;
+	bool shouldRedraw;
 	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 	uint explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
@@ -76,6 +76,7 @@ struct Chunk {
 	int y;
 	int z;
 	int hasExplosion;
+	int shouldRedraw;
 	uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 	uint32_t explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
 };
@@ -132,7 +133,9 @@ GameLayer::GameLayer()
 		VE_PROFILE_SCOPE("Init renderDataSsbo ssbo");
 		glCreateBuffers(1, &renderDataSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderDataSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		//glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBufferStorage(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * sizeof(uint32_t), nullptr, GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT);
+		m_ChunksQuadCount = static_cast<uint32_t*>(glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, TOTAL_CHUNKS * sizeof(uint32_t), GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, renderDataSsbo);
 	}
 
@@ -161,6 +164,12 @@ GameLayer::GameLayer()
 		generateQuadsCompute->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		// After compute shader or rendering that writes to SSBO:
+		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+
+		// Wait until GPU finishes writing:
+		glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000000); // 1s timeout
+		glDeleteSync(sync);
 	}
 	m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl", GLOBAL_SHADER_DEFINES);
 	m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl", GLOBAL_SHADER_DEFINES);
@@ -187,33 +196,30 @@ GameLayer::GameLayer()
 
 
 	{
+		GLuint indirectBuffer;
+		glGenBuffers(1, &indirectBuffer);
+		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
+		//glBufferData(GL_DRAW_INDIRECT_BUFFER, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
+		glBufferStorage(GL_DRAW_INDIRECT_BUFFER, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand), nullptr, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT);
+		m_Cmd = static_cast<DrawArraysIndirectCommand*>(glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+
 		VE_PROFILE_SCOPE("Set up indirect buffer");
 		int vertsPerQuad = 6;
 		int quadsPerBlock = 6;
 		int blocks = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 		int chunks = TOTAL_CHUNKS;
 		int vertsPerChunk = blocks * quadsPerBlock * vertsPerQuad;
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, renderDataSsbo);
-		uint32_t* gpuData = (uint32_t*)glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-		if (gpuData) {
+		if (m_ChunksQuadCount) {
 			for (int i = 0; i < TOTAL_CHUNKS; i++) {
-				int count = gpuData[i];
-				if (count == 0) continue;
+				int count = m_ChunksQuadCount[i];
 				DrawArraysIndirectCommand cmd;
 				cmd.count = count * vertsPerQuad;
 				cmd.instanceCount = 1;
 				cmd.first = 0;
 				cmd.baseInstance = i;
-				m_Cmd.push_back(cmd);
+				m_Cmd[i] = cmd;
 			}
-
-			// Always unmap after you’re done
-			glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 		}
-		GLuint indirectBuffer;
-		glGenBuffers(1, &indirectBuffer);
-		glBindBuffer(GL_DRAW_INDIRECT_BUFFER, indirectBuffer);
-		glBufferData(GL_DRAW_INDIRECT_BUFFER, m_Cmd.size() * sizeof(DrawArraysIndirectCommand), m_Cmd.data(), GL_STATIC_DRAW);
 	}
 
 	uint32_t tntEntitiesSsbo;
@@ -223,6 +229,15 @@ GameLayer::GameLayer()
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntEntitiesSsbo);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
+	}
+	uint32_t tntExplosionsQeueusSsbo;
+	int queueCap = 1;
+	{
+		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
+		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntExplosionsQeueusSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, 1 * queueCap * 3 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntExplosionsQeueusSsbo);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES)->Bind();
 	glDispatchCompute(TNT_COUNT, 1, 1);
@@ -282,7 +297,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		);
 		{
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
-			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, m_Cmd.size(), 0);
+			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
 		}
 
 		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
@@ -300,6 +315,19 @@ void GameLayer::OnTick()
 	glDispatchCompute(TNT_COUNT / 2, 1, 1);
 	//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	//auto propagateExplosionsCompute = m_ShaderLibrary.Get("propagateExplosions");
+	//propagateExplosionsCompute->Bind();
+	//glDispatchCompute(1, 1, 1);
+	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	{
+		VE_PROFILE_SCOPE("Compute Shader: Generate quads");
+		auto generateQuadsCompute = m_ShaderLibrary.Get("generateQuads");
+		generateQuadsCompute->Bind();
+		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	}
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {
 	VoxelEngine::EventDispatcher dispatcher(event);

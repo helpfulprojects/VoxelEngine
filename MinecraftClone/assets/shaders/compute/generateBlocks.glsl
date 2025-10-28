@@ -97,6 +97,7 @@ float cnoise(vec2 P)
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
+	chunksData[chunkIndex].shouldRedraw = true;
 	int index = 0;
 
 	float freq = 0.005;     
@@ -128,6 +129,9 @@ void main() {
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
+				if(gl_WorkGroupID.x == 1 && gl_WorkGroupID.z == 1 && x == 6 && z == 6 && y == 15){
+					chunksData[chunkIndex].explosions[x][y][z] = TNT_EXPLOSION_STRENGTH;
+				}
 				chunksData[chunkIndex].hasExplosion = false;
 			}
 		}

@@ -30,6 +30,7 @@ private:
 	float m_CameraMoveSpeed = 50.0f;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
-	std::vector<DrawArraysIndirectCommand> m_Cmd;
+	DrawArraysIndirectCommand* m_Cmd;
+	uint32_t* m_ChunksQuadCount;
 	const glm::vec3 m_GrassColorOverlay{ 112.0f,160.0f,70.0f };
 };
