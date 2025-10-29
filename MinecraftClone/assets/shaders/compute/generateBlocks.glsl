@@ -125,7 +125,7 @@ void main() {
 			uint blockZ = z+chunkZ;
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
-			int surfaceLevel = 14;
+			int surfaceLevel = 15;
 
 			for(int y=0;y<CHUNK_WIDTH;y++){
 				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;
@@ -140,12 +140,14 @@ void main() {
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
-				if(gl_WorkGroupID.x == 1 && gl_WorkGroupID.z == 1 && x == 6 && z == 6 && y == 15){
-					chunksData[chunkIndex].explosions[x][y][z] = TNT_EXPLOSION_STRENGTH;
-				}
 				chunksData[chunkIndex].hasExplosion = false;
 			}
 		}
 	}
+	if(gl_WorkGroupID.x == 1 && gl_WorkGroupID.z == 1){
+		chunksData[chunkIndex].explosions[8][15][8] = TNT_EXPLOSION_STRENGTH;
+		chunksData[chunkIndex].hasExplosion = true;
+	}
+
 }
 

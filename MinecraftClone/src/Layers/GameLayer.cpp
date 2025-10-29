@@ -305,15 +305,13 @@ void GameLayer::OnTick()
 	//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	//auto propagateExplosionsCompute = m_ShaderLibrary.Get("propagateExplosions");
-	//propagateExplosionsCompute->Bind();
-	//glDispatchCompute(1, 1, 1);
-	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	m_ShaderLibrary.Get("propagateExplosions")->Bind();
+	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 
 	{
 		VE_PROFILE_SCOPE("Compute Shader: Generate quads");
-		auto generateQuadsCompute = m_ShaderLibrary.Get("generateQuads");
-		generateQuadsCompute->Bind();
+		m_ShaderLibrary.Get("generateQuads")->Bind();
 		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 		// After compute shader or rendering that writes to SSBO:
@@ -342,7 +340,7 @@ void GameLayer::OnTick()
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {
 	VoxelEngine::EventDispatcher dispatcher(event);
-	dispatcher.Dispatch<VoxelEngine::KeyPressedEvent>([](VoxelEngine::KeyPressedEvent& e) {
+	dispatcher.Dispatch<VoxelEngine::KeyPressedEvent>([&](VoxelEngine::KeyPressedEvent& e) {
 		if (e.GetKeyCode() == VE_KEY_ESCAPE) {
 			VoxelEngine::Application::Get().Close();
 			return true;

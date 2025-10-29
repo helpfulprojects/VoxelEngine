@@ -22,7 +22,7 @@ layout(std430, binding = 5) buffer buffer5
 };
 layout(std430, binding = 8) buffer buffer8
 {
-	uint shouldRedrawWorld; 
+	bool shouldRedrawWorld; 
 };
 
 layout(std430, binding = 9) buffer buffer9
@@ -65,7 +65,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-	if(shouldRedrawWorld == 0){
+	if(!shouldRedrawWorld){
 		return;
 	}
 	if(!shouldRedrawChunk[chunkIndex]){
@@ -73,9 +73,9 @@ void main() {
 		return;	
 	}
 	//chunksData[chunkIndex].shouldRedraw = false;
-//	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
-//		chunksQuads[chunkIndex].blockQuads[i] = 0u;
-//	}
+	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
+		chunksQuads[chunkIndex].blockQuads[i] = 0u;
+	}
 
 	int index = 0;
 	for(int x=0;x<CHUNK_WIDTH;x++){
@@ -97,7 +97,7 @@ void main() {
 						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
 						else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
-						uint neighbourType = 1;
+						uint neighbourType = 0;
 						uvec3 neighbourChunkPosition = uvec3( gl_WorkGroupID.x + neighbourChunkOffset.x,
 															gl_WorkGroupID.y + neighbourChunkOffset.y,
 															gl_WorkGroupID.z + neighbourChunkOffset.z
