@@ -10,7 +10,7 @@ uint chunkPosition;
 uint previousValue;
 };
 struct Queue{
-	Node nodes[1];
+	Node nodes[300];
 };
 layout(std430, binding = 7) buffer buffer7
 {
@@ -27,6 +27,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
+	return;
 //	uint chunkX = (gl_WorkGroupID.x+u_Offset.x)*2;
 //	uint chunkY = (gl_WorkGroupID.y+u_Offset.y)*2;
 //	uint chunkZ = (gl_WorkGroupID.z+u_Offset.z)*2;

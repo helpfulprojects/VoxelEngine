@@ -16,6 +16,16 @@ layout(std430, binding = 4) buffer buffer4
 	uint debugBuffer[];
 };
 
+layout(std430, binding = 8) buffer buffer8
+{
+	bool shouldRedrawWorld; 
+};
+
+layout(std430, binding = 9) buffer buffer9
+{
+	bool shouldRedrawChunk[]; 
+};
+
 ivec3 offsets[6] = ivec3[6](
     ivec3(0, 1, 0),
     ivec3(0, -1, 0),
@@ -97,7 +107,8 @@ float cnoise(vec2 P)
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-	chunksData[chunkIndex].shouldRedraw = true;
+	shouldRedrawWorld = true;
+	shouldRedrawChunk[chunkIndex] = true;
 	int index = 0;
 
 	float freq = 0.005;     

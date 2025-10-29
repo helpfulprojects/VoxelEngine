@@ -32,5 +32,8 @@ private:
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
 	DrawArraysIndirectCommand* m_Cmd;
 	uint32_t* m_ChunksQuadCount;
+	bool* m_ShouldRedrawWorld;
+	uint32_t* m_ShouldRedrawChunk;
 	const glm::vec3 m_GrassColorOverlay{ 112.0f,160.0f,70.0f };
+	GLsync m_FenceSynce;
 };

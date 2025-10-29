@@ -20,6 +20,15 @@ layout(std430, binding = 5) buffer buffer5
 {
 	uint renderData[];
 };
+layout(std430, binding = 8) buffer buffer8
+{
+	uint shouldRedrawWorld; 
+};
+
+layout(std430, binding = 9) buffer buffer9
+{
+	bool shouldRedrawChunk[]; 
+};
 
 ivec3 offsets[6] = ivec3[6](
     ivec3(0, 1, 0),
@@ -56,12 +65,14 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-
-	if(!chunksData[chunkIndex].shouldRedraw){
-		renderData[chunkIndex] = 0;
+	if(shouldRedrawWorld == 0){
+		return;
+	}
+	if(!shouldRedrawChunk[chunkIndex]){
+		//renderData[chunkIndex] = 0;
 		return;	
 	}
-	chunksData[chunkIndex].shouldRedraw = false;
+	//chunksData[chunkIndex].shouldRedraw = false;
 //	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
 //		chunksQuads[chunkIndex].blockQuads[i] = 0u;
 //	}
