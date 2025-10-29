@@ -30,8 +30,20 @@ layout(std430, binding = 9) buffer buffer9
 
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	Queue queue = chunksQueue[chunkIndex];
-	int front = 0, back = 0;
-
+	uint blockLocalPositionBinary = x | y<<4 | z <<8;
+	int front = 0;
+	int back = 0;
+	queue.nodes[back++] = Node(blockLocalPositionBinary,0,1);
+	while(front<back){
+		Node node = queue.nodes[front++];
+		const uint x = (node.localPosition) & MASK_4_BITS;
+		const uint y = (node.localPosition >> 4) & MASK_4_BITS;
+		const uint z = (node.localPosition >> 8) & MASK_4_BITS;
+		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+		if(node.previousValue == 1){
+			queue.nodes[back++] = Node(x+1 | y<<4 | z <<8,0,0);
+		}
+	}
 }
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
@@ -56,8 +68,8 @@ void main() {
 				//uint explosionOwner = (chunksData[chunkIndex].explosions[x][y][z]>>3) & MASK_24_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					chunksData[chunkIndex].explosions[x][y][z] = 0;
-					//propagateExplosion(chunkIndex,x,y,z);
-					chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+					propagateExplosion(chunkIndex,x,y,z);
+					//chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 					shouldRedrawWorld = true;
 					shouldRedrawChunk[chunkIndex] = true;
 					//dfs(Node(x,y,z,chunkX,chunkY,chunkZ,explosionValue+1,explosionOwner));
