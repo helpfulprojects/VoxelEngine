@@ -69,6 +69,7 @@ struct TntEntity{
 
 #define MASK_3_BITS  0x7u
 #define MASK_4_BITS  0xFu
+#define MASK_7_BITS  0x7Fu
 #define MASK_8_BITS  0xFFu
 #define MASK_24_BITS 0xFFFFFFu
 )";
