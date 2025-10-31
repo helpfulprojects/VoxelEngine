@@ -10,12 +10,12 @@ struct FaceModel {
 	const glm::vec2* texCoordsOrigin;
 };
 const int CHUNK_WIDTH = 16;
-const int WORLD_WIDTH = 3;
-const int WORLD_HEIGHT = 1;
+const int WORLD_WIDTH = 65;
+const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 500000;
+const int TNT_COUNT = 1000000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 const int VERTS_PER_QUAD = 6;
@@ -95,8 +95,8 @@ GameLayer::GameLayer()
 	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
-	//m_CameraPosition.y -= 80;
-	//m_CameraPosition.x -= 300;
+	m_CameraPosition.y -= 150;
+	m_CameraPosition.x -= 300;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -122,6 +122,15 @@ GameLayer::GameLayer()
 
 	}
 
+	uint32_t tntExplosionsQeueusSsbo;
+	int queueCap = 300;
+	{
+		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
+		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntExplosionsQeueusSsbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * queueCap * 3 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntExplosionsQeueusSsbo);
+	}
 	uint32_t chunksSsbo;
 	{
 		VE_PROFILE_SCOPE("Init chunks data ssbo");
@@ -219,22 +228,23 @@ GameLayer::GameLayer()
 		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
-	uint32_t tntExplosionsQeueusSsbo;
-	int queueCap = 300;
-	{
-		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
-		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntExplosionsQeueusSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * queueCap * 3 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntExplosionsQeueusSsbo);
-	}
 	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES)->Bind();
 	glDispatchCompute(TNT_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl", GLOBAL_SHADER_DEFINES);
-	m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl", GLOBAL_SHADER_DEFINES);
-	m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl", GLOBAL_SHADER_DEFINES);
+	{
+		VE_PROFILE_SCOPE("Load updateTntTransforms.glsl");
+		m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl", GLOBAL_SHADER_DEFINES);
+	}
+	{
+		VE_PROFILE_SCOPE("Load propagateExplosions.glsl");
+		m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl", GLOBAL_SHADER_DEFINES);
+	}
+	{
+		VE_PROFILE_SCOPE("Load generateQuads.glsl");
+		m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl", GLOBAL_SHADER_DEFINES);
+	}
+	m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl", GLOBAL_SHADER_DEFINES);
 }
 GameLayer::~GameLayer()
 {
@@ -297,17 +307,52 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::EndScene();
 	}
 }
-void GameLayer::OnTick()
+void GameLayer::OnTick(VoxelEngine::Timestep ts)
 {
-	auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
-	updateTntTransformsCompute->Bind();
-	updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", VoxelEngine::SECONDS_PER_TICK);
-	glDispatchCompute(TNT_COUNT / 2, 1, 1);
-	//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	VE_PROFILE_FUNCTION;
+	{
+		VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
+		updateTntTransformsCompute->Bind();
+		updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+		glDispatchCompute(TNT_COUNT / 2, 1, 1);
+		//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	}
+	auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
+	propagateExplosions->Bind();
+	uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
+	uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
+	{
+		VE_PROFILE_SCOPE("Compute shader: propagate explosions");
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,0 });
+		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,0 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,1 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,1 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,0 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,0 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,1 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,1 });
+		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	}
 
-	m_ShaderLibrary.Get("propagateExplosions")->Bind();
-	glDispatchCompute(1, 1, 1);
+	m_ShaderLibrary.Get("clearExplosions")->Bind();
+	glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 
 	{
@@ -346,6 +391,10 @@ void GameLayer::OnEvent(VoxelEngine::Event& event) {
 			VoxelEngine::Application::Get().Close();
 			return true;
 		}
+		if (e.GetKeyCode() == VE_KEY_C) {
+			ForceRedraw();
+			return true;
+		}
 		return false;
 		});
 	dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>([&](VoxelEngine::MouseMovedEvent& e) {
@@ -356,6 +405,14 @@ void GameLayer::OnEvent(VoxelEngine::Event& event) {
 		m_Camera.RecalculateProjectionMatrix();
 		return false;
 		});
+}
+
+void GameLayer::ForceRedraw()
+{
+	*m_ShouldRedrawWorld = true;
+	for (int i = 0; i < TOTAL_CHUNKS; i++) {
+		m_ShouldRedrawChunk[i] = true;
+	}
 }
 
 void GameLayer::OnImGuiRender() {

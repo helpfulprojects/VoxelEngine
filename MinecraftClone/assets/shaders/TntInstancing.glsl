@@ -108,6 +108,7 @@ void main()
     }
 	
     bool showldDraw = tnts[gl_InstanceID].visible;
+    //bool showldDraw = true;
     if(showldDraw){
 		vec3 position = tnts[gl_InstanceID].position;
 

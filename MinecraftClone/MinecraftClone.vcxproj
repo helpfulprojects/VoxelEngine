@@ -160,6 +160,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\shaders\compute\clearExplosions.glsl" />
     <None Include="assets\shaders\compute\generateBlocks.glsl" />
     <None Include="assets\shaders\compute\generateQuads.glsl" />
     <None Include="assets\shaders\compute\propagateExplosions.glsl" />

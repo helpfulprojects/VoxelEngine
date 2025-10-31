@@ -10,7 +10,7 @@ namespace VoxelEngine {
 		Layer(const std::string& name = "Layer");
 		virtual ~Layer();
 		virtual void OnAttach() {}
-		virtual void OnTick() {}
+		virtual void OnTick(Timestep ts) {}
 		virtual void OnDetach() {}
 		virtual void OnUpdate(Timestep ts) {}
 		virtual void OnImGuiRender() {}

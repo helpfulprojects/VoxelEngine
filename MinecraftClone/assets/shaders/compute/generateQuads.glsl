@@ -97,7 +97,7 @@ void main() {
 						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
 						else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
-						uint neighbourType = 0;
+						uint neighbourType = 1;
 						uvec3 neighbourChunkPosition = uvec3( gl_WorkGroupID.x + neighbourChunkOffset.x,
 															gl_WorkGroupID.y + neighbourChunkOffset.y,
 															gl_WorkGroupID.z + neighbourChunkOffset.z

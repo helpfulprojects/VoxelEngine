@@ -26,7 +26,7 @@ layout(std430, binding = 9) buffer buffer9
 	bool shouldRedrawChunk[]; 
 };
 
-//uniform uvec3 u_Offset;
+uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
     ivec3(0, 1, 0),
@@ -36,12 +36,11 @@ ivec3 offsets[6] = ivec3[6](
     ivec3(0, 0, 1),
     ivec3(0, 0, -1)
 );
-	const uint startingChunkX = 1;
-	const uint startingChunkY = 0;
-	const uint startingChunkZ = 1;
+uint startingChunkX = (gl_WorkGroupID.x+uint(u_Offset.x))*1;
+uint startingChunkY = (gl_WorkGroupID.y+uint(u_Offset.y))*1;
+uint startingChunkZ = (gl_WorkGroupID.z+uint(u_Offset.z))*1;
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
-	shouldRedrawChunk[chunkIndex] = true;
 	Queue queue = chunksQueue[chunkIndex];
 	int front = 0;
 	int back = 0;
@@ -60,6 +59,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		uint chunkIndex = chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 
 		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+		shouldRedrawChunk[chunkIndex] = true;
 		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
 		chunksData[chunkIndex].explosions[x][y][z] = (node.previousValue & MASK_3_BITS)-1;
 
@@ -101,14 +101,10 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
-//	uint startingChunkX = (gl_WorkGroupID.x+u_Offset.x)*2;
-//	uint startingChunkY = (gl_WorkGroupID.y+u_Offset.y)*2;
-//	uint startingChunkZ = (gl_WorkGroupID.z+u_Offset.z)*2;
 	uint chunkIndex = startingChunkX+startingChunkY*WORLD_WIDTH+startingChunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 	if(!chunksData[chunkIndex].hasExplosion){
 		return;
 	}
-
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int z=0;z<CHUNK_WIDTH;z++){
 			for(int y=0;y<CHUNK_WIDTH;y++){
@@ -126,5 +122,4 @@ void main() {
 			}
 		}
 	}
-	chunksData[chunkIndex].hasExplosion = false;
 }

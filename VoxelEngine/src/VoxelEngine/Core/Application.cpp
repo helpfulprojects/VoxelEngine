@@ -33,14 +33,26 @@ namespace VoxelEngine {
 			VE_PROFILE_SCOPE("RunLoop");
 			float time = (float)glfwGetTime(); // Platform::GetTime
 			Timestep timestep = time - m_LastFrameTime;
+			Timestep onTickDelta = SECONDS_PER_TICK;
 			m_TimeSinceLastTick += timestep;
 			m_LastFrameTime = time;
-			if (m_TimeSinceLastTick >= SECONDS_PER_TICK) {
+
+			bool lockToDeltaTime = timestep > SECONDS_PER_TICK;
+			if (lockToDeltaTime) {
+				onTickDelta = timestep;
+			}
+
+			if (lockToDeltaTime || m_TimeSinceLastTick >= SECONDS_PER_TICK) {
 				VE_PROFILE_SCOPE("LayerStack OnTick");
 				for (const Scope<Layer>& layer : m_LayerStack) {
-					layer->OnTick();
+					layer->OnTick(onTickDelta);
 				}
-				m_TimeSinceLastTick -= SECONDS_PER_TICK;
+				if (lockToDeltaTime) {
+					m_TimeSinceLastTick = 0;
+				}
+				else {
+					m_TimeSinceLastTick -= SECONDS_PER_TICK;
+				}
 			}
 			{
 				VE_PROFILE_SCOPE("LayerStack OnUpdate");

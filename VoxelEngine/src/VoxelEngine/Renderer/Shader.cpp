@@ -137,7 +137,10 @@ namespace VoxelEngine {
 			GLuint shader = glCreateShader(type);
 			const char* sourceCStr = source.c_str();
 			glShaderSource(shader, 1, &sourceCStr, 0);
-			glCompileShader(shader);
+			{
+				VE_PROFILE_SCOPE("Compile shader source code");
+				glCompileShader(shader);
+			}
 			GLint isCompiled = 0;
 			glGetShaderiv(shader, GL_COMPILE_STATUS, &isCompiled);
 			if (isCompiled == GL_FALSE)
@@ -161,35 +164,57 @@ namespace VoxelEngine {
 		}
 
 
-		// Link our m_RendererID
-		glLinkProgram(program);
-
-		// Note the different functions here: glGetProgram* instead of glGetShader*.
-		GLint isLinked = 0;
-		glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
-		if (isLinked == GL_FALSE)
 		{
-			GLint maxLength = 0;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+			VE_PROFILE_SCOPE("Link shader program");
+			// Link our m_RendererID
+			glLinkProgram(program);
+		}
 
-			// The maxLength includes the NULL character
-			std::vector<GLchar> infoLog(maxLength);
-			glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+		{
+			VE_PROFILE_SCOPE("Check for shader linking errors");
+			// Note the different functions here: glGetProgram* instead of glGetShader*.
+			GLint isLinked = 0;
+			{
+				VE_PROFILE_SCOPE("Get link status");
+				glGetProgramiv(program, GL_LINK_STATUS, (int*)&isLinked);
 
-			// We don't need the program anymore.
-			glDeleteProgram(program);
-			// Don't leak shaders either.
-			for (auto id : glShaderIDs) {
-				glDeleteShader(id);
 			}
+			if (isLinked == GL_FALSE)
+			{
+				GLint maxLength = 0;
+				{
+					VE_PROFILE_SCOPE("Get info log length");
+					glGetProgramiv(program, GL_INFO_LOG_LENGTH, &maxLength);
+				}
 
-			VE_CORE_ERROR("{0}", infoLog.data());
-			VE_CORE_ASSERT(false, "Shader link failure!");
-			return;
+				// The maxLength includes the NULL character
+				std::vector<GLchar> infoLog(maxLength);
+				{
+					VE_PROFILE_SCOPE("Get program info");
+					glGetProgramInfoLog(program, maxLength, &maxLength, &infoLog[0]);
+				}
+
+				// We don't need the program anymore.
+				{
+					VE_PROFILE_SCOPE("Delete the program");
+					glDeleteProgram(program);
+				}
+				// Don't leak shaders either.
+				for (auto id : glShaderIDs) {
+					glDeleteShader(id);
+				}
+
+				VE_CORE_ERROR("{0}", infoLog.data());
+				VE_CORE_ASSERT(false, "Shader link failure!");
+				return;
+			}
 		}
 
 		for (auto id : glShaderIDs) {
-			glDetachShader(program, id);
+			{
+				VE_PROFILE_SCOPE("Detach shader");
+				glDetachShader(program, id);
+			}
 		}
 		m_RendererID = program;
 	}
