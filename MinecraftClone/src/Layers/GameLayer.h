@@ -16,6 +16,7 @@ public:
 	void OnTick(VoxelEngine::Timestep ts) override;
 	void OnEvent(VoxelEngine::Event& event) override;
 	void ForceRedraw();
+	void SpawnTnts();
 	virtual void OnImGuiRender() override;
 	virtual void OnDetach() override;
 

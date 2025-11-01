@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 100000;
+const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
@@ -232,9 +232,10 @@ GameLayer::GameLayer()
 		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
-	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES)->Bind();
-	glDispatchCompute(TNT_COUNT, 1, 1);
-	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES);
+	//m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES)->Bind();
+	//glDispatchCompute(TNT_COUNT, 1, 1);
+	//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	{
 		VE_PROFILE_SCOPE("Load updateTntTransforms.glsl");
@@ -397,6 +398,10 @@ void GameLayer::OnEvent(VoxelEngine::Event& event) {
 			ForceRedraw();
 			return true;
 		}
+		if (e.GetKeyCode() == VE_KEY_X) {
+			SpawnTnts();
+			return true;
+		}
 		return false;
 		});
 	dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>([&](VoxelEngine::MouseMovedEvent& e) {
@@ -415,6 +420,13 @@ void GameLayer::ForceRedraw()
 	for (int i = 0; i < TOTAL_CHUNKS; i++) {
 		m_ShouldRedrawChunk[i] = true;
 	}
+}
+
+void GameLayer::SpawnTnts()
+{
+	m_ShaderLibrary.Get("initTntTransforms")->Bind();
+	glDispatchCompute(TNT_COUNT, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void GameLayer::OnImGuiRender() {
