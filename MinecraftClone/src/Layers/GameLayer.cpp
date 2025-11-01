@@ -15,8 +15,10 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 1000000;
+const int TNT_COUNT = 100000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
+const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
+const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
 
 const int VERTS_PER_QUAD = 6;
 const int QUADS_PER_BLOCK = 6;
@@ -26,8 +28,10 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
 #define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) + R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) + R"(
 #define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) + R"(
-#define BLOCKS_IN_CHUNK_COUNT CHUNK_WIDTH*CHUNK_WIDTH*CHUNK_WIDTH
-#define FACES_PER_CHUNK BLOCKS_IN_CHUNK_COUNT
+#define BLOCKS_IN_CHUNK_COUNT )" + std::to_string(BLOCKS_IN_CHUNK_COUNT) + R"( 
+#define FACES_PER_CHUNK )" + std::to_string(FACES_PER_CHUNK) + R"( 
+#define HALF_WORLD_WIDTH )" + std::to_string(HALF_WORLD_WIDTH) + R"( 
+#define HALF_WORLD_HEIGHT )" + std::to_string(HALF_WORLD_HEIGHT) + R"( 
 #define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
 #define TNT_EXPLOSION_STRENGTH 4
@@ -123,12 +127,12 @@ GameLayer::GameLayer()
 	}
 
 	uint32_t tntExplosionsQeueusSsbo;
-	int queueCap = 150;
+	int queueCap = 63;
 	{
 		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
 		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntExplosionsQeueusSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * queueCap * 4 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, HALF_WORLD_WIDTH * HALF_WORLD_WIDTH * HALF_WORLD_HEIGHT * queueCap * 4 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntExplosionsQeueusSsbo);
 	}
 	uint32_t chunksSsbo;
@@ -293,8 +297,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 	}
 	auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
 	propagateExplosions->Bind();
-	uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
-	uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
 	{
 		VE_PROFILE_SCOPE("Compute shader: propagate explosions");
 		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,0 });

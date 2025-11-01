@@ -11,7 +11,7 @@ uint chunkIndex;
 uint previousValue;
 };
 struct Queue{
-	Node nodes[300];
+	Node nodes[63];
 };
 layout(std430, binding = 7) buffer buffer7
 {
@@ -42,7 +42,8 @@ uint startingChunkY = (gl_WorkGroupID.y)*2+uint(u_Offset.y);
 uint startingChunkZ = (gl_WorkGroupID.z)*2+uint(u_Offset.z);
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
-	Queue queue = chunksQueue[chunkIndex];
+	uint queueIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*HALF_WORLD_WIDTH+gl_WorkGroupID.z*HALF_WORLD_WIDTH*HALF_WORLD_HEIGHT;
+	Queue queue = chunksQueue[queueIndex];
 	int front = 0;
 	int back = 0;
 	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<11,chunkIndex,TNT_EXPLOSION_STRENGTH+1);
