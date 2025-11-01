@@ -37,9 +37,9 @@ ivec3 offsets[6] = ivec3[6](
     ivec3(0, 0, 1),
     ivec3(0, 0, -1)
 );
-uint startingChunkX = (gl_WorkGroupID.x+uint(u_Offset.x))*1;
-uint startingChunkY = (gl_WorkGroupID.y+uint(u_Offset.y))*1;
-uint startingChunkZ = (gl_WorkGroupID.z+uint(u_Offset.z))*1;
+uint startingChunkX = (gl_WorkGroupID.x)*2+uint(u_Offset.x);
+uint startingChunkY = (gl_WorkGroupID.y)*2+uint(u_Offset.y);
+uint startingChunkZ = (gl_WorkGroupID.z)*2+uint(u_Offset.z);
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
 	Queue queue = chunksQueue[chunkIndex];

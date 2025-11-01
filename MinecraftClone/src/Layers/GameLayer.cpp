@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 500000;
+const int TNT_COUNT = 1000000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 const int VERTS_PER_QUAD = 6;
@@ -95,8 +95,8 @@ GameLayer::GameLayer()
 	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
-	//m_CameraPosition.y -= 150;
-	//m_CameraPosition.x -= 300;
+	m_CameraPosition.y -= 150;
+	m_CameraPosition.x -= 300;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -123,7 +123,7 @@ GameLayer::GameLayer()
 	}
 
 	uint32_t tntExplosionsQeueusSsbo;
-	int queueCap = 300;
+	int queueCap = 150;
 	{
 		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
 		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
@@ -298,29 +298,29 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 	{
 		VE_PROFILE_SCOPE("Compute shader: propagate explosions");
 		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,0 });
-		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,0 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,1 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,1 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,0 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,0 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,1 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		//propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,1 });
-		//glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
-		//glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,0 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,0,1 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 1,0,1 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,0 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,0 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 0,1,1 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+		propagateExplosions->UploadUniformFloat3("u_Offset", { 1,1,1 });
+		glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 	}
 
 	m_ShaderLibrary.Get("clearExplosions")->Bind();

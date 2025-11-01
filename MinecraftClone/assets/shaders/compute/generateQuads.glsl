@@ -73,10 +73,10 @@ void main() {
 		return;	
 	}
 	//chunksData[chunkIndex].shouldRedraw = false;
-	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
-		chunksQuads[chunkIndex].blockQuads[i] = 0u;
-	}
-
+//	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
+//		chunksQuads[chunkIndex].blockQuads[i] = 0u;
+//	}
+//
 	int index = 0;
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int y=0;y<CHUNK_WIDTH;y++){
