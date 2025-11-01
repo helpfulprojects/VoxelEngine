@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 1000000;
+const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 
 const int VERTS_PER_QUAD = 6;
@@ -95,8 +95,8 @@ GameLayer::GameLayer()
 	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
-	m_CameraPosition.y -= 150;
-	m_CameraPosition.x -= 300;
+	//m_CameraPosition.y -= 150;
+	//m_CameraPosition.x -= 300;
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -128,7 +128,7 @@ GameLayer::GameLayer()
 		VE_PROFILE_SCOPE("Init tntExplosionsQeueusSsbo ssbo");
 		glCreateBuffers(1, &tntExplosionsQeueusSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntExplosionsQeueusSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * queueCap * 3 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TOTAL_CHUNKS * queueCap * 4 * sizeof(uint32_t), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, tntExplosionsQeueusSsbo);
 	}
 	uint32_t chunksSsbo;
@@ -283,34 +283,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 	}
 
 	{
-		VE_PROFILE_SCOPE("Draw");
-		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
-
-		VoxelEngine::RenderCommand::Clear();
-		VoxelEngine::Renderer::BeginScene(m_Camera);
-
-		m_Camera.SetPosition(m_CameraPosition);
-		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
-		m_TerrainAtlas->Bind();
-		VoxelEngine::Renderer::Submit(drawTerrainShader,
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
-		);
-		{
-			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
-			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
-		}
-
-		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
-		);
-		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
-		VoxelEngine::Renderer::EndScene();
-	}
-}
-void GameLayer::OnTick(VoxelEngine::Timestep ts)
-{
-	VE_PROFILE_FUNCTION;
-	{
 		VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
 		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
 		updateTntTransformsCompute->Bind();
@@ -383,6 +355,34 @@ void GameLayer::OnTick(VoxelEngine::Timestep ts)
 		}
 		*m_ShouldRedrawWorld = false;
 	}
+	{
+		VE_PROFILE_SCOPE("Draw");
+		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
+
+		VoxelEngine::RenderCommand::Clear();
+		VoxelEngine::Renderer::BeginScene(m_Camera);
+
+		m_Camera.SetPosition(m_CameraPosition);
+		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
+		m_TerrainAtlas->Bind();
+		VoxelEngine::Renderer::Submit(drawTerrainShader,
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
+		);
+		{
+			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
+			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
+		}
+
+		VoxelEngine::Renderer::Submit(m_ShaderLibrary.Get("TntInstancing"),
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
+		);
+		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
+		VoxelEngine::Renderer::EndScene();
+	}
+}
+void GameLayer::OnTick(VoxelEngine::Timestep ts)
+{
+	VE_PROFILE_FUNCTION;
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {
 	VoxelEngine::EventDispatcher dispatcher(event);

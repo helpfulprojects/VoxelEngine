@@ -24,6 +24,9 @@ void main() {
 		if(chunkPosition.y>=WORLD_HEIGHT || chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==0){
 			tnts[index].velocity.y = tnts[index].velocity.y+GRAVITY*u_DeltaTime;
 			tnts[index].position = tnts[index].position+tnts[index].velocity*u_DeltaTime;
+			if(tnts[index].position.y<0){
+				tnts[index].visible = false;
+			}
 		}else if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=0){
 			tnts[index].visible = false;
 			chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = TNT_EXPLOSION_STRENGTH;

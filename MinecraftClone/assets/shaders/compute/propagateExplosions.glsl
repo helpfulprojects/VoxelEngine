@@ -5,7 +5,8 @@ layout(std430, binding = 0) buffer buffer0
 	Chunk chunksData[]; 
 };
 struct Node{
-uint localIndex;
+uint localIndex3D;
+uint chunkIndex3D;
 uint chunkIndex;
 uint previousValue;
 };
@@ -44,24 +45,24 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	Queue queue = chunksQueue[chunkIndex];
 	int front = 0;
 	int back = 0;
-	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<11,TNT_EXPLOSION_STRENGTH+1);
+	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<11,chunkIndex,TNT_EXPLOSION_STRENGTH+1);
 	while(front<back){
 		Node node = queue.nodes[front++];
 
-		uint x = (node.localIndex) & MASK_4_BITS;
-		uint y = (node.localIndex >> 4) & MASK_4_BITS;
-		uint z = (node.localIndex >> 8) & MASK_4_BITS;
+		uint x = (node.localIndex3D) & MASK_4_BITS;
+		uint y = (node.localIndex3D >> 4) & MASK_4_BITS;
+		uint z = (node.localIndex3D >> 8) & MASK_4_BITS;
 
-		uint chunkX = (node.chunkIndex) & MASK_7_BITS;
-		uint chunkY = (node.chunkIndex >> 7) & MASK_4_BITS;
-		uint chunkZ = (node.chunkIndex >> 11) & MASK_7_BITS;
+		uint chunkX = (node.chunkIndex3D) & MASK_7_BITS;
+		uint chunkY = (node.chunkIndex3D >> 7) & MASK_4_BITS;
+		uint chunkZ = (node.chunkIndex3D >> 11) & MASK_7_BITS;
 
-		uint chunkIndex = chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
+		uint chunkIndex = node.chunkIndex;
 
 		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 		shouldRedrawChunk[chunkIndex] = true;
 		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
-		chunksData[chunkIndex].explosions[x][y][z] = (node.previousValue & MASK_3_BITS)-1;
+		chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
 
 		ivec3 blockLocalPosition = ivec3(x,y,z);
 
@@ -89,7 +90,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 										 + neighbourChunk3DIndex.y * WORLD_WIDTH
 										 + neighbourChunk3DIndex.z * WORLD_WIDTH * WORLD_HEIGHT;
 					if(chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] < explosionValue-1){
-						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<11,explosionValue);
+						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<11,neighbourChunkIndex,explosionValue);
 					}
 	//				neighbourType = chunksData[neighbourChunkIndex]
 	//					.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
