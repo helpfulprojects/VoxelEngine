@@ -90,6 +90,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 										 + neighbourChunk3DIndex.y * WORLD_WIDTH
 										 + neighbourChunk3DIndex.z * WORLD_WIDTH * WORLD_HEIGHT;
 					if(chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] < explosionValue-1){
+						chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] = explosionValue-1;
 						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<11,neighbourChunkIndex,explosionValue);
 					}
 	//				neighbourType = chunksData[neighbourChunkIndex]
