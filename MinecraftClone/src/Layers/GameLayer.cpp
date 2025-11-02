@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 500000;
+const int TNT_COUNT = 100;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
@@ -101,6 +101,76 @@ GameLayer::GameLayer()
 	VE_PROFILE_FUNCTION;
 	m_CameraPosition.y -= 150;
 	m_CameraPosition.x -= 300;
+
+	float hx = CHUNK_WIDTH;  // full size X
+	float hy = CHUNK_WIDTH;  // full size Y
+	float hz = CHUNK_WIDTH;  // full size Z
+
+	std::vector<float> linePoints;
+	linePoints.reserve(TOTAL_CHUNKS * 3 * 24);
+
+	for (int x = 0; x < WORLD_WIDTH; x++) {
+		for (int y = 0; y < 7; y++) {
+			for (int z = 0; z < WORLD_WIDTH; z++) {
+				glm::vec3 linesOrigin = { x * CHUNK_WIDTH, y * CHUNK_WIDTH, z * CHUNK_WIDTH };
+
+				float cubeLines[] = {
+					// BOTTOM 4 edges
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+
+					// TOP 4 edges
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+
+					// VERTICAL 4 edges
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+
+					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+
+					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+				};
+
+				linePoints.insert(linePoints.end(), std::begin(cubeLines), std::end(cubeLines));
+			}
+		}
+	}
+
+
+
+	m_LinesVA.reset(VoxelEngine::VertexArray::Create());
+	VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(VoxelEngine::VertexBuffer::Create(linePoints.data(), linePoints.size() * sizeof(float)));
+	VoxelEngine::BufferLayout layout = {
+		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
+	};
+	linesVB->SetLayout(layout);
+	m_LinesVA->AddVertexBuffer(linesVB);
+	glLineWidth(5.0f);
+	m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
 		m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -250,6 +320,7 @@ GameLayer::GameLayer()
 		m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl", GLOBAL_SHADER_DEFINES);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl", GLOBAL_SHADER_DEFINES);
+
 }
 GameLayer::~GameLayer()
 {
@@ -366,6 +437,8 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::BeginScene(m_Camera);
 
 		m_Camera.SetPosition(m_CameraPosition);
+
+
 		auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
 		m_TerrainAtlas->Bind();
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
@@ -380,6 +453,15 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
+
+
+
+		auto linesShader = m_ShaderLibrary.Get("lines");
+		VoxelEngine::Renderer::Submit(linesShader,
+			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
+		);
+		m_LinesVA->Bind();
+		glDrawArrays(GL_LINES, 0, TOTAL_CHUNKS * 3 * 24);
 		VoxelEngine::Renderer::EndScene();
 	}
 }

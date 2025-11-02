@@ -14,6 +14,8 @@ namespace VoxelEngine {
 	private:
 		struct SceneData {
 			glm::mat4 ViewProjectionMatrix;
+			glm::mat4 ViewMatrix;
+			glm::mat4 ProjectionMatrix;
 		};
 
 		static SceneData* m_SceneData;

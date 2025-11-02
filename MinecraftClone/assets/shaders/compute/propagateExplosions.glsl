@@ -26,7 +26,9 @@ layout(std430, binding = 9) buffer buffer9
 {
 	bool shouldRedrawChunk[]; 
 };
-
+uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
+	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
+}
 uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
@@ -59,9 +61,24 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		uint chunkZ = (node.chunkIndex3D >> 11) & MASK_7_BITS;
 
 		uint chunkIndex = node.chunkIndex;
+		shouldRedrawChunk[chunkIndex] = true;
+		// If block is on the edge, flag the neighboring chunk(s)
+		if (x == 0 && chunkX > 0)
+			shouldRedrawChunk[getChunkIndex(chunkX - 1, chunkY, chunkZ)] = true;
+		else if (x == CHUNK_WIDTH - 1)
+			shouldRedrawChunk[getChunkIndex(chunkX + 1, chunkY, chunkZ)] = true;
+
+		if (y == 0 && chunkY > 0)
+			shouldRedrawChunk[getChunkIndex(chunkX, chunkY - 1, chunkZ)] = true;
+		else if (y == CHUNK_WIDTH - 1)
+			shouldRedrawChunk[getChunkIndex(chunkX, chunkY + 1, chunkZ)] = true;
+
+		if (z == 0 && chunkZ > 0)
+			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ - 1)] = true;
+		else if (z == CHUNK_WIDTH - 1)
+			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
 		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
-		shouldRedrawChunk[chunkIndex] = true;
 		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
 		chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
 

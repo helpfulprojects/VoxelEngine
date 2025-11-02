@@ -22,48 +22,49 @@ layout(std430, binding = 4) readonly buffer buffer4
 {
 	uvec3 debugBuffer[];
 };
+const vec3 offset = vec3(0.5, 0.5, 0.5);
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
     vec3[4](
-        vec3( 0.5,  0.5, -0.5),
-        vec3(-0.5,  0.5, -0.5),
-        vec3(-0.5,  0.5,  0.5),
-        vec3( 0.5,  0.5,  0.5)
+        vec3( 0.5,  0.5, -0.5) + offset,
+        vec3(-0.5,  0.5, -0.5) + offset,
+        vec3(-0.5,  0.5,  0.5) + offset,
+        vec3( 0.5,  0.5,  0.5) + offset
     ),
     // -Y (bottom)
     vec3[4](
-        vec3( 0.5, -0.5,  0.5),
-        vec3(-0.5, -0.5,  0.5),
-        vec3(-0.5, -0.5, -0.5),
-        vec3( 0.5, -0.5, -0.5)
+        vec3( 0.5, -0.5,  0.5) + offset,
+        vec3(-0.5, -0.5,  0.5) + offset,
+        vec3(-0.5, -0.5, -0.5) + offset,
+        vec3( 0.5, -0.5, -0.5) + offset
     ),
     // +X (east)
     vec3[4](
-        vec3( 0.5, -0.5,  0.5),
-        vec3( 0.5, -0.5, -0.5),
-        vec3( 0.5,  0.5, -0.5),
-        vec3( 0.5,  0.5,  0.5)
+        vec3( 0.5, -0.5,  0.5) + offset,
+        vec3( 0.5, -0.5, -0.5) + offset,
+        vec3( 0.5,  0.5, -0.5) + offset,
+        vec3( 0.5,  0.5,  0.5) + offset
     ),
     // -X (west)
     vec3[4](
-        vec3(-0.5, -0.5, -0.5),
-        vec3(-0.5, -0.5,  0.5),
-        vec3(-0.5,  0.5,  0.5),
-        vec3(-0.5,  0.5, -0.5)
+        vec3(-0.5, -0.5, -0.5) + offset,
+        vec3(-0.5, -0.5,  0.5) + offset,
+        vec3(-0.5,  0.5,  0.5) + offset,
+        vec3(-0.5,  0.5, -0.5) + offset
     ),
     // +Z (south)
     vec3[4](
-        vec3(-0.5, -0.5,  0.5),
-        vec3( 0.5, -0.5,  0.5),
-        vec3( 0.5,  0.5,  0.5),
-        vec3(-0.5,  0.5,  0.5)
+        vec3(-0.5, -0.5,  0.5) + offset,
+        vec3( 0.5, -0.5,  0.5) + offset,
+        vec3( 0.5,  0.5,  0.5) + offset,
+        vec3(-0.5,  0.5,  0.5) + offset
     ),
     // -Z (north)
     vec3[4](
-        vec3( 0.5, -0.5, -0.5),
-        vec3(-0.5, -0.5, -0.5),
-        vec3(-0.5,  0.5, -0.5),
-        vec3( 0.5,  0.5, -0.5)
+        vec3( 0.5, -0.5, -0.5) + offset,
+        vec3(-0.5, -0.5, -0.5) + offset,
+        vec3(-0.5,  0.5, -0.5) + offset,
+        vec3( 0.5,  0.5, -0.5) + offset
     )
 );
 

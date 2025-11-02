@@ -37,4 +37,5 @@ private:
 	bool* m_ShouldRedrawWorld;
 	uint32_t* m_ShouldRedrawChunk;
 	const glm::vec3 m_GrassColorOverlay{ 112.0f,160.0f,70.0f };
+	VoxelEngine::Ref<VoxelEngine::VertexArray> m_LinesVA;
 };

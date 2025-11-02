@@ -65,9 +65,9 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-	if(!shouldRedrawWorld){
-		return;
-	}
+//	if(!shouldRedrawWorld){
+//		return;
+//	}
 	if(!shouldRedrawChunk[chunkIndex]){
 		//renderData[chunkIndex] = 0;
 		return;	

@@ -6,6 +6,8 @@ namespace VoxelEngine {
 	void Renderer::BeginScene(PerspectiveCamera& camera)
 	{
 		m_SceneData->ViewProjectionMatrix = camera.GetViewProjectionMatrix();
+		m_SceneData->ViewMatrix = camera.GetViewMatrix();
+		m_SceneData->ProjectionMatrix = camera.GetProjectionMatrix();
 	}
 	void Renderer::EndScene()
 	{
@@ -30,6 +32,8 @@ namespace VoxelEngine {
 	{
 		shader->Bind();
 		shader->UploadUniformMat4("u_ViewProjection", m_SceneData->ViewProjectionMatrix);
+		shader->UploadUniformMat4("u_View", m_SceneData->ViewMatrix);
+		shader->UploadUniformMat4("u_Projection", m_SceneData->ProjectionMatrix);
 		shader->UploadUniformMat4("u_Transform", transform);
 	}
 }
