@@ -19,6 +19,7 @@ const int TNT_COUNT = 100;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
+const int DEBUG_LINES_FLOAT_COUNT = WORLD_HEIGHT * 16 * 16 * 3 + 2 * 16 * 4 * 3;
 
 const int VERTS_PER_QUAD = 6;
 const int QUADS_PER_BLOCK = 6;
@@ -395,7 +396,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		m_LinesVA->Bind();
-		glDrawArrays(GL_LINES, 0, WORLD_HEIGHT * 3 * 24);
+		glDrawArrays(GL_LINES, 0, DEBUG_LINES_FLOAT_COUNT);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
@@ -447,71 +448,100 @@ void GameLayer::SpawnTnts()
 
 void GameLayer::InitDebugLines()
 {
-	m_DebugLines.reserve(WORLD_HEIGHT * 3 * 24);
+	m_DebugLines.reserve(DEBUG_LINES_FLOAT_COUNT);
 	m_LinesVA.reset(VoxelEngine::VertexArray::Create());
-	VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(VoxelEngine::VertexBuffer::Create(nullptr, WORLD_HEIGHT * 3 * 24 * sizeof(float)));
+	VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(VoxelEngine::VertexBuffer::Create(nullptr, DEBUG_LINES_FLOAT_COUNT * sizeof(float)));
 	VoxelEngine::BufferLayout layout = {
 		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
 	};
 	linesVB->SetLayout(layout);
 	m_LinesVA->AddVertexBuffer(linesVB);
-	glLineWidth(5.0f);
+	glLineWidth(1.0f);
 }
 
 void GameLayer::UpdateDebugLines()
 {
 	m_DebugLines.clear();
 	float hx = CHUNK_WIDTH;  // full size X
-	float hy = CHUNK_WIDTH;  // full size Y
+	float hy = CHUNK_WIDTH / 16;  // full size Y
 	float hz = CHUNK_WIDTH;  // full size Z
 	//m_CameraPosition
 	int chunkX = std::floor(m_CameraPosition.x / CHUNK_WIDTH);
 	int chunkZ = std::floor(m_CameraPosition.z / CHUNK_WIDTH);
+	float worldHeightBlocks = WORLD_HEIGHT * CHUNK_WIDTH;
+
+	for (int i = 0; i <= CHUNK_WIDTH; i += 2) {
+		glm::vec3 linesOrigin = { chunkX * CHUNK_WIDTH + i, 0, chunkZ * CHUNK_WIDTH };
+
+		float verticalLine[] = {
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x,      linesOrigin.y + worldHeightBlocks, linesOrigin.z,
+
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y + worldHeightBlocks, linesOrigin.z + hz,
+		};
+		m_DebugLines.insert(m_DebugLines.end(), std::begin(verticalLine), std::end(verticalLine));
+	}
+
+	for (int i = 0; i <= CHUNK_WIDTH; i += 2) {
+		glm::vec3 linesOrigin = { chunkX * CHUNK_WIDTH , 0, i + chunkZ * CHUNK_WIDTH };
+
+		float verticalLine[] = {
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x,      linesOrigin.y + worldHeightBlocks, linesOrigin.z,
+
+			linesOrigin.x + hx,      linesOrigin.y,      linesOrigin.z ,
+			linesOrigin.x + hx,      linesOrigin.y + worldHeightBlocks, linesOrigin.z,
+		};
+		m_DebugLines.insert(m_DebugLines.end(), std::begin(verticalLine), std::end(verticalLine));
+	}
 
 	for (int y = 0; y < WORLD_HEIGHT; y++) {
-		glm::vec3 linesOrigin = { chunkX * CHUNK_WIDTH, y * CHUNK_WIDTH, chunkZ * CHUNK_WIDTH };
+		for (int i = 0; i < CHUNK_WIDTH; i += 2) {
+			glm::vec3 linesOrigin = { chunkX * CHUNK_WIDTH, i + y * CHUNK_WIDTH, chunkZ * CHUNK_WIDTH };
 
-		float cubeLines[] = {
-			// BOTTOM 4 edges
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+			float cubeLines[] = {
+				// BOTTOM 4 edges
+				linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+				linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
 
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+				linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+				linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
 
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+				linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+				linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
 
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+				linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+				linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
 
-			// TOP 4 edges
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+				//// TOP 4 edges
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
 
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
 
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
 
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
 
-			// VERTICAL 4 edges
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+				//// VERTICAL 4 edges
+				//linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
 
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+				//linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
 
-			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+				//linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
 
-			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-		};
-		m_DebugLines.insert(m_DebugLines.end(), std::begin(cubeLines), std::end(cubeLines));
+				//linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+			};
+			m_DebugLines.insert(m_DebugLines.end(), std::begin(cubeLines), std::end(cubeLines));
+		}
 	}
 	m_LinesVA->Bind();
 	glBufferSubData(GL_ARRAY_BUFFER, 0, m_DebugLines.size() * sizeof(float), m_DebugLines.data());
