@@ -15,11 +15,11 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 100;
+const int TNT_COUNT = 100000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
-const int DEBUG_LINES_FLOAT_COUNT = WORLD_HEIGHT * 16 * 16 * 3 + 2 * 16 * 4 * 3;
+const int DEBUG_LINES_FLOAT_COUNT = WORLD_HEIGHT * 16 * 16 * 3 + 2 * 8 * 4 * 3;
 
 const int VERTS_PER_QUAD = 6;
 const int QUADS_PER_BLOCK = 6;
@@ -102,7 +102,7 @@ GameLayer::GameLayer()
 	VE_PROFILE_FUNCTION;
 	m_CameraPosition.y -= 150;
 	m_CameraPosition.x -= 300;
-	InitDebugLines();
+	//InitDebugLines();
 
 	m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
 	{
@@ -343,7 +343,9 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		// After compute shader or rendering that writes to SSBO:
 		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 		// Wait until GPU finishes writing:
-		glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000);
+		//glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
+		float secondsToWait = 1.0f;
+		glClientWaitSync(sync, 0, secondsToWait * 1000000000);
 		glDeleteSync(sync);
 	}
 
@@ -391,12 +393,12 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 
 		auto linesShader = m_ShaderLibrary.Get("lines");
-		UpdateDebugLines();
-		VoxelEngine::Renderer::Submit(linesShader,
-			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
-		);
-		m_LinesVA->Bind();
-		glDrawArrays(GL_LINES, 0, DEBUG_LINES_FLOAT_COUNT);
+		//UpdateDebugLines();
+		//VoxelEngine::Renderer::Submit(linesShader,
+		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
+		//);
+		//m_LinesVA->Bind();
+		//glDrawArrays(GL_LINES, 0, DEBUG_LINES_FLOAT_COUNT);
 		VoxelEngine::Renderer::EndScene();
 	}
 }

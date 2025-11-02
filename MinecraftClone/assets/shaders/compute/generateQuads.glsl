@@ -73,6 +73,7 @@ void main() {
 		return;	
 	}
 	//chunksData[chunkIndex].shouldRedraw = false;
+	//renderData[chunkIndex] = 0;
 //	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
 //		chunksQuads[chunkIndex].blockQuads[i] = 0u;
 //	}
