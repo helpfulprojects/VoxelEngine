@@ -17,6 +17,8 @@ public:
 	void OnEvent(VoxelEngine::Event& event) override;
 	void ForceRedraw();
 	void SpawnTnts();
+	void InitDebugLines();
+	void UpdateDebugLines();
 	virtual void OnImGuiRender() override;
 	virtual void OnDetach() override;
 
@@ -38,4 +40,5 @@ private:
 	uint32_t* m_ShouldRedrawChunk;
 	const glm::vec3 m_GrassColorOverlay{ 112.0f,160.0f,70.0f };
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_LinesVA;
+	std::vector<float> m_DebugLines;
 };

@@ -101,75 +101,8 @@ GameLayer::GameLayer()
 	VE_PROFILE_FUNCTION;
 	m_CameraPosition.y -= 150;
 	m_CameraPosition.x -= 300;
+	InitDebugLines();
 
-	float hx = CHUNK_WIDTH;  // full size X
-	float hy = CHUNK_WIDTH;  // full size Y
-	float hz = CHUNK_WIDTH;  // full size Z
-
-	std::vector<float> linePoints;
-	linePoints.reserve(TOTAL_CHUNKS * 3 * 24);
-
-	for (int x = 0; x < WORLD_WIDTH; x++) {
-		for (int y = 0; y < 7; y++) {
-			for (int z = 0; z < WORLD_WIDTH; z++) {
-				glm::vec3 linesOrigin = { x * CHUNK_WIDTH, y * CHUNK_WIDTH, z * CHUNK_WIDTH };
-
-				float cubeLines[] = {
-					// BOTTOM 4 edges
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-
-					// TOP 4 edges
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-
-					// VERTICAL 4 edges
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-
-					linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-					linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-
-					linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-					linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-				};
-
-				linePoints.insert(linePoints.end(), std::begin(cubeLines), std::end(cubeLines));
-			}
-		}
-	}
-
-
-
-	m_LinesVA.reset(VoxelEngine::VertexArray::Create());
-	VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(VoxelEngine::VertexBuffer::Create(linePoints.data(), linePoints.size() * sizeof(float)));
-	VoxelEngine::BufferLayout layout = {
-		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
-	};
-	linesVB->SetLayout(layout);
-	m_LinesVA->AddVertexBuffer(linesVB);
-	glLineWidth(5.0f);
 	m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
 	{
 		VE_PROFILE_SCOPE("Bake texture atlas");
@@ -457,11 +390,12 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 
 		auto linesShader = m_ShaderLibrary.Get("lines");
+		UpdateDebugLines();
 		VoxelEngine::Renderer::Submit(linesShader,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
 		m_LinesVA->Bind();
-		glDrawArrays(GL_LINES, 0, TOTAL_CHUNKS * 3 * 24);
+		glDrawArrays(GL_LINES, 0, WORLD_HEIGHT * 3 * 24);
 		VoxelEngine::Renderer::EndScene();
 	}
 }
@@ -509,6 +443,78 @@ void GameLayer::SpawnTnts()
 	m_ShaderLibrary.Get("initTntTransforms")->Bind();
 	glDispatchCompute(TNT_COUNT, 1, 1);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
+
+void GameLayer::InitDebugLines()
+{
+	m_DebugLines.reserve(WORLD_HEIGHT * 3 * 24);
+	m_LinesVA.reset(VoxelEngine::VertexArray::Create());
+	VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(VoxelEngine::VertexBuffer::Create(nullptr, WORLD_HEIGHT * 3 * 24 * sizeof(float)));
+	VoxelEngine::BufferLayout layout = {
+		{VoxelEngine::ShaderDataType::Float3, "a_Position"},
+	};
+	linesVB->SetLayout(layout);
+	m_LinesVA->AddVertexBuffer(linesVB);
+	glLineWidth(5.0f);
+}
+
+void GameLayer::UpdateDebugLines()
+{
+	m_DebugLines.clear();
+	float hx = CHUNK_WIDTH;  // full size X
+	float hy = CHUNK_WIDTH;  // full size Y
+	float hz = CHUNK_WIDTH;  // full size Z
+	//m_CameraPosition
+	int chunkX = std::floor(m_CameraPosition.x / CHUNK_WIDTH);
+	int chunkZ = std::floor(m_CameraPosition.z / CHUNK_WIDTH);
+
+	for (int y = 0; y < WORLD_HEIGHT; y++) {
+		glm::vec3 linesOrigin = { chunkX * CHUNK_WIDTH, y * CHUNK_WIDTH, chunkZ * CHUNK_WIDTH };
+
+		float cubeLines[] = {
+			// BOTTOM 4 edges
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+
+			// TOP 4 edges
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+
+			// VERTICAL 4 edges
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
+
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
+
+			linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
+			linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
+
+			linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
+			linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
+		};
+		m_DebugLines.insert(m_DebugLines.end(), std::begin(cubeLines), std::end(cubeLines));
+	}
+	m_LinesVA->Bind();
+	glBufferSubData(GL_ARRAY_BUFFER, 0, m_DebugLines.size() * sizeof(float), m_DebugLines.data());
 }
 
 void GameLayer::OnImGuiRender() {
