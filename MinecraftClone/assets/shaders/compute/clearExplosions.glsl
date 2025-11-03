@@ -13,7 +13,9 @@ void main() {
 //	for(int x=0;x<CHUNK_WIDTH;x++){
 //		for(int z=0;z<CHUNK_WIDTH;z++){
 //			for(int y=0;y<CHUNK_WIDTH;y++){
-//				chunksData[chunkIndex].explosions[x][y][z] = 0;
+//				if(chunksData[chunkIndex].explosions[x][y][z]!=1){
+//					chunksData[chunkIndex].explosions[x][y][z] = 0;
+//				}
 //			}
 //		}
 //	}
