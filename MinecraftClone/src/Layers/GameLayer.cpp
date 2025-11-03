@@ -11,7 +11,7 @@ struct FaceModel {
 };
 const int CHUNK_WIDTH = 16;
 const int WORLD_WIDTH = 65;
-const int WORLD_HEIGHT = 16;
+const int WORLD_HEIGHT = 1;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
@@ -77,6 +77,30 @@ struct TntEntity{
 #define MASK_7_BITS  0x7Fu
 #define MASK_8_BITS  0xFFu
 #define MASK_24_BITS 0xFFFFFFu
+
+int blockTypeAndNormalToTextureId(uint blockType, int normal){
+	switch(blockType){
+	case 0://AIR
+		return dirt;
+	case 1://DIRT
+		return dirt;
+	case 2://GRASS_BLOCK
+		switch(normal){
+		case 0://positive y
+			return grass_block_top;
+		case 1://negative y
+			return dirt;
+		case 2://positive x
+			return grass_block_side;
+		case 3://negative x
+			return grass_block_side;
+		case 4://positive z
+			return grass_block_side;
+		case 5://negative z
+			return grass_block_side;
+		}
+	}
+}
 )";
 
 struct Chunk {
@@ -100,8 +124,8 @@ GameLayer::GameLayer()
 	m_CameraPosition(DEFAULT_SPAWN)
 {
 	VE_PROFILE_FUNCTION;
-	m_CameraPosition.y -= 150;
-	m_CameraPosition.x -= 300;
+	//m_CameraPosition.y -= 150;
+	//m_CameraPosition.x -= 300;
 	//InitDebugLines();
 
 	m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
@@ -255,6 +279,13 @@ GameLayer::GameLayer()
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl", GLOBAL_SHADER_DEFINES);
 
+	for (int i = 0; i < TOTAL_CHUNKS; i++) {
+		m_Cmd[i].count = 6 * 6;
+		m_Cmd[i].instanceCount = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
+		m_Cmd[i].first = 0;
+		m_Cmd[i].baseInstance = i;
+	}
+
 }
 GameLayer::~GameLayer()
 {
@@ -335,36 +366,36 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 	glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 
-	{
-		VE_PROFILE_SCOPE("Compute Shader: Generate quads");
-		m_ShaderLibrary.Get("generateQuads")->Bind();
-		glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-		// After compute shader or rendering that writes to SSBO:
-		GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-		// Wait until GPU finishes writing:
-		//glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
-		float secondsToWait = 1.0f;
-		glClientWaitSync(sync, 0, secondsToWait * 1000000000);
-		glDeleteSync(sync);
-	}
+	//{
+	//	VE_PROFILE_SCOPE("Compute Shader: Generate quads");
+	//	m_ShaderLibrary.Get("generateQuads")->Bind();
+	//	glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+	//	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+	//	// After compute shader or rendering that writes to SSBO:
+	//	GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+	//	// Wait until GPU finishes writing:
+	//	//glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
+	//	float secondsToWait = 1.0f;
+	//	glClientWaitSync(sync, 0, secondsToWait * 1000000000);
+	//	glDeleteSync(sync);
+	//}
 
-	if (*m_ShouldRedrawWorld) {
-		VE_PROFILE_SCOPE("Set up indirect buffer");
-		if (m_ChunksQuadCount) {
-			for (int i = 0; i < TOTAL_CHUNKS; i++) {
-				if (m_ShouldRedrawChunk[i]) {
-					int count = m_ChunksQuadCount[i];
-					m_Cmd[i].count = count * VERTS_PER_QUAD;
-					m_Cmd[i].instanceCount = 1;
-					m_Cmd[i].first = 0;
-					m_Cmd[i].baseInstance = i;
-					m_ShouldRedrawChunk[i] = false;
-				}
-			}
-		}
-		*m_ShouldRedrawWorld = false;
-	}
+	//if (*m_ShouldRedrawWorld) {
+	//	VE_PROFILE_SCOPE("Set up indirect buffer");
+	//	if (m_ChunksQuadCount) {
+	//		for (int i = 0; i < TOTAL_CHUNKS; i++) {
+	//			if (m_ShouldRedrawChunk[i]) {
+	//				int count = m_ChunksQuadCount[i];
+	//				m_Cmd[i].count = count * VERTS_PER_QUAD;
+	//				m_Cmd[i].instanceCount = 1;
+	//				m_Cmd[i].first = 0;
+	//				m_Cmd[i].baseInstance = i;
+	//				m_ShouldRedrawChunk[i] = false;
+	//			}
+	//		}
+	//	}
+	//	*m_ShouldRedrawWorld = false;
+	//}
 	{
 		VE_PROFILE_SCOPE("Draw");
 		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
@@ -380,6 +411,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		VoxelEngine::Renderer::Submit(drawTerrainShader,
 			glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
 		);
+		//glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH);
 		{
 			VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
 			glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
