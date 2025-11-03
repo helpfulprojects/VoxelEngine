@@ -67,6 +67,14 @@ const vec3 facePositions[6][4] = vec3[6][4](
         vec3( 0.5,  0.5, -0.5) + offset
     )
 );
+ivec3 offsets[6] = ivec3[6](
+    ivec3(0, 1, 0),
+    ivec3(0, -1, 0),
+    ivec3(1, 0, 0),
+    ivec3(-1, 0, 0),
+    ivec3(0, 0, 1),
+    ivec3(0, 0, -1)
+);
 
 int indices[6] = {0, 1, 2, 2, 3, 0};
 
@@ -81,40 +89,37 @@ void main()
 	const int index = gl_VertexID/6;
 
 	const int currVertexID = gl_VertexID % 6;
-	const uint x = gl_InstanceID % CHUNK_WIDTH;
-	const uint y = (gl_InstanceID / CHUNK_WIDTH) % CHUNK_WIDTH;
-    const uint z = gl_InstanceID / (CHUNK_WIDTH * CHUNK_WIDTH);
-
     const uint chunkId = gl_BaseInstance;
+
+	const uint packedData = chunksQuads[chunkId].blockQuads[gl_InstanceID];
+	const uint x = (packedData) & MASK_4_BITS;
+	const uint y = (packedData >> 4) & MASK_4_BITS;
+	const uint z = (packedData >> 8) & MASK_4_BITS;
+
+	uint chunkX = chunksData[chunkId].x;
+	uint chunkY = chunksData[chunkId].y;
+	uint chunkZ = chunksData[chunkId].z;
 	uint blockType = chunksData[chunkId].blockTypes[x][y][z];
-    if(blockType!=0){
-		uint chunkX = chunksData[chunkId].x;
-		uint chunkY = chunksData[chunkId].y;
-		uint chunkZ = chunksData[chunkId].z;
 
-		const int normalId = index;
-		int texId = blockTypeAndNormalToTextureId(blockType, normalId);
-		
-		vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
+	const int normalId = index;
+	int texId = blockTypeAndNormalToTextureId(blockType, normalId);
+	
+	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
 
-		position += facePositions[normalId][indices[currVertexID]];
+	position += facePositions[normalId][indices[currVertexID]];
 
-		v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+	v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+	v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+	if(normalId == east || normalId == west){
+		v_StaticLight = vec4(0.8,0.8,0.8,1.0);
+	}else if(normalId == south || normalId == north){
+		v_StaticLight = vec4(0.7,0.7,0.7,1.0);
+	}else{
 		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		if(normalId == east || normalId == west){
-			v_StaticLight = vec4(0.8,0.8,0.8,1.0);
-		}else if(normalId == south || normalId == north){
-			v_StaticLight = vec4(0.7,0.7,0.7,1.0);
-		}else{
-			v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		}
-		
-		gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
+	}
+	
+	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
     
-    } else{
-		v_StaticLight = vec4(0.0,0.0,0.0,0.0);
-		gl_Position = vec4(0,0,0,0);
-    }
 
 //	const int index = gl_VertexID/6;
 //
