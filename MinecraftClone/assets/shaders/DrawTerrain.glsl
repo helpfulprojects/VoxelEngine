@@ -77,77 +77,38 @@ out vec2 v_TexCoord;
 out vec4 v_StaticLight;
 void main()
 {
-
 	const int index = gl_VertexID/6;
 
-	const int currVertexID = gl_VertexID % 6;
-	const uint x = gl_InstanceID % CHUNK_WIDTH;
-	const uint y = (gl_InstanceID / CHUNK_WIDTH) % CHUNK_WIDTH;
-    const uint z = gl_InstanceID / (CHUNK_WIDTH * CHUNK_WIDTH);
-
     const uint chunkId = gl_BaseInstance;
-	uint blockType = chunksData[chunkId].blockTypes[x][y][z];
-    if(blockType!=0){
-		uint chunkX = chunksData[chunkId].x;
-		uint chunkY = chunksData[chunkId].y;
-		uint chunkZ = chunksData[chunkId].z;
+    uint chunkX = chunksData[chunkId].x;
+    uint chunkY = chunksData[chunkId].y;
+    uint chunkZ = chunksData[chunkId].z;
 
-		const int normalId = index;
-		int texId = blockTypeAndNormalToTextureId(blockType, normalId);
-		
-		vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
+	const uint packedData = chunksQuads[chunkId].blockQuads[index];
+	const int currVertexID = gl_VertexID % 6;
 
-		position += facePositions[normalId][indices[currVertexID]];
+	const uint x = (packedData) & MASK_4_BITS;
+	const uint y = (packedData >> 4) & MASK_4_BITS;
+	const uint z = (packedData >> 8) & MASK_4_BITS;
 
-		v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+	const uint normalId = (packedData >> 12) & MASK_3_BITS;
+	const uint texId = (packedData >> 15) & MASK_4_BITS;
+	
+	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
+
+	position += facePositions[normalId][indices[currVertexID]];
+
+    v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+    v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+    if(normalId == east || normalId == west){
+		v_StaticLight = vec4(0.8,0.8,0.8,1.0);
+    }else if(normalId == south || normalId == north){
+		v_StaticLight = vec4(0.7,0.7,0.7,1.0);
+    }else{
 		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		if(normalId == east || normalId == west){
-			v_StaticLight = vec4(0.8,0.8,0.8,1.0);
-		}else if(normalId == south || normalId == north){
-			v_StaticLight = vec4(0.7,0.7,0.7,1.0);
-		}else{
-			v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		}
-		
-		gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
-    
-    } else{
-		v_StaticLight = vec4(0.0,0.0,0.0,0.0);
-		gl_Position = vec4(0,0,0,0);
     }
-
-//	const int index = gl_VertexID/6;
-//
-//    const uint chunkId = gl_BaseInstance;
-//    uint chunkX = chunksData[chunkId].x;
-//    uint chunkY = chunksData[chunkId].y;
-//    uint chunkZ = chunksData[chunkId].z;
-//
-//	const uint packedData = chunksQuads[chunkId].blockQuads[index];
-//	const int currVertexID = gl_VertexID % 6;
-//
-//	const uint x = (packedData) & MASK_4_BITS;
-//	const uint y = (packedData >> 4) & MASK_4_BITS;
-//	const uint z = (packedData >> 8) & MASK_4_BITS;
-//
-//	const uint normalId = (packedData >> 12) & MASK_3_BITS;
-//	const uint texId = (packedData >> 15) & MASK_4_BITS;
-//	
-//	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
-//
-//	position += facePositions[normalId][indices[currVertexID]];
-//
-//    v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
-//    v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-//    if(normalId == east || normalId == west){
-//		v_StaticLight = vec4(0.8,0.8,0.8,1.0);
-//    }else if(normalId == south || normalId == north){
-//		v_StaticLight = vec4(0.7,0.7,0.7,1.0);
-//    }else{
-//		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-//    }
-//    
-//	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
+    
+	gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
 }
 
 
@@ -180,9 +141,6 @@ uniform sampler2D u_Texture;
 
 void main()
 {
-    if(v_StaticLight.a==0){
-        discard;
-    }
 	color = texture(u_Texture,v_TexCoord)*v_StaticLight;
 	//color = vec4(1.0f,0.0f,0.0f,1.0f);
 }

@@ -39,6 +39,29 @@ ivec3 offsets[6] = ivec3[6](
     ivec3(0, 0, -1)
 );
 
+int blockTypeAndNormalToTextureId(uint blockType, int normal){
+	switch(blockType){
+	case 0://AIR
+		return dirt;
+	case 1://DIRT
+		return dirt;
+	case 2://GRASS_BLOCK
+		switch(normal){
+		case 0://positive y
+			return grass_block_top;
+		case 1://negative y
+			return dirt;
+		case 2://positive x
+			return grass_block_side;
+		case 3://negative x
+			return grass_block_side;
+		case 4://positive z
+			return grass_block_side;
+		case 5://negative z
+			return grass_block_side;
+		}
+	}
+}
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
