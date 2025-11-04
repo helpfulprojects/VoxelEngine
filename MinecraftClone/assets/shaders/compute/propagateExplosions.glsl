@@ -78,13 +78,9 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		else if (z == CHUNK_WIDTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
+		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
-		if(explosionValue != 1){
-			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
-		}
-		if(explosionValue!=TNT_EXPLOSION_STRENGTH){
-			chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
-		}
+		chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
 
 		ivec3 blockLocalPosition = ivec3(x,y,z);
 
@@ -137,7 +133,6 @@ void main() {
 				//uint explosionValue = chunksData[chunkIndex].explosions[x][y][z] & MASK_3_BITS;
 				//uint explosionOwner = (chunksData[chunkIndex].explosions[x][y][z]>>3) & MASK_24_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
-					chunksData[chunkIndex].explosions[x][y][z] = TNT_EXPLOSION_STRENGTH-1;
 					propagateExplosion(chunkIndex,x,y,z);
 					//chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 					//dfs(Node(x,y,z,chunkX,chunkY,chunkZ,explosionValue+1,explosionOwner));
