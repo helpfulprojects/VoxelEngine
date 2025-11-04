@@ -35,7 +35,7 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
 #define HALF_WORLD_HEIGHT )" + std::to_string(HALF_WORLD_HEIGHT) + R"( 
 #define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
-#define TNT_EXPLOSION_STRENGTH 4
+#define TNT_EXPLOSION_STRENGTH 5
 
 struct Chunk {
 	uint x;

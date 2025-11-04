@@ -81,6 +81,8 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
 		if(explosionValue != 1){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+		}else{
+			chunksData[chunkIndex].blockTypes[x][y][z] = (chunksData[chunkIndex].blockTypes[x][y][z]|1);
 		}
 		if(explosionValue!=TNT_EXPLOSION_STRENGTH){
 			chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
