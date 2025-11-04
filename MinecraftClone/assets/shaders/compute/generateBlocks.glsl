@@ -132,11 +132,11 @@ void main() {
 				uint blockY = y+chunkY;
 				chunksData[chunkIndex].y = chunkY;
 				if(blockY<surfaceLevel){
-					chunksData[chunkIndex].blockTypes[x][y][z] = (1<<1);
+					chunksData[chunkIndex].blockTypes[x][y][z] = 1;
 				}else if (blockY==surfaceLevel){
-					chunksData[chunkIndex].blockTypes[x][y][z] = (2<<1 | 1);
+					chunksData[chunkIndex].blockTypes[x][y][z] = 2;
 				} else{
-					chunksData[chunkIndex].blockTypes[x][y][z] = (0<<1);
+					chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;

@@ -39,7 +39,7 @@ ivec3 offsets[6] = ivec3[6](
     ivec3(0, 0, -1)
 );
 
-#line 0
+
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	if(!shouldRedrawWorld){
@@ -59,9 +59,9 @@ void main() {
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int y=0;y<CHUNK_WIDTH;y++){
 			for(int z=0;z<CHUNK_WIDTH;z++){
-				uint blockType = (chunksData[chunkIndex].blockTypes[x][y][z]>>1);
-				bool visible = ((chunksData[chunkIndex].blockTypes[x][y][z]&1) == 1);
-				if(blockType != 0 && visible){
+				uint blockType = chunksData[chunkIndex].blockTypes[x][y][z];
+				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z];
+				if(blockType != 0 && explosionValue == 1){
 					ivec3 blockLocalPosition = ivec3(x,y,z);
 					uint blockLocalPositionBinary = blockLocalPosition.x | blockLocalPosition.y<<4 | blockLocalPosition.z <<8;
 					
@@ -88,7 +88,7 @@ void main() {
 												 + neighbourChunkPosition.y * WORLD_WIDTH
 												 + neighbourChunkPosition.z * WORLD_WIDTH * WORLD_HEIGHT;
 							neighbourType = chunksData[neighbourChunkIndex]
-								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z]>>1;
+								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 						}
 						if (neighbourType == 0) {
 							chunksQuads[chunkIndex].blockQuads[index] = blockLocalPositionBinary | n << 12 | blockTypeAndNormalToTextureId(blockType, n) << 15;
