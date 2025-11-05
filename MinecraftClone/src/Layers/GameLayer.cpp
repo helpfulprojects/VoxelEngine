@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 100000;
+const int TNT_COUNT = 500000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
@@ -297,7 +297,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 		auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
 		updateTntTransformsCompute->Bind();
 		updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-		glDispatchCompute(TNT_COUNT / 2, 1, 1);
+		glDispatchCompute(TNT_COUNT / 256, 1, 1);
 		//glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
