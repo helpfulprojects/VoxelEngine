@@ -1,0 +1,56 @@
+#type compute
+
+layout(std430, binding = 0) buffer buffer0 
+{
+	Chunk chunksData[]; 
+};
+
+layout(std430, binding = 8) buffer buffer8
+{
+	bool shouldRedrawWorld; 
+};
+
+layout(std430, binding = 9) buffer buffer9
+{
+	bool shouldRedrawChunk[]; 
+};
+
+uniform vec3 u_CameraPos;
+uniform vec3 u_RayDirection;
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+#line 0
+void main() {
+	float step = 0.1;
+	float distance = 5.0;
+	vec3 startPosition = u_CameraPos;
+	vec3 position = u_CameraPos;
+	while(length(startPosition-position)<distance){
+		position = position + u_RayDirection*step;
+		uvec3 chunkPosition = uvec3(floor(position/16));
+		vec3 actualChunkPosition = chunkPosition*16;
+		ivec3 localPos = ivec3(position-chunkPosition*16);
+		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
+		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=0){
+			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;
+			shouldRedrawWorld = true;
+			shouldRedrawChunk[chunkIndex] = true;
+			if (localPos.x == 0 && chunkPosition.x > 0)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x - 1, chunkPosition.y, chunkPosition.z)] = true;
+			else if (localPos.x == CHUNK_WIDTH - 1)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x + 1, chunkPosition.y, chunkPosition.z)] = true;
+
+			if (localPos.y == 0 && chunkPosition.y > 0)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y - 1, chunkPosition.z)] = true;
+			else if (localPos.y == CHUNK_WIDTH - 1)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y + 1, chunkPosition.z)] = true;
+
+			if (localPos.z == 0 && chunkPosition.z > 0)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y, chunkPosition.z - 1)] = true;
+			else if (localPos.z == CHUNK_WIDTH - 1)
+				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y, chunkPosition.z + 1)] = true;
+			break;
+		}
+	}
+}

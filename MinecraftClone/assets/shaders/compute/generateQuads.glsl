@@ -60,6 +60,21 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return grass_block_side;
 		}
+	case 3://TNT
+		switch(normal){
+		case 0://positive y
+			return tnt_top;
+		case 1://negative y
+			return tnt_bottom;
+		case 2://positive x
+			return tnt_side;
+		case 3://negative x
+			return tnt_side;
+		case 4://positive z
+			return tnt_side;
+		case 5://negative z
+			return tnt_side;
+		}
 	}
 }
 

@@ -139,6 +139,10 @@ void main() {
 					chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 				}
 
+				if(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x && blockZ == DEFAULT_SPAWN.z){
+					chunksData[chunkIndex].blockTypes[x][y][z] = 3;
+				}
+
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
 				chunksData[chunkIndex].hasExplosion = false;
 			}

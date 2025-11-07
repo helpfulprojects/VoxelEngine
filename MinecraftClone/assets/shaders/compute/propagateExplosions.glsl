@@ -26,9 +26,6 @@ layout(std430, binding = 9) buffer buffer9
 {
 	bool shouldRedrawChunk[]; 
 };
-uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
-	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
-}
 uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
@@ -128,17 +125,10 @@ void main() {
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int z=0;z<CHUNK_WIDTH;z++){
 			for(int y=0;y<CHUNK_WIDTH;y++){
-				//maybe have to deal with unpacking here and packing later on??
 				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z];
-				//uint explosionValue = chunksData[chunkIndex].explosions[x][y][z] & MASK_3_BITS;
-				//uint explosionOwner = (chunksData[chunkIndex].explosions[x][y][z]>>3) & MASK_24_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);
-					//chunksData[chunkIndex].blockTypes[x][y][z] = 0;
-					//dfs(Node(x,y,z,chunkX,chunkY,chunkZ,explosionValue+1,explosionOwner));
 				}
-				//find explosions, start bfs from each one, can go outside of the chunk
-				//chunksData[chunkIndex].explosions[x][y][z] = 0;
 			}
 		}
 	}

@@ -16,6 +16,7 @@ public:
 	void OnTick(VoxelEngine::Timestep ts) override;
 	void OnEvent(VoxelEngine::Event& event) override;
 	void ForceRedraw();
+	void ActivateTnt();
 	void SpawnTnts();
 	void InitDebugLines();
 	void UpdateDebugLines();
@@ -31,7 +32,7 @@ private:
 	VoxelEngine::PerspectiveCamera m_Camera;
 	glm::vec3 m_SquarePosition;
 	glm::vec3 m_CameraPosition;
-	float m_CameraMoveSpeed = 50.0f;
+	float m_CameraMoveSpeed = 5.0f;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
 	VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
 	DrawArraysIndirectCommand* m_Cmd;

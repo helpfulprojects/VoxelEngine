@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 100000;
+const int TNT_COUNT = 1000000;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
@@ -77,6 +77,10 @@ struct TntEntity{
 #define MASK_7_BITS  0x7Fu
 #define MASK_8_BITS  0xFFu
 #define MASK_24_BITS 0xFFFFFFu
+
+uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
+	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
+}
 )";
 
 struct Chunk {
@@ -101,7 +105,7 @@ GameLayer::GameLayer()
 {
 	VE_PROFILE_FUNCTION;
 	m_CameraPosition.y -= 150;
-	m_CameraPosition.x -= 300;
+	//m_CameraPosition.x -= 300;
 	//InitDebugLines();
 
 	m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
@@ -254,6 +258,7 @@ GameLayer::GameLayer()
 		m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl", GLOBAL_SHADER_DEFINES);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl", GLOBAL_SHADER_DEFINES);
+	m_ShaderLibrary.Load("assets/shaders/compute/activateTnt.glsl", GLOBAL_SHADER_DEFINES);
 
 }
 GameLayer::~GameLayer()
@@ -408,6 +413,12 @@ void GameLayer::OnTick(VoxelEngine::Timestep ts)
 }
 void GameLayer::OnEvent(VoxelEngine::Event& event) {
 	VoxelEngine::EventDispatcher dispatcher(event);
+	dispatcher.Dispatch<VoxelEngine::MouseButtonReleasedEvent>([&](VoxelEngine::MouseButtonReleasedEvent& e) {
+			if(e.GetMouseButton() == VE_MOUSE_BUTTON_LEFT){
+				ActivateTnt();
+			}
+			return true;
+			});
 	dispatcher.Dispatch<VoxelEngine::KeyPressedEvent>([&](VoxelEngine::KeyPressedEvent& e) {
 		if (e.GetKeyCode() == VE_KEY_ESCAPE) {
 			VoxelEngine::Application::Get().Close();
@@ -439,6 +450,16 @@ void GameLayer::ForceRedraw()
 	for (int i = 0; i < TOTAL_CHUNKS; i++) {
 		m_ShouldRedrawChunk[i] = true;
 	}
+}
+
+void GameLayer::ActivateTnt()
+{
+	auto activateTnt = m_ShaderLibrary.Get("activateTnt");
+	activateTnt->Bind();
+	activateTnt->UploadUniformFloat3("u_CameraPos",m_CameraPosition);
+	activateTnt->UploadUniformFloat3("u_RayDirection",m_Camera.GetFront());
+	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
 }
 
 void GameLayer::SpawnTnts()
