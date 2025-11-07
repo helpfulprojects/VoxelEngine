@@ -14,6 +14,10 @@ layout(std430, binding = 9) buffer buffer9
 {
 	bool shouldRedrawChunk[]; 
 };
+layout(std430, binding = 6) buffer buffer6
+{
+	TntEntity tnts[];
+};
 
 uniform vec3 u_CameraPos;
 uniform vec3 u_RayDirection;
@@ -23,7 +27,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 #line 0
 void main() {
 	float step = 0.1;
-	float distance = 5.0;
+	float distance = 15.0;
 	vec3 startPosition = u_CameraPos;
 	vec3 position = u_CameraPos;
 	while(length(startPosition-position)<distance){
@@ -32,8 +36,11 @@ void main() {
 		vec3 actualChunkPosition = chunkPosition*16;
 		ivec3 localPos = ivec3(position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
-		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=0){
+		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
 			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;
+			tnts[0].position = actualChunkPosition+localPos;
+			tnts[0].velocity = vec3(0,10,0);
+			tnts[0].visible = true;
 			shouldRedrawWorld = true;
 			shouldRedrawChunk[chunkIndex] = true;
 			if (localPos.x == 0 && chunkPosition.x > 0)

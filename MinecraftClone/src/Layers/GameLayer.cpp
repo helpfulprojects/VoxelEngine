@@ -56,6 +56,11 @@ struct TntEntity{
 	vec3 velocity;
 };
 
+#define air 0
+#define dirt_block 1
+#define grass_block 2
+#define tnt_block 3
+
 #define top 0
 #define bottom 1
 #define east 2
