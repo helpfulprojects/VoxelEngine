@@ -137,11 +137,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="assets\shaders\compute\initTntTransforms.glsl" />
-    <ClInclude Include="src\SimpleExamples\SimpleExample2.h" />
-    <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />
     <ClInclude Include="src\Layers\GameLayer.h" />
     <ClInclude Include="src\Overlays\DebugOverlay.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />
+    <ClInclude Include="src\SimpleExamples\SimpleExample2.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample3.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample4.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample5.h" />
@@ -158,25 +157,6 @@
     <ProjectReference Include="..\VoxelEngine\VoxelEngine.vcxproj">
       <Project>{C9F2F76B-35A8-7061-BE9C-6A382A516765}</Project>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\compute\clearExplosions.glsl" />
-    <None Include="assets\shaders\compute\generateBlocks.glsl" />
-    <None Include="assets\shaders\compute\generateQuads.glsl" />
-    <None Include="assets\shaders\compute\propagateExplosions.glsl" />
-    <None Include="assets\shaders\compute\updateTntTransforms.glsl" />
-    <None Include="assets\shaders\lines.glsl" />
-    <None Include="assets\shaders\TntInstancing.glsl" />
-    <None Include="assets\shaders\DrawTerrain.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample1.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample2.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample3.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample4.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample5Compute.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample5.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample6.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample6Compute.glsl" />
-    <None Include="assets\shaders\SimpleExamples\SimpleExample7.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,9 +7,6 @@
     <Filter Include="src\Platform">
       <UniqueIdentifier>{21CA02E5-0D2D-9289-B6B2-CA3FA2F45D0C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\Platform\OpenGL">
-      <UniqueIdentifier>{35A49437-A105-7245-2A73-B8F796D3A804}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\Platform\Windows">
       <UniqueIdentifier>{5B054582-4794-CE4B-F0B2-E246DC20DFF1}</UniqueIdentifier>
     </Filter>
@@ -102,6 +99,9 @@
     <ClInclude Include="src\VoxelEngine\Core\Timestep.h">
       <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Core\Utils.h">
+      <Filter>src\VoxelEngine\Core</Filter>
+    </ClInclude>
     <ClInclude Include="src\VoxelEngine\Core\Window.h">
       <Filter>src\VoxelEngine\Core</Filter>
     </ClInclude>
@@ -148,6 +148,9 @@
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Renderer\Texture.h">
+      <Filter>src\VoxelEngine\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\VoxelEngine\Renderer\TextureSubImage2D.h">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClInclude>
     <ClInclude Include="src\VoxelEngine\Renderer\VertexArray.h">
@@ -1413,8 +1416,6 @@
     <ClInclude Include="vendor\stb_image\stb_image.h">
       <Filter>vendor\stb_image</Filter>
     </ClInclude>
-    <ClInclude Include="src\VoxelEngine\Core\Utils.h" />
-    <ClInclude Include="src\VoxelEngine\Renderer\TextureSubImage2D.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Platform\Windows\WindowsInput.cpp">
@@ -1441,6 +1442,9 @@
     <ClCompile Include="src\VoxelEngine\Renderer\Buffer.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Renderer\GraphicsContext.cpp">
+      <Filter>src\VoxelEngine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\VoxelEngine\Renderer\OrthographicCamera.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
@@ -1462,6 +1466,9 @@
     <ClCompile Include="src\VoxelEngine\Renderer\Texture.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\VoxelEngine\Renderer\TextureSubImage2D.cpp">
+      <Filter>src\VoxelEngine\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\VoxelEngine\Renderer\VertexArray.cpp">
       <Filter>src\VoxelEngine\Renderer</Filter>
     </ClCompile>
@@ -1474,7 +1481,5 @@
     <ClCompile Include="vendor\tracy\public\TracyClient.cpp">
       <Filter>vendor\tracy\public</Filter>
     </ClCompile>
-    <ClCompile Include="src\VoxelEngine\Renderer\TextureSubImage2D.cpp" />
-    <ClCompile Include="src\VoxelEngine\Renderer\GraphicsContext.cpp" />
   </ItemGroup>
 </Project>
