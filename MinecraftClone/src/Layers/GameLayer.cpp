@@ -51,9 +51,10 @@ struct ChunkQuads {
 };
 
 struct TntEntity{
-    bool visible; 
+	bool visible; 
 	vec3 position;
 	vec3 velocity;
+	float secondsUntilExplode;
 };
 
 #define air 0
@@ -242,7 +243,7 @@ GameLayer::GameLayer()
 		VE_PROFILE_SCOPE("Init tntEntitiesSsbo ssbo");
 		glCreateBuffers(1, &tntEntitiesSsbo);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntEntitiesSsbo);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr, GL_DYNAMIC_DRAW);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * (48+sizeof(float)), nullptr, GL_DYNAMIC_DRAW);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
 	}
 	m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl", GLOBAL_SHADER_DEFINES);

@@ -80,6 +80,7 @@ uniform mat4 u_Transform;
 
 out vec2 v_TexCoord;
 out vec4 v_StaticLight;
+out vec4 v_ColorOverlay;
 void main()
 {
 	const int index = gl_VertexID/6;
@@ -130,6 +131,11 @@ void main()
 		v_StaticLight = vec4(0.0,0.0,0.0,0.0);
 		gl_Position = vec4(0,0,0,0);
     }
+
+	v_ColorOverlay = vec4(1,1,1,1);
+	if((int(tnts[gl_InstanceID].secondsUntilExplode*5)&1)==0){
+		v_ColorOverlay = vec4(1,1,1,0.247);
+	}
 }
 
 
@@ -157,6 +163,7 @@ void main()
 out vec4 color;
 in vec2 v_TexCoord;
 in vec4 v_StaticLight;
+in vec4 v_ColorOverlay;
 
 uniform sampler2D u_Texture;
 
@@ -166,4 +173,5 @@ void main()
         discard;
     }
 	color = texture(u_Texture,v_TexCoord)*v_StaticLight;
+	color.rgb = mix(v_ColorOverlay.rgb,color.rgb,v_ColorOverlay.a);
 }

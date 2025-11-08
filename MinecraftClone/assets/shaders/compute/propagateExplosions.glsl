@@ -76,7 +76,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
 		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
-		uint explosionValue = (node.previousValue & MASK_3_BITS)-1;
+		uint explosionValue = node.previousValue -1;
 		chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
 
 		ivec3 blockLocalPosition = ivec3(x,y,z);

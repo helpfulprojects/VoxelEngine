@@ -37,10 +37,13 @@ void main() {
 		ivec3 localPos = ivec3(position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
-			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;
 			tnts[0].position = actualChunkPosition+localPos;
 			tnts[0].velocity = vec3(0,10,0);
 			tnts[0].visible = true;
+			tnts[0].secondsUntilExplode = 4.0;
+		}
+		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=air){
+			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;
 			shouldRedrawWorld = true;
 			shouldRedrawChunk[chunkIndex] = true;
 			if (localPos.x == 0 && chunkPosition.x > 0)
