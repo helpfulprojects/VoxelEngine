@@ -15,7 +15,8 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_COUNT = 1000000;
+const int TNT_WIDTH = 2;
+const int TNT_COUNT = TNT_WIDTH*TNT_WIDTH*TNT_WIDTH;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH* WORLD_WIDTH / 2, CHUNK_WIDTH* WORLD_HEIGHT, CHUNK_WIDTH* WORLD_WIDTH / 2);
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
@@ -27,6 +28,7 @@ const int VERTS_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT * QUADS_PER_BLOCK * VERTS_PER_
 const std::string GLOBAL_SHADER_DEFINES = R"( 
 #version 460 core
 #define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) + R"(
+#define TNT_WIDTH )" + std::to_string(TNT_WIDTH) + R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) + R"(
 #define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) + R"(
 #define BLOCKS_IN_CHUNK_COUNT )" + std::to_string(BLOCKS_IN_CHUNK_COUNT) + R"( 
@@ -383,7 +385,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 	{
 		VE_PROFILE_SCOPE("Draw");
 		VoxelEngine::RenderCommand::SetClearColor({ 0.47059f, 0.6549f, 1.00f, 1 });
-
 		VoxelEngine::RenderCommand::Clear();
 		VoxelEngine::Renderer::BeginScene(m_Camera);
 
