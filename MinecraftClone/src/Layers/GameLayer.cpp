@@ -407,7 +407,8 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
 
 
-		auto linesShader = m_ShaderLibrary.Get("lines");
+		//auto linesShader = m_ShaderLibrary.Get("lines");
+
 		//UpdateDebugLines();
 		//VoxelEngine::Renderer::Submit(linesShader,
 		//	glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
@@ -546,32 +547,6 @@ void GameLayer::UpdateDebugLines()
 
 				linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
 				linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-
-				//// TOP 4 edges
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-
-				//// VERTICAL 4 edges
-				//linesOrigin.x,      linesOrigin.y,      linesOrigin.z,
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z,
-
-				//linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z,
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z,
-
-				//linesOrigin.x + hx, linesOrigin.y,      linesOrigin.z + hz,
-				//linesOrigin.x + hx, linesOrigin.y + hy, linesOrigin.z + hz,
-
-				//linesOrigin.x,      linesOrigin.y,      linesOrigin.z + hz,
-				//linesOrigin.x,      linesOrigin.y + hy, linesOrigin.z + hz,
 			};
 			m_DebugLines.insert(m_DebugLines.end(), std::begin(cubeLines), std::end(cubeLines));
 		}

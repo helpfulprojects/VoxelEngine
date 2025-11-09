@@ -37,10 +37,12 @@ void main() {
 		ivec3 localPos = ivec3(position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
-			tnts[0].position = actualChunkPosition+localPos;
-			tnts[0].velocity = vec3(0,10,0);
-			tnts[0].visible = true;
-			tnts[0].secondsUntilExplode = 4.0;
+			vec3 blockOrigin = actualChunkPosition+localPos;	
+			int tntIndex = int((blockOrigin.x-DEFAULT_SPAWN.x)+(blockOrigin.y-100)+(blockOrigin.z-DEFAULT_SPAWN.z));
+			tnts[tntIndex].position = blockOrigin;
+			tnts[tntIndex].velocity = vec3(0,10,0);
+			tnts[tntIndex].visible = true;
+			tnts[tntIndex].secondsUntilExplode = 4.0;
 		}
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=air){
 			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;

@@ -13,6 +13,10 @@ uint previousValue;
 struct Queue{
 	Node nodes[63];
 };
+layout(std430, binding = 6) buffer buffer6
+{
+	TntEntity tnts[];
+};
 layout(std430, binding = 7) buffer buffer7
 {
 	Queue chunksQueue[]; 
@@ -75,7 +79,16 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		else if (z == CHUNK_WIDTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
-		if(chunksData[chunkIndex].blockTypes[x][y][z]!=bedrock_block){
+		int blockType = int(chunksData[chunkIndex].blockTypes[x][y][z]);
+		if(blockType == tnt_block){
+			vec3 blockOrigin = vec3(chunkX*CHUNK_WIDTH+x,chunkY*CHUNK_WIDTH+y,chunkZ*CHUNK_WIDTH+z);	
+			int tntIndex = int((blockOrigin.x-DEFAULT_SPAWN.x)+(blockOrigin.y-100)+(blockOrigin.z-DEFAULT_SPAWN.z));
+			tnts[tntIndex].position = blockOrigin;
+			tnts[tntIndex].velocity = vec3(0,10,0);
+			tnts[tntIndex].visible = true;
+			tnts[tntIndex].secondsUntilExplode = 1.0;
+		}
+		if(blockType!=bedrock_block){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 		}
 		uint explosionValue = node.previousValue -1;
