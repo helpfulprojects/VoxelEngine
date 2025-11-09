@@ -75,6 +75,8 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return tnt_side;
 		}
+	case 4://BEDROCK
+		return bedrock;
 	}
 }
 

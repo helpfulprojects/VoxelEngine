@@ -131,12 +131,14 @@ void main() {
 				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;
 				uint blockY = y+chunkY;
 				chunksData[chunkIndex].y = chunkY;
-				if(blockY<surfaceLevel){
-					chunksData[chunkIndex].blockTypes[x][y][z] = 1;
+				if(blockY == 0){
+					chunksData[chunkIndex].blockTypes[x][y][z] = bedrock_block;
+				} else if(blockY<surfaceLevel){
+					chunksData[chunkIndex].blockTypes[x][y][z] = dirt_block;
 				}else if (blockY==surfaceLevel){
-					chunksData[chunkIndex].blockTypes[x][y][z] = 2;
+					chunksData[chunkIndex].blockTypes[x][y][z] = grass_block;
 				} else{
-					chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+					chunksData[chunkIndex].blockTypes[x][y][z] = air;
 				}
 
 				if(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x && blockZ == DEFAULT_SPAWN.z){

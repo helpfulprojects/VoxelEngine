@@ -75,7 +75,9 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		else if (z == CHUNK_WIDTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
-		chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+		if(chunksData[chunkIndex].blockTypes[x][y][z]!=bedrock_block){
+			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
+		}
 		uint explosionValue = node.previousValue -1;
 		chunksData[chunkIndex].explosions[x][y][z] = explosionValue;
 
@@ -95,9 +97,9 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 				else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
 				uvec3 neighbourChunk3DIndex = uvec3( chunkX + neighbourChunkOffset.x,
-													chunkY + neighbourChunkOffset.y,
-													chunkZ + neighbourChunkOffset.z
-													);	
+									chunkY + neighbourChunkOffset.y,
+									chunkZ + neighbourChunkOffset.z
+									);	
 
 				if(!(neighbourChunk3DIndex.x>=WORLD_WIDTH ||neighbourChunk3DIndex.y>=WORLD_HEIGHT ||neighbourChunk3DIndex.z>=WORLD_WIDTH ||
 				neighbourChunk3DIndex.x<0 ||neighbourChunk3DIndex.y<0 ||neighbourChunk3DIndex.z<0)){

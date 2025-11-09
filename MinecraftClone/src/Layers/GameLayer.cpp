@@ -61,6 +61,7 @@ struct TntEntity{
 #define dirt_block 1
 #define grass_block 2
 #define tnt_block 3
+#define bedrock_block 4
 
 #define top 0
 #define bottom 1
@@ -77,6 +78,7 @@ struct TntEntity{
 #define tnt_bottom 4
 #define tnt_side 5
 #define tnt_top 6
+#define bedrock 7
 
 #define MASK_3_BITS  0x7u
 #define MASK_4_BITS  0xFu
@@ -129,6 +131,7 @@ GameLayer::GameLayer()
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_bottom.png");
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/tnt_top.png");
 		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/stone.png");
+		VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> bedrock = VoxelEngine::TextureAtlas::CreateTextureSubImage("assets/textures/texture_pack/assets/minecraft/textures/block/bedrock.png");
 		m_TerrainAtlas->Add(dirt);
 		m_TerrainAtlas->Add(grass_block_top);
 		m_TerrainAtlas->Add(grass_block_side);
@@ -136,6 +139,7 @@ GameLayer::GameLayer()
 		m_TerrainAtlas->Add(tnt_bottom);
 		m_TerrainAtlas->Add(tnt_side);
 		m_TerrainAtlas->Add(tnt_top);
+		m_TerrainAtlas->Add(bedrock);
 		m_TerrainAtlas->Bake();
 
 	}
