@@ -18,6 +18,8 @@ static GLenum ShaderTypeFromString(const std::string &type) {
     return GL_TESS_CONTROL_SHADER;
   if (type == "tesselationEvaluation")
     return GL_TESS_EVALUATION_SHADER;
+  if (type == "geometry")
+    return GL_GEOMETRY_SHADER;
 
   VE_CORE_ASSERT(false, "Unknown shader type!");
   return 0;
@@ -126,9 +128,9 @@ void Shader::Compile(
     const std::unordered_map<GLenum, std::string> &shaderSources) {
   VE_PROFILE_FUNCTION;
   GLuint program = glCreateProgram();
-  VE_CORE_ASSERT(shaderSources.size() <= 4,
+  VE_CORE_ASSERT(shaderSources.size() <= 5,
                  "We don't support that many shaders");
-  std::array<GLenum, 4> glShaderIDs;
+  std::array<GLenum, 5> glShaderIDs;
   int glShaderIDIndex = 0;
   for (auto &&[key, value] : shaderSources) {
     GLenum type = key;

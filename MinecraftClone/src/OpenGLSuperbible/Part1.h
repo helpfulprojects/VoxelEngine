@@ -12,8 +12,9 @@ public:
     uint32_t vao;
     glCreateVertexArrays(1, &vao);
     glBindVertexArray(vao);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // glEnableVertexArrayAttrib(vao, 0);
+    glPointSize(40.0f);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //  glEnableVertexArrayAttrib(vao, 0);
   };
   void OnUpdate(VoxelEngine::Timestep ts) override {
     VoxelEngine::Application &application = VoxelEngine::Application::Get();

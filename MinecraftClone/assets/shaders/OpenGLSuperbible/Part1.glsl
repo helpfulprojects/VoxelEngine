@@ -24,10 +24,10 @@ layout (vertices = 3) out;
 
 void main(){
 	if(gl_InvocationID == 0){
-		gl_TessLevelInner[0] = 16.0;
-		gl_TessLevelOuter[0] = 16.0;
-		gl_TessLevelOuter[1] = 16.0;
-		gl_TessLevelOuter[2] = 16.0;
+		gl_TessLevelInner[0] = 5.0;
+		gl_TessLevelOuter[0] = 5.0;
+		gl_TessLevelOuter[1] = 5.0;
+		gl_TessLevelOuter[2] = 5.0;
 	}
 	gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
 }
@@ -42,6 +42,18 @@ void main(){
 		gl_TessCoord.z * gl_in[2].gl_Position);
 }
 
+#type geometry
+#version 450 core
+layout (triangles) in;
+layout (points, max_vertices = 3) out;
+
+void main(){
+	int i;
+	for (i = 0; i<gl_in.length();i++){
+		gl_Position = gl_in[i].gl_Position;
+		EmitVertex();
+	}
+}
 
 #type fragment
 #version 450 core 
