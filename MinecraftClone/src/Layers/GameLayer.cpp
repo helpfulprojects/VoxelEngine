@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = 10;
+const int TNT_WIDTH = 4;
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_WIDTH;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
@@ -351,6 +351,8 @@ GameLayer::GameLayer()
                        GLOBAL_SHADER_DEFINES);
   m_ShaderLibrary.Load("assets/shaders/compute/activateTnt.glsl",
                        GLOBAL_SHADER_DEFINES);
+  m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl",
+                       GLOBAL_SHADER_DEFINES);
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -395,12 +397,10 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
   {
     VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-    auto updateTntTransformsCompute =
-        m_ShaderLibrary.Get("updateTntTransforms");
+    auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
     updateTntTransformsCompute->Bind();
     updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
     glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
   auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
@@ -442,6 +442,16 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
                     GL_BUFFER_UPDATE_BARRIER_BIT);
   }
 
+  {
+    VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+    auto updateTntTransformsCompute =
+        m_ShaderLibrary.Get("updateTntTransforms");
+    updateTntTransformsCompute->Bind();
+    updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+    glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  }
   m_ShaderLibrary.Get("clearExplosions")->Bind();
   glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);

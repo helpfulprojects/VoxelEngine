@@ -15,12 +15,15 @@ void main() {
     uint yOffset = (index / size) % size;
     uint zOffset = index / (size * size);
     tnts[index].position = DEFAULT_SPAWN + vec3(xOffset, yOffset, zOffset);
+    tnts[index].position.y -= 80;
 
     float seed = float(index);
 
 	vec3 rand = hash33(vec3(index, index + 1.0, index + 2.0));
 	vec3 randomDir = normalize(rand * 2.0 - 1.0);
-	tnts[index].secondsUntilExplode = 5.0+rand.x*5;
+
+	vec3 rand2 = hash33(tnts[index].position);
+	tnts[index].secondsUntilExplode = 4.0+fract(rand2.x+rand2.y+rand2.z);
 
     float speed = 35; 
     tnts[index].velocity = randomDir * speed;

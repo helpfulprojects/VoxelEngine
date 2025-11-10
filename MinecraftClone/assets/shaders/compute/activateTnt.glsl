@@ -44,7 +44,7 @@ void main() {
 
 			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;
 			tnts[tntIndex].position = blockOrigin;
-			tnts[tntIndex].velocity = vec3(0,1,0);
+			tnts[tntIndex].velocity = vec3(0,6,0);
 			tnts[tntIndex].visible = true;
 			tnts[tntIndex].secondsUntilExplode = 4.0;
 		}

@@ -25,6 +25,14 @@ void main() {
 		vec3 actualChunkPosition = chunkPosition*16;
 		ivec3 localPos = ivec3(tnts[index].position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
+		// tnts[index].secondsUntilExplode -= u_DeltaTime;
+		uint explosionValue = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]&MASK_3_BITS;
+		if(explosionValue!=0){
+			uint otherTntId = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]>>3;
+			vec3 otherTntPosition = tnts[otherTntId].position;
+			vec3 diff = normalize(tnts[index].position - otherTntPosition);
+			tnts[index].velocity+=diff*50;
+		}
 		if(chunkPosition.y>=WORLD_HEIGHT || chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==0){
 			tnts[index].velocity.y = tnts[index].velocity.y+GRAVITY*u_DeltaTime;
 			tnts[index].position = tnts[index].position+tnts[index].velocity*u_DeltaTime;
@@ -36,11 +44,10 @@ void main() {
 			//chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = TNT_EXPLOSION_STRENGTH;
 			//chunksData[chunkIndex].hasExplosion = true;
 		}
-		tnts[index].secondsUntilExplode -= u_DeltaTime;
-		if(tnts[index].secondsUntilExplode<=0.0){
-			tnts[index].visible = false;
-			chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = TNT_EXPLOSION_STRENGTH;
-			chunksData[chunkIndex].hasExplosion = true;
-		}
+		// if(tnts[index].secondsUntilExplode<=0.0){
+		// 	tnts[index].visible = false;
+		// 	chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = index<<3 | TNT_EXPLOSION_STRENGTH;
+		// 	chunksData[chunkIndex].hasExplosion = true;
+		// }
 	}
 }
