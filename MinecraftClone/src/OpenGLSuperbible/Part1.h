@@ -29,8 +29,7 @@ public:
     auto shader = m_ShaderLibrary.Get("Part1");
     glClearBufferfv(GL_COLOR, 0, red);
     shader->Bind();
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDrawArrays(GL_PATCHES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
   };
   void OnEvent(VoxelEngine::Event &event) override {
     VoxelEngine::EventDispatcher dispatcher(event);
