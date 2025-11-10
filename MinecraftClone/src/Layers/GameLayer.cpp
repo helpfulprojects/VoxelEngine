@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = 2;
+const int TNT_WIDTH = 10;
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_WIDTH;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
@@ -33,6 +33,8 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
 #define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) +
                                           R"(
 #define TNT_WIDTH )" + std::to_string(TNT_WIDTH) +
+                                          R"(
+#define TNT_COUNT )" + std::to_string(TNT_COUNT) +
                                           R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) +
                                           R"(
@@ -64,10 +66,10 @@ struct ChunkQuads {
 };
 
 struct TntEntity{
-	bool visible; 
 	vec3 position;
 	vec3 velocity;
 	float secondsUntilExplode;
+	bool visible; 
 };
 
 #define air 0
@@ -314,8 +316,8 @@ GameLayer::GameLayer()
     VE_PROFILE_SCOPE("Init tntEntitiesSsbo ssbo");
     glCreateBuffers(1, &tntEntitiesSsbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, tntEntitiesSsbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * (48 + sizeof(float)),
-                 nullptr, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, TNT_COUNT * 48, nullptr,
+                 GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
   }
   m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl",
@@ -391,7 +393,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
         m_ShaderLibrary.Get("updateTntTransforms");
     updateTntTransformsCompute->Bind();
     updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-    glDispatchCompute(TNT_COUNT / 256, 1, 1);
+    glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
     // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
