@@ -6,12 +6,6 @@ layout(std430, binding = 6) buffer buffer6
 {
 	TntEntity tnts[];
 };
-vec3 hash33(vec3 p)
-{
-    p = fract(p * 0.1031);
-    p += dot(p, p.yzx + 33.33);
-    return fract((p.xxy + p.yzz) * p.zyx);
-}
 #line 0
 void main() {
 	uint index = gl_WorkGroupID.x + gl_LocalInvocationIndex;

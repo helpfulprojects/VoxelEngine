@@ -133,7 +133,7 @@ void main()
     }
 
 	v_ColorOverlay = vec4(1,1,1,1);
-	if((int(tnts[gl_InstanceID].secondsUntilExplode*5)&1)==0){
+	if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
 		v_ColorOverlay = vec4(1,1,1,0.247);
 	}
 }

@@ -90,7 +90,8 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 			tnts[tntIndex].position = blockOrigin;
 			tnts[tntIndex].velocity = vec3(0,1,0);
 			tnts[tntIndex].visible = true;
-			tnts[tntIndex].secondsUntilExplode = 1.0;
+			vec3 rand = hash33(blockOrigin);
+			tnts[tntIndex].secondsUntilExplode = 0.5+fract(rand.x+rand.y+rand.z);
 		}
 		if(blockType!=bedrock_block){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;

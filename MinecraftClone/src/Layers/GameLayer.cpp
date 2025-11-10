@@ -104,6 +104,12 @@ struct TntEntity{
 uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
 	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 }
+vec3 hash33(vec3 p)
+{
+    p = fract(p * 0.1031);
+    p += dot(p, p.yzx + 33.33);
+    return fract((p.xxy + p.yzz) * p.zyx);
+}
 )";
 
 struct Chunk {
@@ -399,6 +405,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
   }
   auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
   propagateExplosions->Bind();
+
   {
     VE_PROFILE_SCOPE("Compute shader: propagate explosions");
     propagateExplosions->UploadUniformFloat3("u_Offset", {0, 0, 0});
