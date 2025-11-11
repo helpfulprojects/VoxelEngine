@@ -50,7 +50,7 @@ Shader::Shader(const std::string &filepath, const std::string &globalDefines)
   std::unordered_map<GLenum, std::string> shaderSources = PreProcess(source);
   for (auto &&[key, value] : shaderSources) {
     GLenum type = key;
-    if (type == GL_FRAGMENT_SHADER) {
+    if (type != GL_COMPUTE_SHADER && type != GL_VERTEX_SHADER) {
       continue;
     }
     const std::string &source = value;

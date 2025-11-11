@@ -78,9 +78,13 @@ int indices[6] = {0, 1, 2, 2, 3, 0};
 uniform mat4 u_ViewProjection;
 uniform mat4 u_Transform;
 
-out vec2 v_TexCoord;
-out vec4 v_StaticLight;
-out vec4 v_ColorOverlay;
+out vData{
+	vec2 v_TexCoord;
+	vec4 v_StaticLight;
+	vec4 v_ColorOverlay;
+	bool v_PassThrough;
+} vertex;
+#line 0
 void main()
 {
 	const int index = gl_VertexID/6;
@@ -112,66 +116,83 @@ void main()
     bool showldDraw = tnts[gl_InstanceID].visible;
     //bool showldDraw = true;
     if(showldDraw){
+		vertex.v_PassThrough = true;
 		vec3 position = tnts[gl_InstanceID].position;
 
 		position += facePositions[normalId][indices[currVertexID]];
 
-		v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
-		v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+		vertex.v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
+		vertex.v_StaticLight = vec4(1.0,1.0,1.0,1.0);
 		if(normalId == east || normalId == west){
-			v_StaticLight = vec4(0.8,0.8,0.8,1.0);
+			vertex.v_StaticLight = vec4(0.8,0.8,0.8,1.0);
 		}else if(normalId == south || normalId == north){
-			v_StaticLight = vec4(0.7,0.7,0.7,1.0);
+			vertex.v_StaticLight = vec4(0.7,0.7,0.7,1.0);
 		}else{
-			v_StaticLight = vec4(1.0,1.0,1.0,1.0);
+			vertex.v_StaticLight = vec4(1.0,1.0,1.0,1.0);
 		}
 		
 		gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
     }else{
-		v_StaticLight = vec4(0.0,0.0,0.0,0.0);
+		vertex.v_StaticLight = vec4(0.0,0.0,0.0,0.0);
+		vertex.v_PassThrough = false;
 		gl_Position = vec4(0,0,0,0);
     }
 
-	v_ColorOverlay = vec4(1,1,1,1);
+	vertex.v_ColorOverlay = vec4(1,1,1,1);
 	if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
-		v_ColorOverlay = vec4(1,1,1,0.247);
+		vertex.v_ColorOverlay = vec4(1,1,1,0.247);
 	}
 }
 
+#type geometry
+#version 430 core
+layout (triangles) in;
+layout (triangle_strip, max_vertices = 3) out;
+
+in vData{
+	vec2 v_TexCoord;
+	vec4 v_StaticLight;
+	vec4 v_ColorOverlay;
+	bool v_PassThrough;
+} vertices[];
+
+out fData{
+	vec2 v_TexCoord;
+	vec4 v_StaticLight;
+	vec4 v_ColorOverlay;
+} frag;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void main() {
+	bool passThrough = vertices[0].v_PassThrough;
+	if (passThrough) {
+		for (int i = 0; i < gl_in.length(); i++) {
+		    gl_Position = gl_in[i].gl_Position;
+		    frag.v_TexCoord = vertices[i].v_TexCoord;
+		    frag.v_StaticLight = vertices[i].v_StaticLight;
+		    frag.v_ColorOverlay = vertices[i].v_ColorOverlay;
+		    EmitVertex();
+		}
+	}
+}
 
 #type fragment
-#version 330 core
+#version 430 core
 
 out vec4 color;
-in vec2 v_TexCoord;
-in vec4 v_StaticLight;
-in vec4 v_ColorOverlay;
+in fData{
+	vec2 v_TexCoord;
+	vec4 v_StaticLight;
+	vec4 v_ColorOverlay;
+} frag;
 
 uniform sampler2D u_Texture;
 
 void main()
 {
-    if(v_StaticLight.a==0){
+    if(frag.v_StaticLight.a==0){
         discard;
     }
-	color = texture(u_Texture,v_TexCoord)*v_StaticLight;
-	color.rgb = mix(v_ColorOverlay.rgb,color.rgb,v_ColorOverlay.a);
+	color = texture(u_Texture,frag.v_TexCoord)*frag.v_StaticLight;
+	color.rgb = mix(frag.v_ColorOverlay.rgb,color.rgb,frag.v_ColorOverlay.a);
 }
