@@ -13,8 +13,12 @@ void main() {
 	const vec4 vertices[3] = vec4[3]( vec4(0.25,-0.25,0.5,1.0),
 			vec4(-0.25,-0.25,0.5,1.0), vec4(0.25,0.25,0.5,1.0));
 
+	const vec4 colors[3] = vec4[3]( vec4(1,0,0,1),
+				vec4(0,1,0,1),vec4(0,0,1,1));
+
+
 	gl_Position = vertices[gl_VertexID];
-	vs_out.color = color;
+	vs_out.color = colors[gl_VertexID];
 
 }
 
@@ -22,16 +26,12 @@ void main() {
 #type fragment
 #version 450 core 
 
-// in VS_OUT
-// {
-// 	vec4 color;
-// } fs_in;
+in VS_OUT
+{
+	vec4 color;
+} fs_in;
 out vec4 color;
 
 void main() { 
-	color = vec4(
-			sin(gl_FragCoord.x*0.25) * 0.5 +0.5,
-			cos(gl_FragCoord.y*0.25) * 0.5 +0.5,
-			sin(gl_FragCoord.x*0.15) * cos(gl_FragCoord.y*0.15), 1.0
-			);
+	color = fs_in.color;
 }
