@@ -507,7 +507,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     VoxelEngine::Renderer::Submit(
         m_ShaderLibrary.Get("TntInstancing"),
         glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 6 * 6, TNT_COUNT);
+    // glDrawArraysInstanced(GL_TRIANGLES, 0, 1, TNT_COUNT);
 
     // auto linesShader = m_ShaderLibrary.Get("lines");
 
