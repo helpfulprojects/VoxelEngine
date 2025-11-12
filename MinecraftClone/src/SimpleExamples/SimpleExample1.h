@@ -5,24 +5,25 @@ class SimpleExample1 : public VoxelEngine::Layer {
 public:
   SimpleExample1() : m_Camera(70.0f, 0.1f, 1500.0f), m_CameraPosition(0, 0, 0) {
     VE_PROFILE_FUNCTION;
+    m_Texture = VoxelEngine::Texture2D::Create("assets/textures/tnt.png");
+    m_Texture->Bind();
     // clang-format off
-    m_DrawVertsCount=0;
+    m_DrawVertsCount=14;
     float vertices[] = {
-	//FRONT
-	-1,1,1,
-	 1,1,1,
-	-1,-1,1,
-	 1,-1,1,
-	1.f, -1.f, -1.f,    // Back-bottom-right
-	1.f, 1.f, 1.f,      // Front-top-right
-	1.f, 1.f, -1.f,     // Back-top-right
-	-1.f, 1.f, 1.f,     // Front-top-left
-	 -1.f, 1.f, -1.f,    // Back-top-left
-	 -1.f, -1.f, 1.f,    // Front-bottom-left
-	 -1.f, -1.f, -1.f,   // Back-bottom-left
-	 1.f, -1.f, -1.f,    // Back-bottom-right
-	 -1.f, 1.f, -1.f,    // Back-top-left
-	 1.f, 1.f, -1.f      // Back-top-right
+	 1,1,1,   X(5),Y(3),
+	0,1,1,   X(4),Y(3),
+	 1,0,1,  X(5),Y(2),
+	0,0,1,  X(4),Y(2),
+	0,0,0, X(4),Y(1),
+	0,1,1,   X(3),Y(2), 
+	0,1,0,  X(3),Y(1), 
+	1,1,1,    X(2),Y(2), 
+	1,1,0,   X(2),Y(1),
+	1,0,1,   X(1),Y(2),
+	1,0,0,  X(1),Y(1),
+	0,0,0, X(0),Y(1),
+	1,1,0,   X(1),Y(0),
+	0,1,0,  X(0),Y(0),
     };
     // clang-format on
     glGenVertexArrays(1, &m_VAO);
@@ -32,13 +33,16 @@ public:
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+                          (void *)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 
     auto shader = m_ShaderLibrary.Load(
         "assets/shaders/SimpleExamples/SimpleExample1.glsl");
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   };
   ~SimpleExample1() { VE_PROFILE_FUNCTION; };
   void OnAttach() override {
@@ -93,6 +97,8 @@ public:
 
     VoxelEngine::Renderer::EndScene();
   };
+  float X(int id) { return (16.0f * id) / 128.0f; }
+  float Y(int id) { return (16.0f * id) / 128.0f; }
   void OnEvent(VoxelEngine::Event &event) override {
     VE_PROFILE_FUNCTION;
     VoxelEngine::EventDispatcher dispatcher(event);
@@ -136,4 +142,5 @@ private:
   float m_CameraMoveSpeed = 5.0f;
   unsigned int m_VAO;
   int m_DrawVertsCount;
+  VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;
 };
