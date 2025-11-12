@@ -75,8 +75,6 @@ const vec3 facePositions[6][4] = vec3[6][4](
 
 int indices[6] = {0, 1, 2, 2, 3, 0};
 
-uniform mat4 u_ViewProjection;
-uniform mat4 u_Transform;
 
 out vData{
 	vec2 v_TexCoord;
@@ -87,67 +85,25 @@ out vData{
 #line 0
 void main()
 {
-	const int index = gl_VertexID/6;
-
-	const int currVertexID = gl_VertexID % 6;
-	const uint normalId = index;
-	uint texId = 0;
-    switch(normalId){
-		case 0://positive y
-			texId = tnt_top;
-            break;
-		case 1://negative y
-			texId = tnt_bottom;
-            break;
-		case 2://positive x
-			texId = tnt_side;
-            break;
-		case 3://negative x
-			texId = tnt_side;
-            break;
-		case 4://positive z
-			texId = tnt_side;
-            break;
-		case 5://negative z
-			texId = tnt_side;
-            break;
-    }
-	
-    bool showldDraw = tnts[gl_InstanceID].visible;
-    //bool showldDraw = true;
-    if(showldDraw){
-		vertex.v_PassThrough = true;
-		vec3 position = tnts[gl_InstanceID].position;
-
-		position += facePositions[normalId][indices[currVertexID]];
-
-		vertex.v_TexCoord = terrainAtlasCoords[texId]+texturePositionOffsets[indices[currVertexID]];
-		vertex.v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		if(normalId == east || normalId == west){
-			vertex.v_StaticLight = vec4(0.8,0.8,0.8,1.0);
-		}else if(normalId == south || normalId == north){
-			vertex.v_StaticLight = vec4(0.7,0.7,0.7,1.0);
-		}else{
-			vertex.v_StaticLight = vec4(1.0,1.0,1.0,1.0);
-		}
-		
-		gl_Position = u_ViewProjection*u_Transform*vec4(position, 1.0);
-    }else{
-		vertex.v_StaticLight = vec4(0.0,0.0,0.0,0.0);
-		vertex.v_PassThrough = false;
-		gl_Position = vec4(0,0,0,0);
-    }
-
+	const int index = gl_VertexID;
+	bool shouldDraw = tnts[gl_InstanceID].visible;
+	vertex.v_PassThrough = shouldDraw;
 	vertex.v_ColorOverlay = vec4(1,1,1,1);
-	if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
-		vertex.v_ColorOverlay = vec4(1,1,1,0.247);
+	if(shouldDraw){
+		vec3 position = tnts[gl_InstanceID].position;
+		gl_Position = vec4(position, 1.0);
+		if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
+			vertex.v_ColorOverlay = vec4(1,1,1,0.247);
+		}
+	}else{
+		gl_Position = vec4(0,0,0,0);
 	}
 }
 
 #type geometry
 #version 430 core
-layout (triangles) in;
-layout (triangle_strip, max_vertices = 3) out;
+layout (points) in;
+layout (triangle_strip, max_vertices = 14) out;
 
 in vData{
 	vec2 v_TexCoord;
@@ -161,18 +117,87 @@ out fData{
 	vec4 v_StaticLight;
 	vec4 v_ColorOverlay;
 } frag;
-
-
+vec4 EAST_WEST_LIGHT = vec4(0.8,0.8,0.8,1.0);
+vec4 SOUTH_NORTH_LIGHT = vec4(0.7,0.7,0.7,1.0);
+vec4 TOP_BOTTOM_LIGHT = vec4(1.0,1.0,1.0,1.0);
+uniform mat4 u_ViewProjection;
+uniform mat4 u_Transform;
+#line 0
 void main() {
 	bool passThrough = vertices[0].v_PassThrough;
 	if (passThrough) {
-		for (int i = 0; i < gl_in.length(); i++) {
-		    gl_Position = gl_in[i].gl_Position;
-		    frag.v_TexCoord = vertices[i].v_TexCoord;
-		    frag.v_StaticLight = vertices[i].v_StaticLight;
-		    frag.v_ColorOverlay = vertices[i].v_ColorOverlay;
-		    EmitVertex();
-		}
+		vec4 center = gl_in[0].gl_Position;
+
+		vec4 p1 = u_ViewProjection * u_Transform * (center + vec4(1,1,1,0));
+		vec4 p2 = u_ViewProjection * u_Transform * (center + vec4(0,1,1,0));
+		vec4 p3 = u_ViewProjection * u_Transform * (center + vec4(1,0,1,0));
+		vec4 p4 = u_ViewProjection * u_Transform * (center + vec4(0,0,1,0));
+
+		vec4 p5 = u_ViewProjection * u_Transform * (center + vec4(1,1,0,0));
+		vec4 p6 = u_ViewProjection * u_Transform * (center + vec4(0,1,0,0));
+		vec4 p7 = u_ViewProjection * u_Transform * (center + vec4(1,0,0,0));
+		vec4 p8 = u_ViewProjection * u_Transform * (center + vec4(0,0,0,0));
+
+		gl_Position = p1;
+		frag.v_TexCoord = vec2(0.625,0.375);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p2;
+		frag.v_TexCoord = vec2(0.50,0.375);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p3;
+		frag.v_TexCoord = vec2(0.625,0.25);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p4;
+		frag.v_TexCoord = vec2(0.50,0.25);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p8;
+		frag.v_TexCoord = vec2(0.50,0.125);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p2;
+		frag.v_TexCoord = vec2(0.375,0.25);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p6;
+		frag.v_TexCoord = vec2(0.375,0.125);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p1;
+		frag.v_TexCoord = vec2(0.25,0.25);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+
+
+		gl_Position = p5;
+		frag.v_TexCoord = vec2(0.25,0.125);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p3;
+		frag.v_TexCoord = vec2(0.125,0.25);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p7;
+		frag.v_TexCoord = vec2(0.125,0.125);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p8;
+		frag.v_TexCoord = vec2(0.0,0.125);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+
+		gl_Position = p5;
+		frag.v_TexCoord = vec2(0.125,0.0);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		gl_Position = p6;
+		frag.v_TexCoord = vec2(0.0,0.0);
+		frag.v_ColorOverlay = vertices[0].v_ColorOverlay;
+		EmitVertex();   
+		EndPrimitive();
 	}
 }
 
@@ -186,13 +211,14 @@ in fData{
 	vec4 v_ColorOverlay;
 } frag;
 
-uniform sampler2D u_Texture;
+uniform sampler2D u_Texture1;
 
 void main()
 {
-    if(frag.v_StaticLight.a==0){
-        discard;
-    }
-	color = texture(u_Texture,frag.v_TexCoord)*frag.v_StaticLight;
+	color = texture(u_Texture1,frag.v_TexCoord);//*frag.v_StaticLight;
+	//    if(frag.v_StaticLight.a==0){
+	//        discard;
+	//    }
+	// color = texture(u_Texture,frag.v_TexCoord)*frag.v_StaticLight;
 	color.rgb = mix(frag.v_ColorOverlay.rgb,color.rgb,frag.v_ColorOverlay.a);
 }

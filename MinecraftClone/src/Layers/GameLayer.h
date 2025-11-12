@@ -43,4 +43,5 @@ private:
   const glm::vec3 m_GrassColorOverlay{112.0f, 160.0f, 70.0f};
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_LinesVA;
   std::vector<float> m_DebugLines;
+  VoxelEngine::Ref<VoxelEngine::Texture2D> m_TntTexture;
 };

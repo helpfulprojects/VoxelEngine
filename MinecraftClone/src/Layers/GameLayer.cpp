@@ -133,6 +133,8 @@ GameLayer::GameLayer()
   // m_CameraPosition.x -= 300;
   // InitDebugLines();
 
+  m_TntTexture = VoxelEngine::Texture2D::Create("assets/textures/tnt.png");
+  m_TntTexture->Bind(1);
   m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
   {
     VE_PROFILE_SCOPE("Bake texture atlas");
@@ -274,8 +276,10 @@ GameLayer::GameLayer()
 
   m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl",
                        GLOBAL_SHADER_DEFINES);
-  m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl",
-                       GLOBAL_SHADER_DEFINES);
+  auto tntShader = m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl",
+                                        GLOBAL_SHADER_DEFINES);
+  tntShader->Bind();
+  tntShader->UploadUniformInt("u_Texture1", 1);
 
   uint32_t quadInfo;
   glCreateBuffers(1, &quadInfo);
@@ -507,7 +511,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     VoxelEngine::Renderer::Submit(
         m_ShaderLibrary.Get("TntInstancing"),
         glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
-    // glDrawArraysInstanced(GL_TRIANGLES, 0, 1, TNT_COUNT);
+    glDrawArraysInstanced(GL_POINTS, 0, 1, TNT_COUNT);
 
     // auto linesShader = m_ShaderLibrary.Get("lines");
 

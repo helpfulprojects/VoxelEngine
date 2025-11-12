@@ -5,8 +5,8 @@
 class MinecraftClone : public VoxelEngine::Application {
 public:
   MinecraftClone() {
-    // PushLayer<GameLayer>();
-    PushLayer<SimpleExample1>();
+    PushLayer<GameLayer>();
+    // PushLayer<SimpleExample1>();
   }
   ~MinecraftClone() {}
 };
