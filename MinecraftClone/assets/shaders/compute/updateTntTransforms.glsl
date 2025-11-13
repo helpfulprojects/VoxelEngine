@@ -27,11 +27,14 @@ void main() {
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
 		// tnts[index].secondsUntilExplode -= u_DeltaTime;
 		uint explosionValue = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]&MASK_3_BITS;
-		if(explosionValue!=0){
+		if(explosionValue!=0 && !tnts[index].justBlewUp){
 			uint otherTntId = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]>>3;
 			vec3 otherTntPosition = tnts[otherTntId].position;
-			vec3 diff = normalize(tnts[index].position - otherTntPosition);
-			tnts[index].velocity+=diff*50;
+			vec3 diff = tnts[index].position - otherTntPosition;
+			vec3 diffDirection = normalize(diff);
+			float diffLength = length(diff);
+			float strength = 50.0 / (diffLength * diffLength + 1.0); // avoid div by zero
+			tnts[index].velocity += diffDirection * strength;
 		}
 		if(chunkPosition.y>=WORLD_HEIGHT || chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==0){
 			tnts[index].velocity.y = tnts[index].velocity.y+GRAVITY*u_DeltaTime;
@@ -49,5 +52,8 @@ void main() {
 		// 	chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = index<<3 | TNT_EXPLOSION_STRENGTH;
 		// 	chunksData[chunkIndex].hasExplosion = true;
 		// }
+		if(tnts[index].justBlewUp){
+			tnts[index].justBlewUp = false;
+		}
 	}
 }

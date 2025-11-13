@@ -15,8 +15,9 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = 100;
-const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_WIDTH;
+const int TNT_WIDTH = 255;
+const int TNT_HEIGHT = 154;
+const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
                               CHUNK_WIDTH *WORLD_WIDTH / 2);
@@ -33,6 +34,8 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
 #define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) +
                                           R"(
 #define TNT_WIDTH )" + std::to_string(TNT_WIDTH) +
+                                          R"(
+#define TNT_HEIGHT )" + std::to_string(TNT_HEIGHT) +
                                           R"(
 #define TNT_COUNT )" + std::to_string(TNT_COUNT) +
                                           R"(
@@ -70,6 +73,7 @@ struct TntEntity{
 	vec3 velocity;
 	float secondsUntilExplode;
 	bool visible; 
+	bool justBlewUp; 
 };
 
 #define air 0

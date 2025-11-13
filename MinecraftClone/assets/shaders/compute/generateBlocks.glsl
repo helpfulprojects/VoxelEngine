@@ -140,7 +140,7 @@ void main() {
 				} else{
 					chunksData[chunkIndex].blockTypes[x][y][z] = air;
 				}
-				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_WIDTH &&
+				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_HEIGHT &&
 						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_WIDTH &&
 						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_WIDTH){
 					// if(
