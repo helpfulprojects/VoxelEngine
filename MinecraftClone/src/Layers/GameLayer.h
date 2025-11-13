@@ -2,6 +2,8 @@
 #include <glad/glad.h>
 #include <VoxelEngine.h>
 #include <raudio.h>
+#define MAX_EXPLOSION_SOUNDS 32
+#define PLAY_SOUND_AFTER_SECONDS 0.1f
 struct DrawArraysIndirectCommand {
   GLuint count;         // number of vertices per draw
   GLuint instanceCount; // usually 1
@@ -46,5 +48,10 @@ private:
   std::vector<float> m_DebugLines;
   VoxelEngine::Ref<VoxelEngine::Texture2D> m_TntTexture;
   Sound m_FuseSound;
+  Sound m_ExplosionSounds[MAX_EXPLOSION_SOUNDS] = {0};
   bool *m_ShouldPlayFuseAudio;
+  uint32_t *m_ChunksExplosionsCount;
+  uint32_t m_ChunksExplosionsCountSsbo;
+  uint32_t m_CurrentExplosionSound = 0;
+  float m_SecondsSinceLastSound = PLAY_SOUND_AFTER_SECONDS;
 };

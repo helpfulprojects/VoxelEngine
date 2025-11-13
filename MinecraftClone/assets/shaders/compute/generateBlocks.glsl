@@ -143,12 +143,12 @@ void main() {
 				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_HEIGHT &&
 						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_WIDTH &&
 						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_WIDTH){
-					if(
-							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
-							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
-							){
+					// if(
+					// 		(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
+					// 		(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
+					// 		){
 						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					}
+					// }
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;

@@ -39,6 +39,8 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
                                           R"(
 #define TNT_COUNT )" + std::to_string(TNT_COUNT) +
                                           R"(
+#define TOTAL_CHUNKS )" + std::to_string(TOTAL_CHUNKS) +
+                                          R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) +
                                           R"(
 #define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) +
@@ -270,6 +272,20 @@ GameLayer::GameLayer()
         GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, hasTntFuseLitSsbo);
   }
+
+  {
+    glCreateBuffers(1, &m_ChunksExplosionsCountSsbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ChunksExplosionsCountSsbo);
+    glBufferStorage(GL_SHADER_STORAGE_BUFFER,
+                    (TOTAL_CHUNKS + 1) * sizeof(uint32_t), nullptr,
+                    GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT |
+                        GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT);
+    m_ChunksExplosionsCount = static_cast<uint32_t *>(glMapBufferRange(
+        GL_SHADER_STORAGE_BUFFER, 0, (TOTAL_CHUNKS + 1) * sizeof(uint32_t),
+        GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, m_ChunksExplosionsCountSsbo);
+  }
+
   {
     VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
     // GEN BLOCKS
@@ -377,6 +393,15 @@ GameLayer::GameLayer()
                        GLOBAL_SHADER_DEFINES);
   InitAudioDevice();
   m_FuseSound = LoadSound("assets/audio/Fuse.ogg");
+  m_ExplosionSounds[0] = LoadSound("assets/audio/Explosion1.ogg");
+  m_ExplosionSounds[1] = LoadSound("assets/audio/Explosion2.ogg");
+  m_ExplosionSounds[2] = LoadSound("assets/audio/Explosion3.ogg");
+  m_ExplosionSounds[3] = LoadSound("assets/audio/Explosion4.ogg");
+  for (int i = 4; i < MAX_EXPLOSION_SOUNDS; i++) {
+    srand(static_cast<unsigned>(time(nullptr)));
+    int randomIndex = rand() % 4;
+    m_ExplosionSounds[i] = LoadSoundAlias(m_ExplosionSounds[randomIndex]);
+  }
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -464,7 +489,26 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT, HALF_WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT |
                     GL_BUFFER_UPDATE_BARRIER_BIT);
+    GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+    float secondsToWait = 1.0f;
+    glClientWaitSync(sync, 0, secondsToWait * 1000000000);
+    glDeleteSync(sync);
   }
+  if (m_ChunksExplosionsCount[TOTAL_CHUNKS] == 1 &&
+      m_SecondsSinceLastSound >= PLAY_SOUND_AFTER_SECONDS) {
+    if (!IsSoundPlaying(m_ExplosionSounds[m_CurrentExplosionSound])) {
+      PlaySound(m_ExplosionSounds[m_CurrentExplosionSound]);
+      m_SecondsSinceLastSound = 0;
+    }
+    m_CurrentExplosionSound++;
+    if (m_CurrentExplosionSound >= MAX_EXPLOSION_SOUNDS) {
+      m_CurrentExplosionSound = 0;
+    }
+  }
+  m_SecondsSinceLastSound += ts;
+  uint32_t zero = 0;
+  glClearNamedBufferData(m_ChunksExplosionsCountSsbo, GL_R32UI, GL_RED,
+                         GL_UNSIGNED_INT, &zero);
 
   {
     VE_PROFILE_SCOPE("Compute shader: update tnt transforms");

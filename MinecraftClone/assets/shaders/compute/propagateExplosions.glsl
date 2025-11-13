@@ -30,6 +30,10 @@ layout(std430, binding = 9) buffer buffer9
 {
 	bool shouldRedrawChunk[]; 
 };
+layout(std430, binding = 11) buffer buffer11
+{
+	uint chunksExplosionsCount[]; 
+};
 uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
@@ -146,12 +150,14 @@ void main() {
 	if(!chunksData[chunkIndex].hasExplosion){
 		return;
 	}
+	chunksExplosionsCount[TOTAL_CHUNKS] = 1; // after the last chunk set to 1 to single there has been an explosion in one of the chunks
 	for(int x=0;x<CHUNK_WIDTH;x++){
 		for(int z=0;z<CHUNK_WIDTH;z++){
 			for(int y=0;y<CHUNK_WIDTH;y++){
 				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z]&MASK_3_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);
+					chunksExplosionsCount[chunkIndex]+=1;
 				}
 			}
 		}
