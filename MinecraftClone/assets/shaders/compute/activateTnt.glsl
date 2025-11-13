@@ -18,6 +18,10 @@ layout(std430, binding = 6) buffer buffer6
 {
 	TntEntity tnts[];
 };
+layout(std430, binding = 10) buffer buffer10
+{
+	bool shouldPlayFuseSound; 
+};
 
 uniform vec3 u_CameraPos;
 uniform vec3 u_RayDirection;
@@ -47,6 +51,9 @@ void main() {
 			tnts[tntIndex].velocity = vec3(0,6,0);
 			tnts[tntIndex].visible = true;
 			tnts[tntIndex].secondsUntilExplode = 4.0;
+			shouldPlayFuseSound = true;
+		}else{
+			shouldPlayFuseSound = false;
 		}
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=air){
 			chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z] = 0;

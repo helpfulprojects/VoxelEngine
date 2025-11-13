@@ -256,6 +256,20 @@ GameLayer::GameLayer()
         GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, hasChunkRedrawnSsbo);
   }
+
+  uint32_t hasTntFuseLitSsbo;
+  {
+    VE_PROFILE_SCOPE("Init hasTntFuseLitSsbo ssbo");
+    glCreateBuffers(1, &hasTntFuseLitSsbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, hasTntFuseLitSsbo);
+    glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(uint32_t), nullptr,
+                    GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT |
+                        GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT);
+    m_ShouldPlayFuseAudio = static_cast<bool *>(glMapBufferRange(
+        GL_SHADER_STORAGE_BUFFER, 0, sizeof(uint32_t),
+        GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 10, hasTntFuseLitSsbo);
+  }
   {
     VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
     // GEN BLOCKS
@@ -362,7 +376,7 @@ GameLayer::GameLayer()
   m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl",
                        GLOBAL_SHADER_DEFINES);
   InitAudioDevice();
-  m_TestSound = LoadSound("assets/audio/Fuse.ogg");
+  m_FuseSound = LoadSound("assets/audio/Fuse.ogg");
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -474,8 +488,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
                     GL_BUFFER_UPDATE_BARRIER_BIT);
     // After compute shader or rendering that writes to SSBO:
     GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-    // Wait until GPU finishes writing:
-    // glClientWaitSync(sync, GL_SYNC_FLUSH_COMMANDS_BIT, 1000000);
     float secondsToWait = 1.0f;
     glClientWaitSync(sync, 0, secondsToWait * 1000000000);
     glDeleteSync(sync);
@@ -554,10 +566,6 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
           SpawnTnts();
           return true;
         }
-        if (e.GetKeyCode() == VE_KEY_Q) {
-          PlaySound(m_TestSound);
-          return true;
-        }
 
         return false;
       });
@@ -587,6 +595,15 @@ void GameLayer::ActivateTnt() {
   activateTnt->UploadUniformFloat3("u_RayDirection", m_Camera.GetFront());
   glDispatchCompute(1, 1, 1);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+
+  GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+  float secondsToWait = 1.0f;
+  glClientWaitSync(sync, 0, secondsToWait * 1000000000);
+  glDeleteSync(sync);
+  if (*m_ShouldPlayFuseAudio) {
+    PlaySound(m_FuseSound);
+    *m_ShouldPlayFuseAudio = false;
+  }
 }
 
 void GameLayer::SpawnTnts() {
