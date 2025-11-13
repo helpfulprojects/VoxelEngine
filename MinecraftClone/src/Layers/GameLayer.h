@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <VoxelEngine.h>
+#include <raudio.h>
 struct DrawArraysIndirectCommand {
   GLuint count;         // number of vertices per draw
   GLuint instanceCount; // usually 1
@@ -33,7 +34,7 @@ private:
   VoxelEngine::PerspectiveCamera m_Camera;
   glm::vec3 m_SquarePosition;
   glm::vec3 m_CameraPosition;
-  float m_CameraMoveSpeed = 50.0f;
+  float m_CameraMoveSpeed = 5.0f;
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
   DrawArraysIndirectCommand *m_Cmd;
@@ -44,4 +45,5 @@ private:
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_LinesVA;
   std::vector<float> m_DebugLines;
   VoxelEngine::Ref<VoxelEngine::Texture2D> m_TntTexture;
+  Sound m_TestSound;
 };

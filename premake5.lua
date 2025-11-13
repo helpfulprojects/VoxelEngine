@@ -18,12 +18,14 @@ IncludeDir["ImGui"] = "VoxelEngine/vendor/ImGui"
 IncludeDir["glm"] = "VoxelEngine/vendor/glm"
 IncludeDir["stb_image"] = "VoxelEngine/vendor/stb_image"
 IncludeDir["tracy"] = "VoxelEngine/vendor/tracy/public"
+IncludeDir["raudio"] = "VoxelEngine/vendor/raudio/src"
 
 group "Dependencies"
 	include "VoxelEngine/vendor/GLFW"
 	include "VoxelEngine/vendor/GLAD"
 	include "VoxelEngine/vendor/imgui"
 	include "VoxelEngine/vendor/tracy"
+	include "VoxelEngine/vendor/raudio"
 group ""
 
 
@@ -67,6 +69,7 @@ project "VoxelEngine"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.stb_image}",
 		"%{IncludeDir.tracy}",
+		"%{IncludeDir.raudio}",
 	}
 
 	links{
@@ -74,6 +77,7 @@ project "VoxelEngine"
 		"GLAD",
 		"ImGui",
 		"tracy",
+		"raudio",
 		"opengl32.lib"
 	}
 	filter { "%{prj.name}/vendor/tracy/public/TracyClient.cpp" }
@@ -124,6 +128,7 @@ project "MinecraftClone"
 		"%{IncludeDir.glm}",
 		"%{IncludeDir.tracy}",
 		"%{IncludeDir.GLAD}",
+		"%{IncludeDir.raudio}",
 	}
 
 	filter "system:windows"

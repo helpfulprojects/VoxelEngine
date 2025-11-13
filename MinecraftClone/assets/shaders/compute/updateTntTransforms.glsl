@@ -22,7 +22,6 @@ void main() {
 
 	if(tnts[index].visible){
 		vec3 chunkPosition = floor(tnts[index].position/16);
-		vec3 actualChunkPosition = chunkPosition*16;
 		ivec3 localPos = ivec3(tnts[index].position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
 		// tnts[index].secondsUntilExplode -= u_DeltaTime;

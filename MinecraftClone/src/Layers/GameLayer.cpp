@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = 255;
+const int TNT_WIDTH = sqrt(10000000.0f / 154.0f);
 const int TNT_HEIGHT = 154;
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
@@ -361,6 +361,8 @@ GameLayer::GameLayer()
                        GLOBAL_SHADER_DEFINES);
   m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl",
                        GLOBAL_SHADER_DEFINES);
+  InitAudioDevice();
+  m_TestSound = LoadSound("assets/audio/Fuse.ogg");
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -552,6 +554,11 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
           SpawnTnts();
           return true;
         }
+        if (e.GetKeyCode() == VE_KEY_Q) {
+          PlaySound(m_TestSound);
+          return true;
+        }
+
         return false;
       });
   dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>(
@@ -689,4 +696,4 @@ void GameLayer::OnImGuiRender() {
   // ImGui::End();
 }
 
-void GameLayer::OnDetach() {}
+void GameLayer::OnDetach() { CloseAudioDevice(); }
