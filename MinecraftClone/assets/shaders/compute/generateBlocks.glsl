@@ -104,7 +104,7 @@ float cnoise(vec2 P)
 }
 
 
-
+#define LIMIT_BLOCKS true
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	shouldRedrawWorld = true;
@@ -143,12 +143,14 @@ void main() {
 				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_HEIGHT &&
 						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_WIDTH &&
 						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_WIDTH){
-					// if(
-					// 		(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
-					// 		(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
-					// 		){
-						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					// }
+					if(
+							(LIMIT_BLOCKS && blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
+							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
+							){
+						//chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
+					}else if(!LIMIT_BLOCKS){
+						//chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
+					}
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;

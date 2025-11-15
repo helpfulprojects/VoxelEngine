@@ -25,7 +25,7 @@ void main() {
 	vec3 rand2 = hash33(tnts[index].position);
 	tnts[index].secondsUntilExplode = 4.0+fract(rand2.x+rand2.y+rand2.z);
 
-    float speed = 35; 
+    float speed = 45; 
     tnts[index].velocity = randomDir * speed;
 //    if(index>(1000000-2)){ 
 //		tnts[index].visible = true;

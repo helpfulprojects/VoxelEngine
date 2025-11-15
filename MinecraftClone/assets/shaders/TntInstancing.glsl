@@ -92,9 +92,9 @@ void main()
 	if(shouldDraw){
 		vec3 position = tnts[gl_InstanceID].position;
 		gl_Position = vec4(position, 1.0);
-		if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
-			vertex.v_ColorOverlay = vec4(1,1,1,0.247);
-		}
+//		if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
+//			vertex.v_ColorOverlay = vec4(1,1,1,0.247);
+//		}
 	}else{
 		gl_Position = vec4(0,0,0,0);
 	}

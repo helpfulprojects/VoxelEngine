@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = sqrt(10000000.0f / 154.0f);
+const int TNT_WIDTH = sqrt(1000000.0f / 154.0f);
 const int TNT_HEIGHT = 154;
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
@@ -136,7 +136,7 @@ GameLayer::GameLayer()
       m_SquarePosition(-1.1f, 0, -0.5f), m_CameraPosition(DEFAULT_SPAWN) {
   VE_PROFILE_FUNCTION;
   m_CameraPosition.y -= 150;
-  // m_CameraPosition.x -= 300;
+  m_CameraPosition.x -= 300;
   // InitDebugLines();
 
   m_TntTexture = VoxelEngine::Texture2D::Create("assets/textures/tnt.png");
@@ -398,7 +398,6 @@ GameLayer::GameLayer()
   m_ExplosionSounds[2] = LoadSound("assets/audio/Explosion3.ogg");
   m_ExplosionSounds[3] = LoadSound("assets/audio/Explosion4.ogg");
   for (int i = 4; i < MAX_EXPLOSION_SOUNDS; i++) {
-    srand(static_cast<unsigned>(time(nullptr)));
     int randomIndex = rand() % 4;
     m_ExplosionSounds[i] = LoadSoundAlias(m_ExplosionSounds[randomIndex]);
   }
@@ -444,12 +443,22 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     }
   }
 
+  //{
+  //  VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+  //  auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
+  //  updateTntTransformsCompute->Bind();
+  //  updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+  //  glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+  //  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  //}
   {
     VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-    auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
+    auto updateTntTransformsCompute =
+        m_ShaderLibrary.Get("updateTntTransforms");
     updateTntTransformsCompute->Bind();
     updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
     glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
   auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
@@ -510,16 +519,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
   glClearNamedBufferData(m_ChunksExplosionsCountSsbo, GL_R32UI, GL_RED,
                          GL_UNSIGNED_INT, &zero);
 
-  {
-    VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-    auto updateTntTransformsCompute =
-        m_ShaderLibrary.Get("updateTntTransforms");
-    updateTntTransformsCompute->Bind();
-    updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-    glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-  }
   m_ShaderLibrary.Get("clearExplosions")->Bind();
   glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
