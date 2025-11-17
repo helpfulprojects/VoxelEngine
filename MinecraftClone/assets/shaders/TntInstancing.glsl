@@ -86,15 +86,15 @@ out vData{
 void main()
 {
 	const int index = gl_VertexID;
-	bool shouldDraw = tnts[gl_InstanceID].visible;
+	bool shouldDraw = tnts[gl_VertexID].visible;
 	vertex.v_PassThrough = shouldDraw;
 	vertex.v_ColorOverlay = vec4(1,1,1,1);
 	if(shouldDraw){
-		vec3 position = tnts[gl_InstanceID].position;
+		vec3 position = tnts[gl_VertexID].position;
 		gl_Position = vec4(position, 1.0);
-//		if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
-//			vertex.v_ColorOverlay = vec4(1,1,1,0.247);
-//		}
+		if((int(tnts[gl_InstanceID].secondsUntilExplode*4.35)&1)==0){
+			vertex.v_ColorOverlay = vec4(1,1,1,0.247);
+		}
 	}else{
 		gl_Position = vec4(0,0,0,0);
 	}

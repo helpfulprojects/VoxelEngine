@@ -104,7 +104,7 @@ float cnoise(vec2 P)
 }
 
 
-#define LIMIT_BLOCKS true
+#define LIMIT_BLOCKS false
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	shouldRedrawWorld = true;
@@ -125,6 +125,7 @@ void main() {
 			uint blockZ = z+chunkZ;
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
+			//int surfaceLevel = int(noise * amplitude + baseHeight);
 			int surfaceLevel = 100;
 
 			for(int y=0;y<CHUNK_WIDTH;y++){
@@ -147,9 +148,9 @@ void main() {
 							(LIMIT_BLOCKS && blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
 							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
 							){
-						//chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
+						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
 					}else if(!LIMIT_BLOCKS){
-						//chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
+						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
 					}
 				}
 

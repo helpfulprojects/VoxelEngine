@@ -42,9 +42,9 @@ void main() {
 				tnts[index].visible = false;
 			}
 		}else if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]!=0){
-			tnts[index].visible = false;
-			chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = index<<3 | TNT_EXPLOSION_STRENGTH;
-			chunksData[chunkIndex].hasExplosion = true;
+//			tnts[index].visible = false;
+//			chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z] = index<<3 | TNT_EXPLOSION_STRENGTH;
+//			chunksData[chunkIndex].hasExplosion = true;
 		}
 		// if(tnts[index].secondsUntilExplode<=0.0){
 		// 	tnts[index].visible = false;

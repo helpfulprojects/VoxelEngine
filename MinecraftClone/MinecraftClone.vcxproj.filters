@@ -42,6 +42,7 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample8.h">
       <Filter>SimpleExamples</Filter>
     </ClInclude>
+    <ClInclude Include="src\SimpleExamples\SimpleExample9.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">

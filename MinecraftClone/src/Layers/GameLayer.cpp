@@ -15,7 +15,7 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = sqrt(1000000.0f / 154.0f);
+const int TNT_WIDTH = sqrt(10000000.0f / 154.0f);
 const int TNT_HEIGHT = 154;
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
@@ -132,7 +132,7 @@ struct ChunkQuads {
 };
 
 GameLayer::GameLayer()
-    : Layer("Example"), m_Camera(70.0f, 0.1f, 1500.0f),
+    : Layer("Example"), m_Camera(70.0f, 0.1f, 2500.0f),
       m_SquarePosition(-1.1f, 0, -0.5f), m_CameraPosition(DEFAULT_SPAWN) {
   VE_PROFILE_FUNCTION;
   m_CameraPosition.y -= 150;
@@ -366,8 +366,11 @@ GameLayer::GameLayer()
   }
   m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl",
                        GLOBAL_SHADER_DEFINES);
-  // m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl",
-  // GLOBAL_SHADER_DEFINES)->Bind(); glDispatchCompute(TNT_COUNT, 1, 1);
+  // m_ShaderLibrary
+  //     .Load("assets/shaders/compute/initTntTransforms.glsl",
+  //           GLOBAL_SHADER_DEFINES)
+  //     ->Bind();
+  // glDispatchCompute(TNT_COUNT, 1, 1);
   // glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
   {
@@ -401,6 +404,7 @@ GameLayer::GameLayer()
     int randomIndex = rand() % 4;
     m_ExplosionSounds[i] = LoadSoundAlias(m_ExplosionSounds[randomIndex]);
   }
+  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -443,22 +447,12 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     }
   }
 
-  //{
-  //  VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-  //  auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
-  //  updateTntTransformsCompute->Bind();
-  //  updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-  //  glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-  //  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-  //}
   {
     VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-    auto updateTntTransformsCompute =
-        m_ShaderLibrary.Get("updateTntTransforms");
+    auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
     updateTntTransformsCompute->Bind();
     updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
     glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
   }
   auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
@@ -503,6 +497,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     glClientWaitSync(sync, 0, secondsToWait * 1000000000);
     glDeleteSync(sync);
   }
+
   if (m_ChunksExplosionsCount[TOTAL_CHUNKS] == 1 &&
       m_SecondsSinceLastSound >= PLAY_SOUND_AFTER_SECONDS) {
     if (!IsSoundPlaying(m_ExplosionSounds[m_CurrentExplosionSound])) {
@@ -519,6 +514,18 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
   glClearNamedBufferData(m_ChunksExplosionsCountSsbo, GL_R32UI, GL_RED,
                          GL_UNSIGNED_INT, &zero);
 
+  if (m_UpdateTntPosition) {
+    {
+      VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+      auto updateTntTransformsCompute =
+          m_ShaderLibrary.Get("updateTntTransforms");
+      updateTntTransformsCompute->Bind();
+      updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+      glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+      // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+      glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+  }
   m_ShaderLibrary.Get("clearExplosions")->Bind();
   glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
@@ -572,7 +579,8 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     VoxelEngine::Renderer::Submit(
         m_ShaderLibrary.Get("TntInstancing"),
         glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
-    glDrawArraysInstanced(GL_POINTS, 0, 1, TNT_COUNT);
+    // glDrawArraysInstanced(GL_POINTS, 0, 1, TNT_COUNT);
+    glDrawArrays(GL_POINTS, 0, TNT_COUNT);
 
     // auto linesShader = m_ShaderLibrary.Get("lines");
 
@@ -603,6 +611,22 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
         }
         if (e.GetKeyCode() == VE_KEY_C) {
           ForceRedraw();
+          return true;
+        }
+        if (e.GetKeyCode() == VE_KEY_1) {
+          m_CameraMoveSpeed = 5;
+          return true;
+        }
+        if (e.GetKeyCode() == VE_KEY_2) {
+          m_CameraMoveSpeed = 50;
+          return true;
+        }
+        if (e.GetKeyCode() == VE_KEY_3) {
+          m_CameraMoveSpeed = 500;
+          return true;
+        }
+        if (e.GetKeyCode() == VE_KEY_4) {
+          m_UpdateTntPosition = false;
           return true;
         }
         if (e.GetKeyCode() == VE_KEY_X) {

@@ -36,7 +36,7 @@ private:
   VoxelEngine::PerspectiveCamera m_Camera;
   glm::vec3 m_SquarePosition;
   glm::vec3 m_CameraPosition;
-  float m_CameraMoveSpeed = 50.0f;
+  float m_CameraMoveSpeed = 500.0f;
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
   DrawArraysIndirectCommand *m_Cmd;
@@ -54,4 +54,5 @@ private:
   uint32_t m_ChunksExplosionsCountSsbo;
   uint32_t m_CurrentExplosionSound = 0;
   float m_SecondsSinceLastSound = PLAY_SOUND_AFTER_SECONDS;
+  bool m_UpdateTntPosition = true;
 };
