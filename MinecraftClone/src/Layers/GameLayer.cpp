@@ -17,8 +17,8 @@ const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 // const int TNT_HEIGHT = 154;
 //  const int TNT_HEIGHT = 100;
-const int TNT_HEIGHT = 124;
-const int TNT_WIDTH = sqrt(10000000.0f / TNT_HEIGHT);
+const int TNT_HEIGHT = 41;
+const int TNT_WIDTH = sqrt(100000.0f / TNT_HEIGHT);
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
@@ -378,7 +378,8 @@ GameLayer::GameLayer()
                subImagesCoordsList.data(), GL_STATIC_DRAW);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, quadInfo);
 
-  float textureOffset = 16.0f / m_TerrainAtlas->GetWidth();
+  float textureOffset =
+      (float)m_TerrainAtlas->GetSpriteSize() / m_TerrainAtlas->GetWidth();
   uint32_t textureOffsets;
   glCreateBuffers(1, &textureOffsets);
   glm::vec2 textureOffsetsData[] = {

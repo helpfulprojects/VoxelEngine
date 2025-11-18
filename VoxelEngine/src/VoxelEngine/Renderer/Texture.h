@@ -42,6 +42,7 @@ public:
     return m_SubImagesCoordsList;
   };
   void Bake(int width = 0);
+  uint32_t GetSpriteSize() { return m_SpriteSize; }
   virtual uint32_t GetWidth() const override { return m_Width; }
   virtual uint32_t GetHeight() const override { return m_Height; }
   virtual void Bind(uint32_t slot = 0) const override;
@@ -56,5 +57,6 @@ private:
   std::unordered_map<std::string, Ref<TextureSubImage2D>> m_SubTextures;
   std::queue<std::string> m_SubTexturesBakeQueue;
   std::vector<glm::vec2> m_SubImagesCoordsList;
+  uint32_t m_SpriteSize;
 };
 } // namespace VoxelEngine

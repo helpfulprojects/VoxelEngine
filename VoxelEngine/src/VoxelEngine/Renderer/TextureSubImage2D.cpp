@@ -35,7 +35,8 @@ void TextureSubImage2D::SetOffset(int xOffset, int yOffset) {
   m_Name += std::to_string(xOffset) + "," + std::to_string(yOffset);
 }
 void TextureSubImage2D::Combine(const Ref<TextureSubImage2D> other) {
-
+  if (other->m_Channels < 3)
+    return;
   const texture_data *otherData = other->GetData();
   int numPixels = m_Width * m_Height;
   for (int i = 0; i < numPixels; i++) {
@@ -43,7 +44,8 @@ void TextureSubImage2D::Combine(const Ref<TextureSubImage2D> other) {
     int otherIdx = i * other->m_Channels;
     if (otherData[otherIdx + other->m_Channels - 1] == 0)
       continue;
-    for (int channel = 0; channel < other->m_Channels; channel++) {
+    int minChannel = std::min(m_Channels, other->m_Channels);
+    for (int channel = 0; channel < minChannel; channel++) {
       m_Data[idx + channel] = otherData[otherIdx + channel];
     }
   }
@@ -89,16 +91,32 @@ void TextureSubImage2D::Rotate(int rotation) {
   m_Data = rotated;
 }
 void TextureSubImage2D::Colorize(const glm::vec3 &color) {
+  // if (m_Channels == 2) {
+  //   uint32_t newChannels = 4;
+  //   stbi_uc *newData = new stbi_uc[m_Width * m_Height * newChannels];
+  //   for (int y = 0; y < m_Height; y++) {
+  //     for (int x = 0; x < m_Width; x++) {
+
+  //      int srcIdx = (y * m_Width + x) * newChannels;
+  //      int dstIdx = srcIdx;
+  //      for (int c = 0; c < newChannels - 1; c++)
+  //        newData[dstIdx + c] = m_Data[srcIdx + 0];
+  //      newData[dstIdx + 3] = m_Data[srcIdx + 1];
+  //    }
+  //  }
+  //  FreeData();
+  //  m_Data = newData;
+  //  m_Channels = newChannels;
+  //}
+  if (m_Channels < 3)
+    return;
   glm::vec3 colorNormalized = color / 256.0f;
   int numPixels = m_Width * m_Height;
   for (int i = 0; i < numPixels; i++) {
     int idx = i * m_Channels;
-    if (m_Channels > 0)
-      m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * colorNormalized.r);
-    if (m_Channels > 1)
-      m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
-    if (m_Channels > 2)
-      m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
+    m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * colorNormalized.r);
+    m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
+    m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
   }
 }
 void TextureSubImage2D::FreeData() {

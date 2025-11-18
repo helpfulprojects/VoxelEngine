@@ -115,8 +115,9 @@ void TextureAtlas::Bake(int width) {
   if (width == 0) {
     width = std::ceil(std::sqrt(subTexturesCount));
   }
-  m_Width = SUB_TEXTURE_SIZE * width;
-  m_Height = SUB_TEXTURE_SIZE * width;
+  m_SpriteSize = m_SubTextures.begin()->second->GetWidth();
+  m_Width = m_SpriteSize * width;
+  m_Height = m_SpriteSize * width;
   glCreateTextures(GL_TEXTURE_2D, 1, &m_RendererID);
   int mipLevels = 1 + (int)std::floor(std::log2(std::max(m_Width, m_Height)));
   glTextureStorage2D(m_RendererID, mipLevels, GL_RGBA8, m_Width, m_Height);
@@ -133,9 +134,9 @@ void TextureAtlas::Bake(int width) {
       int subTextureXOffset = subTexture->GetXOffset();
       int subTextureYOffset = subTexture->GetYOffset();
       uint32_t xoffset =
-          SUB_TEXTURE_SIZE * (subTextureXOffset < 0 ? x : subTextureXOffset);
+          m_SpriteSize * (subTextureXOffset < 0 ? x : subTextureXOffset);
       uint32_t yoffset =
-          SUB_TEXTURE_SIZE * (subTextureYOffset < 0 ? y : subTextureYOffset);
+          m_SpriteSize * (subTextureYOffset < 0 ? y : subTextureYOffset);
       subTexture->SetId(id++);
       // subTexture->SetTexCoords({ xoffset / m_Width,yoffset / m_Height });
       m_SubImagesCoordsList.push_back(
