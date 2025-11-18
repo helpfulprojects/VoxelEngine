@@ -21,6 +21,7 @@ public:
   void SetId(uint32_t id) { m_Id = id; }
   void SetTexCoords(glm::vec2 texCoords) { m_TexCoords = texCoords; }
   void Colorize(const glm::vec3 &color);
+  void ToRGBA();
   void FreeData();
 
 private:

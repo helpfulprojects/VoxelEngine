@@ -91,25 +91,6 @@ void TextureSubImage2D::Rotate(int rotation) {
   m_Data = rotated;
 }
 void TextureSubImage2D::Colorize(const glm::vec3 &color) {
-  // if (m_Channels == 2) {
-  //   uint32_t newChannels = 4;
-  //   stbi_uc *newData = new stbi_uc[m_Width * m_Height * newChannels];
-  //   for (int y = 0; y < m_Height; y++) {
-  //     for (int x = 0; x < m_Width; x++) {
-
-  //      int srcIdx = (y * m_Width + x) * newChannels;
-  //      int dstIdx = srcIdx;
-  //      for (int c = 0; c < newChannels - 1; c++)
-  //        newData[dstIdx + c] = m_Data[srcIdx + 0];
-  //      newData[dstIdx + 3] = m_Data[srcIdx + 1];
-  //    }
-  //  }
-  //  FreeData();
-  //  m_Data = newData;
-  //  m_Channels = newChannels;
-  //}
-  if (m_Channels < 3)
-    return;
   glm::vec3 colorNormalized = color / 256.0f;
   int numPixels = m_Width * m_Height;
   for (int i = 0; i < numPixels; i++) {
@@ -118,6 +99,39 @@ void TextureSubImage2D::Colorize(const glm::vec3 &color) {
     m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
     m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
   }
+}
+void TextureSubImage2D::ToRGBA() {
+  if (m_Channels == 4)
+    return;
+  uint32_t newChannels = 4;
+  stbi_uc *newData = new stbi_uc[m_Width * m_Height * newChannels];
+  for (int y = 0; y < m_Height; y++) {
+    for (int x = 0; x < m_Width; x++) {
+
+      int srcIdx = (y * m_Width + x) * m_Channels;
+      int dstIdx = (y * m_Width + x) * newChannels;
+
+      if (m_Channels == 1) {
+        newData[dstIdx + 0] = m_Data[srcIdx + 0];
+        newData[dstIdx + 1] = m_Data[srcIdx + 0];
+        newData[dstIdx + 2] = m_Data[srcIdx + 0];
+        newData[dstIdx + 3] = 255;
+      } else if (m_Channels == 2) {
+        newData[dstIdx + 0] = m_Data[srcIdx + 0];
+        newData[dstIdx + 1] = m_Data[srcIdx + 0];
+        newData[dstIdx + 2] = m_Data[srcIdx + 0];
+        newData[dstIdx + 3] = m_Data[srcIdx + 1];
+      } else if (m_Channels == 3) {
+        newData[dstIdx + 0] = m_Data[srcIdx + 0];
+        newData[dstIdx + 1] = m_Data[srcIdx + 1];
+        newData[dstIdx + 2] = m_Data[srcIdx + 2];
+        newData[dstIdx + 3] = 255;
+      }
+    }
+  }
+  FreeData();
+  m_Data = newData;
+  m_Channels = newChannels;
 }
 void TextureSubImage2D::FreeData() {
   stbi_image_free(m_Data);

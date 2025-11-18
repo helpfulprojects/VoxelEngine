@@ -206,6 +206,7 @@ GameLayer::GameLayer()
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
             "assets/textures/texture_pack/assets/minecraft/textures/block/"
             "grass_block_top.png");
+    grass_block_top->ToRGBA();
     grass_block_top->Colorize(m_GrassColorOverlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
@@ -215,6 +216,7 @@ GameLayer::GameLayer()
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
             "assets/textures/texture_pack/assets/minecraft/textures/block/"
             "grass_block_side_overlay.png");
+    grass_block_side_overlay->ToRGBA();
     grass_block_side_overlay->Colorize(m_GrassColorOverlay);
     grass_block_side->Combine(grass_block_side_overlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side =
