@@ -15,8 +15,10 @@ const int WORLD_HEIGHT = 16;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-const int TNT_WIDTH = sqrt(10000000.0f / 154.0f);
-const int TNT_HEIGHT = 154;
+// const int TNT_HEIGHT = 154;
+//  const int TNT_HEIGHT = 100;
+const int TNT_HEIGHT = 124;
+const int TNT_WIDTH = sqrt(10000000.0f / TNT_HEIGHT);
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
@@ -139,9 +141,60 @@ GameLayer::GameLayer()
   m_CameraPosition.x -= 300;
   // InitDebugLines();
 
-  m_TntTexture = VoxelEngine::Texture2D::Create("assets/textures/tnt.png");
-  m_TntTexture->Bind(1);
+  // TNT ATLAS
   m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
+  {
+    VE_PROFILE_SCOPE("Bake tnt atlas");
+    m_TntAtlas = VoxelEngine::TextureAtlas::Create();
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side00 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_side.png");
+    tnt_side00->SetOffset(0, 0);
+    tnt_side00->Rotate(180);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom01 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_bottom.png");
+    tnt_bottom01->SetOffset(0, 1);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side11 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_side.png");
+    tnt_side11->SetOffset(1, 1);
+    tnt_side11->Rotate(270);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top21 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_top.png");
+    tnt_top21->SetOffset(2, 1);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side31 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_side.png");
+    tnt_side31->SetOffset(3, 1);
+    tnt_side31->Rotate(90);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom41 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_bottom.png");
+    tnt_bottom41->SetOffset(4, 1);
+    VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side42 =
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(
+            "assets/textures/texture_pack/assets/minecraft/textures/block/"
+            "tnt_side.png");
+    tnt_side42->SetOffset(4, 2);
+    m_TntAtlas->Add(tnt_side00);
+    m_TntAtlas->Add(tnt_bottom01);
+    m_TntAtlas->Add(tnt_side11);
+    m_TntAtlas->Add(tnt_top21);
+    m_TntAtlas->Add(tnt_side31);
+    m_TntAtlas->Add(tnt_bottom41);
+    m_TntAtlas->Add(tnt_side42);
+    m_TntAtlas->Bake(8);
+    m_TntAtlas->Bind(1);
+  }
+  // TERRAIN ATLAS
   {
     VE_PROFILE_SCOPE("Bake texture atlas");
     m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
@@ -498,18 +551,15 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     glDeleteSync(sync);
   }
 
-  if (m_ChunksExplosionsCount[TOTAL_CHUNKS] == 1 &&
-      m_SecondsSinceLastSound >= PLAY_SOUND_AFTER_SECONDS) {
+  if (m_ChunksExplosionsCount[TOTAL_CHUNKS] == 1) {
     if (!IsSoundPlaying(m_ExplosionSounds[m_CurrentExplosionSound])) {
       PlaySound(m_ExplosionSounds[m_CurrentExplosionSound]);
-      m_SecondsSinceLastSound = 0;
     }
     m_CurrentExplosionSound++;
     if (m_CurrentExplosionSound >= MAX_EXPLOSION_SOUNDS) {
       m_CurrentExplosionSound = 0;
     }
   }
-  m_SecondsSinceLastSound += ts;
   uint32_t zero = 0;
   glClearNamedBufferData(m_ChunksExplosionsCountSsbo, GL_R32UI, GL_RED,
                          GL_UNSIGNED_INT, &zero);

@@ -157,7 +157,6 @@ void main() {
 				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z]&MASK_3_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);
-					chunksExplosionsCount[chunkIndex]+=1;
 				}
 			}
 		}
