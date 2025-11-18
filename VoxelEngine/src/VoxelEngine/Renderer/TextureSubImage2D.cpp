@@ -15,7 +15,9 @@ TextureSubImage2D::TextureSubImage2D(const std::string &path) {
     data = stbi_load(path.c_str(), &width, &height, &channels, 0);
   }
   VE_CORE_ASSERT(data, "Failed to load image!");
-  VE_CORE_ASSERT(channels == 4 || channels == 3, "Format not supported!");
+  VE_CORE_ASSERT(channels == 4 || channels == 3 || channels == 2 ||
+                     channels == 1,
+                 "Format not supported!");
   m_Width = width;
   m_Height = height;
   m_Channels = channels;
@@ -38,11 +40,12 @@ void TextureSubImage2D::Combine(const Ref<TextureSubImage2D> other) {
   int numPixels = m_Width * m_Height;
   for (int i = 0; i < numPixels; i++) {
     int idx = i * m_Channels;
-    if (otherData[idx + 3] == 0)
+    int otherIdx = i * other->m_Channels;
+    if (otherData[otherIdx + other->m_Channels - 1] == 0)
       continue;
-    m_Data[idx + 0] = otherData[idx + 0];
-    m_Data[idx + 1] = otherData[idx + 1];
-    m_Data[idx + 2] = otherData[idx + 2];
+    for (int channel = 0; channel < other->m_Channels; channel++) {
+      m_Data[idx + channel] = otherData[otherIdx + channel];
+    }
   }
 }
 void TextureSubImage2D::Rotate(int rotation) {
@@ -90,9 +93,12 @@ void TextureSubImage2D::Colorize(const glm::vec3 &color) {
   int numPixels = m_Width * m_Height;
   for (int i = 0; i < numPixels; i++) {
     int idx = i * m_Channels;
-    m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * colorNormalized.r);
-    m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
-    m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
+    if (m_Channels > 0)
+      m_Data[idx + 0] = std::ceil(m_Data[idx + 0] * colorNormalized.r);
+    if (m_Channels > 1)
+      m_Data[idx + 1] = std::ceil(m_Data[idx + 1] * colorNormalized.g);
+    if (m_Channels > 2)
+      m_Data[idx + 2] = std::ceil(m_Data[idx + 2] * colorNormalized.b);
   }
 }
 void TextureSubImage2D::FreeData() {

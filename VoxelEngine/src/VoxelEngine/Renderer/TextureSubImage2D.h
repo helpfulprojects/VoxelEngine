@@ -15,6 +15,7 @@ public:
   void SetOffset(int xOffset, int yOffset);
   const int GetXOffset() { return m_XOffset; }
   const int GetYOffset() { return m_YOffset; }
+  uint32_t GetChannels() { return m_Channels; }
   void Combine(const Ref<TextureSubImage2D> other);
   void Rotate(int rotation);
   void SetId(uint32_t id) { m_Id = id; }

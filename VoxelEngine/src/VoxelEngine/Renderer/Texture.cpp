@@ -140,9 +140,15 @@ void TextureAtlas::Bake(int width) {
       // subTexture->SetTexCoords({ xoffset / m_Width,yoffset / m_Height });
       m_SubImagesCoordsList.push_back(
           {(float)xoffset / m_Width, (float)yoffset / m_Height});
-      glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset,
-                          subTexture->GetWidth(), subTexture->GetHeight(),
-                          GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
+      if (subTexture->GetChannels() == 4) {
+        glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset,
+                            subTexture->GetWidth(), subTexture->GetHeight(),
+                            GL_RGBA, GL_UNSIGNED_BYTE, subTexture->GetData());
+      } else {
+        glTextureSubImage2D(m_RendererID, 0, xoffset, yoffset,
+                            subTexture->GetWidth(), subTexture->GetHeight(),
+                            GL_RGB, GL_UNSIGNED_BYTE, subTexture->GetData());
+      }
       subTexture->FreeData();
     }
   }
