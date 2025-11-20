@@ -77,6 +77,8 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		}
 	case 4://BEDROCK
 		return bedrock;
+	case stone_block:
+		return stone;
 	}
 }
 

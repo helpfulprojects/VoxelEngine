@@ -135,7 +135,11 @@ void main() {
 				if(blockY == 0){
 					chunksData[chunkIndex].blockTypes[x][y][z] = bedrock_block;
 				} else if(blockY<surfaceLevel){
-					chunksData[chunkIndex].blockTypes[x][y][z] = dirt_block;
+					if(blockY<surfaceLevel-3){
+						chunksData[chunkIndex].blockTypes[x][y][z] = stone_block;
+					}else{
+						chunksData[chunkIndex].blockTypes[x][y][z] = dirt_block;
+					}
 				}else if (blockY==surfaceLevel){
 					chunksData[chunkIndex].blockTypes[x][y][z] = grass_block;
 				} else{

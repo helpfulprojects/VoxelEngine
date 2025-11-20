@@ -1,6 +1,7 @@
 #include "GameLayer.h"
 #include "../Overlays/DebugOverlay.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <filesystem>
 
 struct FaceData {
   uint32_t packedPos;
@@ -85,6 +86,7 @@ struct TntEntity{
 #define grass_block 2
 #define tnt_block 3
 #define bedrock_block 4
+#define stone_block 5
 
 #define top 0
 #define bottom 1
@@ -139,50 +141,59 @@ GameLayer::GameLayer()
   VE_PROFILE_FUNCTION;
   m_CameraPosition.y -= 150;
   m_CameraPosition.x -= 300;
+  std::string blocksFolderLocation =
+      "assets/textures/texture_pack/assets/minecraft/textures/block/";
+  std::string blocksFolderLocationAlternative =
+      "assets/textures/texture_pack/assets/minecraft/textures/blocks/";
+  std::string selectedFolder;
+  if (std::filesystem::exists(blocksFolderLocation)) {
+    selectedFolder = blocksFolderLocation;
+  } else if (std::filesystem::exists(blocksFolderLocationAlternative)) {
+    selectedFolder = blocksFolderLocationAlternative;
+  } else {
+    VE_ERROR("No valid block texture folder found!");
+  }
+  std::string grassBlockPrefix = "grass_block";
+  if (!std::filesystem::exists(selectedFolder + grassBlockPrefix +
+                               "_top.png")) {
+    grassBlockPrefix = "grass";
+  }
   // InitDebugLines();
-
   // TNT ATLAS
   m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
   {
     VE_PROFILE_SCOPE("Bake tnt atlas");
     m_TntAtlas = VoxelEngine::TextureAtlas::Create();
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side00 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_side.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_side.png");
     tnt_side00->SetOffset(0, 0);
     tnt_side00->Rotate(180);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom01 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_bottom.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_bottom.png");
     tnt_bottom01->SetOffset(0, 1);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side11 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_side.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_side.png");
     tnt_side11->SetOffset(1, 1);
     tnt_side11->Rotate(270);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top21 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_top.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_top.png");
     tnt_top21->SetOffset(2, 1);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side31 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_side.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_side.png");
     tnt_side31->SetOffset(3, 1);
     tnt_side31->Rotate(90);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom41 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_bottom.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_bottom.png");
     tnt_bottom41->SetOffset(4, 1);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side42 =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_side.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_side.png");
     tnt_side42->SetOffset(4, 2);
     m_TntAtlas->Add(tnt_side00);
     m_TntAtlas->Add(tnt_bottom01);
@@ -199,46 +210,37 @@ GameLayer::GameLayer()
     VE_PROFILE_SCOPE("Bake texture atlas");
     m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "dirt.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "dirt.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_top =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "grass_block_top.png");
+            selectedFolder + grassBlockPrefix + "_top.png");
     grass_block_top->ToRGBA();
-    grass_block_top->Colorize(m_GrassColorOverlay);
+    // grass_block_top->Colorize(m_GrassColorOverlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "grass_block_side.png");
+            selectedFolder + grassBlockPrefix + "_side.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side_overlay =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "grass_block_side_overlay.png");
+            selectedFolder + grassBlockPrefix + "_side_overlay.png");
     grass_block_side_overlay->ToRGBA();
     grass_block_side_overlay->Colorize(m_GrassColorOverlay);
-    grass_block_side->Combine(grass_block_side_overlay);
+    // grass_block_side->Combine(grass_block_side_overlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_side.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_side.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_bottom.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_bottom.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "tnt_top.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "tnt_top.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "stone.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "stone.png");
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> bedrock =
-        VoxelEngine::TextureAtlas::CreateTextureSubImage(
-            "assets/textures/texture_pack/assets/minecraft/textures/block/"
-            "bedrock.png");
+        VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                         "bedrock.png");
     m_TerrainAtlas->Add(dirt);
     m_TerrainAtlas->Add(grass_block_top);
     m_TerrainAtlas->Add(grass_block_side);
