@@ -14,7 +14,7 @@ TextureSubImage2D::TextureSubImage2D(const std::string &path) {
         "stbi_load - OpenGLTexture2D::OpenGLTexture2D(const std::string&))");
     data = stbi_load(path.c_str(), &width, &height, &channels, 0);
   }
-  VE_CORE_ASSERT(data, "Failed to load image!");
+  VE_CORE_ASSERT(data, "Failed to load image! " + path);
   VE_CORE_ASSERT(channels == 4 || channels == 3 || channels == 2 ||
                      channels == 1,
                  "Format not supported!");
