@@ -18,8 +18,8 @@ const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 // const int TNT_HEIGHT = 154;
 //  const int TNT_HEIGHT = 100;
-const int TNT_HEIGHT = 41;
-const int TNT_WIDTH = sqrt(100000.0f / TNT_HEIGHT);
+const int TNT_HEIGHT = 100;
+const int TNT_WIDTH = sqrt(10000000.0f / TNT_HEIGHT);
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
                               CHUNK_WIDTH *WORLD_HEIGHT,
@@ -216,7 +216,7 @@ GameLayer::GameLayer()
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
             selectedFolder + grassBlockPrefix + "_top.png");
     grass_block_top->ToRGBA();
-    // grass_block_top->Colorize(m_GrassColorOverlay);
+    grass_block_top->Colorize(m_GrassColorOverlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> grass_block_side =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(
             selectedFolder + grassBlockPrefix + "_side.png");
@@ -225,7 +225,7 @@ GameLayer::GameLayer()
             selectedFolder + grassBlockPrefix + "_side_overlay.png");
     grass_block_side_overlay->ToRGBA();
     grass_block_side_overlay->Colorize(m_GrassColorOverlay);
-    // grass_block_side->Combine(grass_block_side_overlay);
+    grass_block_side->Combine(grass_block_side_overlay);
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
                                                          "tnt_side.png");
@@ -238,6 +238,7 @@ GameLayer::GameLayer()
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> stone =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
                                                          "stone.png");
+    stone->ToRGBA();
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> bedrock =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
                                                          "bedrock.png");
