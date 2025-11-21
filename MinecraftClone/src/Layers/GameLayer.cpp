@@ -141,6 +141,7 @@ GameLayer::GameLayer()
   VE_PROFILE_FUNCTION;
   m_CameraPosition.y -= 150;
   m_CameraPosition.x -= 300;
+  InitHideTntLine();
   std::string blocksFolderLocation =
       "assets/textures/texture_pack/assets/minecraft/textures/block/";
   std::string blocksFolderLocationAlternative =
@@ -464,6 +465,10 @@ GameLayer::GameLayer()
     m_ExplosionSounds[i] = LoadSoundAlias(m_ExplosionSounds[randomIndex]);
   }
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  m_ShaderLibrary.Load("assets/shaders/HideTntWall.glsl",
+                       GLOBAL_SHADER_DEFINES);
+  m_ShaderLibrary.Load("assets/shaders/compute/HideTnts.glsl",
+                       GLOBAL_SHADER_DEFINES);
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -475,7 +480,10 @@ void GameLayer::OnAttach() {
 }
 void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
   VE_PROFILE_FUNCTION;
-
+  VoxelEngine::Application &application = VoxelEngine::Application::Get();
+  m_LinePosition = (glm::sin(application.GetWindow().GetTime()) + 1) / 2.0f;
+  m_LinePosition *= 800;
+  m_LinePosition += 800;
   {
     VE_PROFILE_SCOPE("Key pooling");
     if (VoxelEngine::Input::IsKeyPressed(VE_KEY_A)) {
@@ -506,14 +514,14 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     }
   }
 
-  {
-    VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-    auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
-    updateTntTransformsCompute->Bind();
-    updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-    glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-  }
+  //{
+  //  VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+  //  auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
+  //  updateTntTransformsCompute->Bind();
+  //  updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+  //  glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+  //  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  //}
   auto propagateExplosions = m_ShaderLibrary.Get("propagateExplosions");
   propagateExplosions->Bind();
 
@@ -582,6 +590,18 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
       glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
   }
+
+  {
+    auto updateTntTransformsCompute = m_ShaderLibrary.Get("HideTnts");
+    updateTntTransformsCompute->Bind();
+    updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+    updateTntTransformsCompute->UploadUniformFloat("u_LinePosition",
+                                                   m_LinePosition);
+    glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+    // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+  }
+
   m_ShaderLibrary.Get("clearExplosions")->Bind();
   glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
@@ -617,7 +637,8 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
   }
   {
     VE_PROFILE_SCOPE("Draw");
-    VoxelEngine::RenderCommand::SetClearColor({0.47059f, 0.6549f, 1.00f, 1});
+    // VoxelEngine::RenderCommand::SetClearColor({0.47059f, 0.6549f, 1.00f, 1});
+    VoxelEngine::RenderCommand::SetClearColor({0.0f, 0.0f, 0.00f, 1});
     VoxelEngine::RenderCommand::Clear();
     VoxelEngine::Renderer::BeginScene(m_Camera);
 
@@ -629,7 +650,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
         drawTerrainShader, glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
     {
       VE_PROFILE_SCOPE("MultiDrawArraysIndirect");
-      glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
+      // glMultiDrawArraysIndirect(GL_TRIANGLES, 0, TOTAL_CHUNKS, 0);
     }
 
     VoxelEngine::Renderer::Submit(
@@ -638,6 +659,13 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     // glDrawArraysInstanced(GL_POINTS, 0, 1, TNT_COUNT);
     glDrawArrays(GL_POINTS, 0, TNT_COUNT);
 
+    auto tntInstancingShader = m_ShaderLibrary.Get("HideTntWall");
+
+    VoxelEngine::Renderer::Submit(
+        tntInstancingShader,
+        glm::translate(glm::mat4(1), glm::vec3(0, m_LinePosition, 0)));
+    m_HideTntLineVao->Bind();
+    glDrawArrays(GL_TRIANGLES, 0, 6);
     // auto linesShader = m_ShaderLibrary.Get("lines");
 
     // UpdateDebugLines();
@@ -682,7 +710,7 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
           return true;
         }
         if (e.GetKeyCode() == VE_KEY_4) {
-          m_UpdateTntPosition = false;
+          m_UpdateTntPosition = !m_UpdateTntPosition;
           return true;
         }
         if (e.GetKeyCode() == VE_KEY_X) {
@@ -747,6 +775,36 @@ void GameLayer::InitDebugLines() {
   linesVB->SetLayout(layout);
   m_LinesVA->AddVertexBuffer(linesVB);
   glLineWidth(1.0f);
+}
+
+// const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
+//                               CHUNK_WIDTH *WORLD_HEIGHT,
+//                               CHUNK_WIDTH *WORLD_WIDTH / 2);
+void GameLayer::InitHideTntLine() {
+  m_HideTntLineVao.reset(VoxelEngine::VertexArray::Create());
+  float minX = 0;
+  float maxX = CHUNK_WIDTH * WORLD_WIDTH;
+
+  float minZ = 0;
+  float maxZ = CHUNK_WIDTH * WORLD_WIDTH;
+  // clang-format off
+  float vertices[] = {
+    minX,1,maxZ,
+    maxX,1,maxZ,
+    maxX,1,minZ,
+
+    maxX,1,minZ,
+    minX,1,minZ,
+    minX,1,maxZ,
+  };
+  VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(
+      VoxelEngine::VertexBuffer::Create(vertices, sizeof(vertices)));
+  VoxelEngine::BufferLayout layout = {
+      {VoxelEngine::ShaderDataType::Float3, "a_Position"},
+  };
+  linesVB->SetLayout(layout);
+  m_HideTntLineVao->AddVertexBuffer(linesVB);
+  // clang-format on
 }
 
 void GameLayer::UpdateDebugLines() {

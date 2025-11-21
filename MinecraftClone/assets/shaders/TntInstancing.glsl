@@ -75,7 +75,6 @@ const vec3 facePositions[6][4] = vec3[6][4](
 
 int indices[6] = {0, 1, 2, 2, 3, 0};
 
-
 out vData{
 	vec2 v_TexCoord;
 	vec4 v_StaticLight;

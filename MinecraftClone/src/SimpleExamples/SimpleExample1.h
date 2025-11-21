@@ -1,12 +1,72 @@
 #pragma once
+#include <filesystem>
 #include <VoxelEngine.h>
 #include <glad/glad.h>
 class SimpleExample1 : public VoxelEngine::Layer {
 public:
   SimpleExample1() : m_Camera(70.0f, 0.1f, 1500.0f), m_CameraPosition(0, 0, 0) {
     VE_PROFILE_FUNCTION;
-    m_Texture = VoxelEngine::Texture2D::Create("assets/textures/tnt.png");
-    m_Texture->Bind();
+    std::string blocksFolderLocation =
+        "assets/textures/texture_pack/assets/minecraft/textures/block/";
+    std::string blocksFolderLocationAlternative =
+        "assets/textures/texture_pack/assets/minecraft/textures/blocks/";
+    std::string selectedFolder;
+    if (std::filesystem::exists(blocksFolderLocation)) {
+      selectedFolder = blocksFolderLocation;
+    } else if (std::filesystem::exists(blocksFolderLocationAlternative)) {
+      selectedFolder = blocksFolderLocationAlternative;
+    } else {
+      VE_ERROR("No valid block texture folder found!");
+    }
+    std::string grassBlockPrefix = "grass_block";
+    if (!std::filesystem::exists(selectedFolder + grassBlockPrefix +
+                                 "_top.png")) {
+      grassBlockPrefix = "grass";
+    }
+    {
+      VE_PROFILE_SCOPE("Bake tnt atlas");
+      m_TntAtlas = VoxelEngine::TextureAtlas::Create();
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side00 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_side.png");
+      tnt_side00->SetOffset(0, 0);
+      tnt_side00->Rotate(180);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom01 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_bottom.png");
+      tnt_bottom01->SetOffset(0, 1);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side11 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_side.png");
+      tnt_side11->SetOffset(1, 1);
+      tnt_side11->Rotate(270);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_top21 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_top.png");
+      tnt_top21->SetOffset(2, 1);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side31 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_side.png");
+      tnt_side31->SetOffset(3, 1);
+      tnt_side31->Rotate(90);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_bottom41 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_bottom.png");
+      tnt_bottom41->SetOffset(4, 1);
+      VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> tnt_side42 =
+          VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
+                                                           "tnt_side.png");
+      tnt_side42->SetOffset(4, 2);
+      m_TntAtlas->Add(tnt_side00);
+      m_TntAtlas->Add(tnt_bottom01);
+      m_TntAtlas->Add(tnt_side11);
+      m_TntAtlas->Add(tnt_top21);
+      m_TntAtlas->Add(tnt_side31);
+      m_TntAtlas->Add(tnt_bottom41);
+      m_TntAtlas->Add(tnt_side42);
+      m_TntAtlas->Bake(8);
+      m_TntAtlas->Bind();
+    }
     // clang-format off
     m_DrawVertsCount=14;
     float vertices[] = {
@@ -41,7 +101,7 @@ public:
     glEnableVertexAttribArray(1);
 
     auto shader = m_ShaderLibrary.Load(
-        "assets/shaders/SimpleExamples/SimpleExample1.glsl");
+        "assets/shaders/SimpleExamples/SimpleExample2.glsl");
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   };
   ~SimpleExample1() { VE_PROFILE_FUNCTION; };
@@ -89,7 +149,7 @@ public:
     VoxelEngine::Renderer::BeginScene(m_Camera);
     m_Camera.SetPosition(m_CameraPosition);
 
-    auto shader = m_ShaderLibrary.Get("SimpleExample1");
+    auto shader = m_ShaderLibrary.Get("SimpleExample2");
     VoxelEngine::Renderer::Submit(
         shader, glm::translate(glm::mat4(1), glm::vec3(0, 0, -1)));
     glBindVertexArray(m_VAO);
@@ -139,8 +199,9 @@ private:
   VoxelEngine::PerspectiveCamera m_Camera;
   // glm::vec3 m_SquarePosition;
   glm::vec3 m_CameraPosition;
-  float m_CameraMoveSpeed = 5.0f;
+  float m_CameraMoveSpeed = 0.5f;
   unsigned int m_VAO;
   int m_DrawVertsCount;
   VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;
+  VoxelEngine::Ref<VoxelEngine::TextureAtlas> m_TntAtlas;
 };

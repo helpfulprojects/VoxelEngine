@@ -22,6 +22,7 @@ public:
   void ActivateTnt();
   void SpawnTnts();
   void InitDebugLines();
+  void InitHideTntLine();
   void UpdateDebugLines();
   virtual void OnImGuiRender() override;
   virtual void OnDetach() override;
@@ -56,4 +57,7 @@ private:
   uint32_t m_CurrentExplosionSound = 0;
   float m_SecondsSinceLastSound = PLAY_SOUND_AFTER_SECONDS;
   bool m_UpdateTntPosition = true;
+
+  float m_LinePosition = 229;
+  VoxelEngine::Ref<VoxelEngine::VertexArray> m_HideTntLineVao;
 };

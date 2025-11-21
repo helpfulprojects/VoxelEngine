@@ -15,7 +15,7 @@ void main() {
     uint yOffset = (index / size) % size;
     uint zOffset = index / (size * size);
     tnts[index].position = DEFAULT_SPAWN + vec3(xOffset, yOffset, zOffset);
-    tnts[index].position.y += 20;
+    tnts[index].position.y += 1000;
     int offset = 100;
     tnts[index].position.x -= offset;
     tnts[index].position.z -= offset;

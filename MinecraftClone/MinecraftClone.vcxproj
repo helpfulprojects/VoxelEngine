@@ -159,6 +159,10 @@
       <Project>{C9F2F76B-35A8-7061-BE9C-6A382A516765}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\compute\HideTnts.glsl" />
+    <None Include="assets\shaders\HideTntWall.glsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

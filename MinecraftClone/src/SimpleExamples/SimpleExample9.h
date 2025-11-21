@@ -1,10 +1,13 @@
 #pragma once
 #include <VoxelEngine.h>
 #include <glad/glad.h>
+#include "../Overlays/DebugOverlay.h"
 class SimpleExample9 : public VoxelEngine::Layer {
 public:
-  SimpleExample9() : m_Camera(70.0f, 0.1f, 1500.0f), m_CameraPosition(0, 0, 0) {
+  SimpleExample9()
+      : m_Camera(70.0f, 0.000001f, 2500.0f), m_CameraPosition(0, 0, 0) {
     VE_PROFILE_FUNCTION;
+    m_CameraPosition.z += 4;
 
     m_TerrainAtlas = VoxelEngine::TextureAtlas::Create();
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> dirt =
@@ -56,53 +59,59 @@ public:
     m_TerrainAtlas->Bind();
     // clang-format off
     m_DrawVertsCount=36;
-    float vertices[] = {
-        //FRONT
-    0,1,1, X(2), Y(2),
-    1,1,1, X(3), Y(2),
-    1,0,1, X(3), Y(1),
-    1,0,1, X(3), Y(1),
-    0,0,1, X(2), Y(1),
-    0,1,1, X(2), Y(2),
+float vertices[] = {
 
-    //BOTTOM
-    0,0,1, X(1), Y(2),
-    1,0,1, X(2), Y(2),
-    1,0,0, X(2), Y(1),
-    1,0,0, X(2), Y(1),
-    0,0,0, X(1), Y(1),
-    0,0,1, X(1), Y(2),
-        //RIGHT
-    1,1,1, X(2), Y(2),
-    1,0,1, X(2), Y(1),
-    1,0,0, X(3), Y(1),
-    1,0,0, X(3), Y(1),
-    1,1,1, X(2), Y(2),
-    1,1,0, X(3), Y(2),
+// BACK (z = 0)       , 0,
+    0,1,0,  X(2), Y(2), 0,
+    1,1,0,  X(3), Y(2), 0,
+    1,0,0,  X(3), Y(1), 0,
 
-        //LEFT
-    0,1,1, X(2), Y(2),
-    0,0,1, X(2), Y(1),
-    0,0,0, X(3), Y(1),
-    0,0,0, X(3), Y(1),
-    0,1,1, X(2), Y(2),
-    0,1,0, X(3), Y(2),
-        //FRONT
-    0,1,0, X(2), Y(2),
-    1,1,0, X(3), Y(2),
-    1,0,0, X(3), Y(1),
-    1,0,0, X(3), Y(1),
-    0,0,0, X(2), Y(1),
-    0,1,0, X(2), Y(2),
-    //TOP
-    0,1,1, X(0), Y(3),
-    1,1,1, X(1), Y(3),
-    1,1,0, X(1), Y(2),
-    1,1,0, X(1), Y(2),
-    0,1,0, X(0), Y(2),
-    0,1,1, X(0), Y(3),
+    1,0,0,  X(3), Y(1), 1,
+    0,0,0,  X(2), Y(1), 1,
+    0,1,0,  X(2), Y(2), 1,
+// RIGHT (x = 1)      , 0,
+    1,1,1,  X(2), Y(2), 2,
+    1,0,0,  X(3), Y(1), 2,
+    1,1,0,  X(3), Y(2), 2,
 
-    };
+    1,0,0,  X(3), Y(1), 3,
+    1,1,1,  X(2), Y(2), 3,
+    1,0,1,  X(2), Y(1), 3,
+// BOTTOM (y = 0)     , 0,
+    1,0,0,  X(2), Y(1), 4,
+    1,0,1,  X(2), Y(2), 4,
+    0,0,1,  X(1), Y(2), 4,
+
+    0,0,1,  X(1), Y(2), 5,
+    0,0,0,  X(1), Y(1), 5,
+    1,0,0,  X(2), Y(1), 5,
+// LEFT (x = 0)       , 0,
+    0,1,1,  X(2), Y(2), 6,
+    0,1,0,  X(3), Y(2), 6,
+    0,0,0,  X(3), Y(1), 6,
+
+    0,0,0,  X(3), Y(1), 7,
+    0,0,1,  X(2), Y(1), 7,
+    0,1,1,  X(2), Y(2), 7,
+// FRONT (z = 1)
+    0,1,1,  X(2), Y(2), 8,
+    1,0,1,  X(3), Y(1), 8,
+    1,1,1,  X(3), Y(2), 8,
+
+    1,0,1,  X(3), Y(1), 9,
+    0,1,1,  X(2), Y(2), 9,
+    0,0,1,  X(2), Y(1), 9,
+// TOP (y = 1)        , 0,
+    0,1,1,  X(0), Y(3), 10,
+    1,1,1,  X(1), Y(3), 10,
+    1,1,0,  X(1), Y(2), 10,
+
+    1,1,0,  X(1), Y(2), 11,
+    0,1,0,  X(0), Y(2), 11,
+    0,1,1,  X(0), Y(3), 11,
+
+
+};
     // clang-format on
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -111,16 +120,19 @@ public:
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
                           (void *)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                          (void *)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     auto shader = m_ShaderLibrary.Load(
         "assets/shaders/SimpleExamples/SimpleExample1.glsl");
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   };
   ~SimpleExample9() { VE_PROFILE_FUNCTION; };
   void OnAttach() override {
@@ -128,6 +140,7 @@ public:
     VoxelEngine::Application &application = VoxelEngine::Application::Get();
     application.GetWindow().SetMaximized(true);
     application.GetWindow().SetCursorVisibility(false);
+    application.PushLayer<DebugOverlay>();
   };
   void OnUpdate(VoxelEngine::Timestep ts) override {
     VE_PROFILE_FUNCTION;
@@ -170,6 +183,10 @@ public:
     auto shader = m_ShaderLibrary.Get("SimpleExample1");
     VoxelEngine::Renderer::Submit(
         shader, glm::translate(glm::mat4(1), glm::vec3(0, 0, -1)));
+    shader->UploadUniformFloat(
+        "time",
+        VoxelEngine::Application::Get().GetWindow().GetTime() * timeMultiplier -
+            timeOffset);
     glBindVertexArray(m_VAO);
     glDrawArrays(GL_TRIANGLES, 0, m_DrawVertsCount);
 
@@ -188,6 +205,14 @@ public:
           }
           if (e.GetKeyCode() == VE_KEY_Q && m_DrawVertsCount > 0) {
             m_DrawVertsCount -= 1;
+            return true;
+          }
+          if (e.GetKeyCode() == VE_KEY_X) {
+            timeOffset = VoxelEngine::Application::Get().GetWindow().GetTime();
+            return true;
+          }
+          if (e.GetKeyCode() == VE_KEY_C) {
+            timeMultiplier = 1.1;
             return true;
           }
           if (e.GetKeyCode() == VE_KEY_E && m_DrawVertsCount < 36) {
@@ -215,9 +240,11 @@ public:
 private:
   VoxelEngine::ShaderLibrary m_ShaderLibrary;
   VoxelEngine::PerspectiveCamera m_Camera;
+  float timeOffset = 0;
+  float timeMultiplier = 1;
   // glm::vec3 m_SquarePosition;
   glm::vec3 m_CameraPosition;
-  float m_CameraMoveSpeed = 5.0f;
+  float m_CameraMoveSpeed = 1.0f;
   unsigned int m_VAO;
   int m_DrawVertsCount;
   VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture;

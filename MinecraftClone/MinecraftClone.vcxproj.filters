@@ -53,4 +53,8 @@
       <Filter>Overlays</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\HideTntWall.glsl" />
+    <None Include="assets\shaders\compute\HideTnts.glsl" />
+  </ItemGroup>
 </Project>
