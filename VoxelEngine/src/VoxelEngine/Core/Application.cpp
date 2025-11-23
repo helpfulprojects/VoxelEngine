@@ -33,7 +33,7 @@ void Application::Run() {
     {
       VE_PROFILE_SCOPE("LayerStack OnUpdate");
       for (const Scope<Layer> &layer : m_LayerStack) {
-        layer->OnUpdate(timestep * 0.2f);
+        layer->OnUpdate(timestep);
       }
     }
     if (m_ImGuiLayer) {

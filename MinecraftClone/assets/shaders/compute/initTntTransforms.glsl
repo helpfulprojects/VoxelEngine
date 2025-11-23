@@ -30,11 +30,5 @@ void main() {
 
     float speed = 45; 
     tnts[index].velocity = randomDir * speed;
-//    if(index>(1000000-2)){ 
-//		tnts[index].visible = true;
-//    }else{
-//		tnts[index].visible = false;
-//    }
-//
-	tnts[index].visible = true;
+    tnts[index].visible = true;
 }

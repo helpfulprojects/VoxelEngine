@@ -103,8 +103,6 @@ float cnoise(vec2 P)
   return 2.3 * n_xy;
 }
 
-
-#define LIMIT_BLOCKS false
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
 	shouldRedrawWorld = true;
@@ -115,10 +113,10 @@ void main() {
 	float amplitude = 20.0;     
 	float baseHeight = 150.0;
 
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int z=0;z<CHUNK_WIDTH;z++){
-			uint chunkX = gl_WorkGroupID.x * CHUNK_WIDTH;
-			uint chunkZ = gl_WorkGroupID.z * CHUNK_WIDTH;
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
+			uint chunkX = gl_WorkGroupID.x * CHUNK_SIDE_LENGTH;
+			uint chunkZ = gl_WorkGroupID.z * CHUNK_SIDE_LENGTH;
 			chunksData[chunkIndex].x = chunkX;
 			chunksData[chunkIndex].z = chunkZ;
 			uint blockX = x+chunkX;
@@ -128,8 +126,8 @@ void main() {
 			//int surfaceLevel = int(noise * amplitude + baseHeight);
 			int surfaceLevel = SURFACE_LEVEL;
 
-			for(int y=0;y<CHUNK_WIDTH;y++){
-				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;
+			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
+				uint chunkY = gl_WorkGroupID.y * CHUNK_SIDE_LENGTH;
 				uint blockY = y+chunkY;
 				chunksData[chunkIndex].y = chunkY;
 				if(blockY == 0){
@@ -145,17 +143,10 @@ void main() {
 				} else{
 					chunksData[chunkIndex].blockTypes[x][y][z] = air;
 				}
-				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_HEIGHT &&
-						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_WIDTH &&
-						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_WIDTH){
-					if(
-							(LIMIT_BLOCKS && blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
-							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
-							){
+				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_SIDE_LENGTH &&
+						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_SIDE_LENGTH &&
+						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_SIDE_LENGTH){
 						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					}else if(!LIMIT_BLOCKS){
-						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					}
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
@@ -163,10 +154,4 @@ void main() {
 			}
 		}
 	}
-//	if(gl_WorkGroupID.x == 32 && gl_WorkGroupID.z == 32){
-//		chunksData[chunkIndex].explosions[8][15][8] = TNT_EXPLOSION_STRENGTH;
-//		chunksData[chunkIndex].hasExplosion = true;
-//	}
-//
 }
-

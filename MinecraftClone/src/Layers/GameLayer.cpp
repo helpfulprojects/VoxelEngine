@@ -10,36 +10,38 @@ struct FaceData {
 struct FaceModel {
   const glm::vec2 *texCoordsOrigin;
 };
-const int CHUNK_WIDTH = 16;
+
+const int CHUNK_SIDE_LENGTH = 16;
+
 const int WORLD_WIDTH = 65;
 const int WORLD_HEIGHT = 20;
+
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
-const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
+
+const int BLOCKS_IN_CHUNK_COUNT =
+    CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH;
+
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
-// const int TNT_HEIGHT = 154;
-//  const int TNT_HEIGHT = 100;
-const int TNT_HEIGHT = 214;
-const int TNT_WIDTH = sqrt(10000000.0f / TNT_HEIGHT);
-const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
-const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
-                              CHUNK_WIDTH *WORLD_HEIGHT,
-                              CHUNK_WIDTH *WORLD_WIDTH / 2);
+
+const int HOW_MANY_TNT_TO_SPAWN = 100;
+const int TNT_SIDE_LENGTH = glm::ceil(std::cbrt(HOW_MANY_TNT_TO_SPAWN));
+const int TNT_COUNT = TNT_SIDE_LENGTH * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH;
+
+const glm::vec3 DEFAULT_SPAWN(CHUNK_SIDE_LENGTH *WORLD_WIDTH / 2,
+                              CHUNK_SIDE_LENGTH *WORLD_HEIGHT,
+                              CHUNK_SIDE_LENGTH *WORLD_WIDTH / 2);
+
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
-const int DEBUG_LINES_FLOAT_COUNT = WORLD_HEIGHT * 16 * 16 * 3 + 2 * 8 * 4 * 3;
+
 const int SURFACE_LEVEL = 100;
 
 const int VERTS_PER_QUAD = 6;
-const int QUADS_PER_BLOCK = 6;
-const int VERTS_PER_CHUNK =
-    BLOCKS_IN_CHUNK_COUNT * QUADS_PER_BLOCK * VERTS_PER_QUAD;
 const std::string GLOBAL_SHADER_DEFINES = R"( 
 #version 460 core
-#define CHUNK_WIDTH )" + std::to_string(CHUNK_WIDTH) +
+#define CHUNK_SIDE_LENGTH )" + std::to_string(CHUNK_SIDE_LENGTH) +
                                           R"(
-#define TNT_WIDTH )" + std::to_string(TNT_WIDTH) +
-                                          R"(
-#define TNT_HEIGHT )" + std::to_string(TNT_HEIGHT) +
+#define TNT_SIDE_LENGTH )" + std::to_string(TNT_SIDE_LENGTH) +
                                           R"(
 #define TNT_COUNT )" + std::to_string(TNT_COUNT) +
                                           R"(
@@ -59,7 +61,7 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
                                           R"( 
 #define SURFACE_LEVEL )" + std::to_string(SURFACE_LEVEL) +
                                           R"(
-#define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
+#define DEFAULT_SPAWN vec3(CHUNK_SIDE_LENGTH * WORLD_WIDTH / 2, CHUNK_SIDE_LENGTH * WORLD_HEIGHT*2, CHUNK_SIDE_LENGTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
 #define TNT_EXPLOSION_STRENGTH 4
 
@@ -68,8 +70,8 @@ struct Chunk {
 	uint y;
 	uint z;
 	bool hasExplosion;
-	uint blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
-	uint explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+	uint blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
+	uint explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
 };
 
 struct ChunkQuads {
@@ -130,8 +132,8 @@ struct Chunk {
   int y;
   int z;
   int hasExplosion;
-  uint32_t blockTypes[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
-  uint32_t explosions[CHUNK_WIDTH][CHUNK_WIDTH][CHUNK_WIDTH];
+  uint32_t blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
+  uint32_t explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
 };
 
 struct ChunkQuads {
@@ -236,12 +238,12 @@ void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
   if (showErrorMessage) {
     VE_ERROR("OPENGL ERROR");
   }
-  printf("%d: %s of %s severity, raised from %s: %s\n", id, _type, _severity,
-         _source, msg);
+  printf("%d: %s of %s severity, raised from %s: %s\n", id, _type.c_str(),
+         _severity.c_str(), _source.c_str(), msg);
 }
 GameLayer::GameLayer()
     : Layer("Example"), m_Camera(70.0f, 0.1f, 2500.0f),
-      m_SquarePosition(-1.1f, 0, -0.5f), m_CameraPosition(DEFAULT_SPAWN) {
+      m_CameraPosition(DEFAULT_SPAWN) {
   VE_PROFILE_FUNCTION;
   m_CameraPosition.y -= 150;
   m_CameraPosition.x -= 300;
@@ -262,14 +264,13 @@ GameLayer::GameLayer()
                                "_top.png")) {
     grassBlockPrefix = "grass";
   }
-  // glEnable(GL_DEBUG_OUTPUT);
-  // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-  // glDebugMessageCallback(GLDebugMessageCallback, NULL);
+  glEnable(GL_DEBUG_OUTPUT);
+  glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+  glDebugMessageCallback(GLDebugMessageCallback, NULL);
   //  unsigned int buffer;
   //  glGenBuffers(-1, &buffer);
   //   InitDebugLines();
   //   TNT ATLAS
-  m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
   {
     VE_PROFILE_SCOPE("Bake tnt atlas");
     m_TntAtlas = VoxelEngine::TextureAtlas::Create();
@@ -476,9 +477,9 @@ GameLayer::GameLayer()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
   }
 
-  m_ShaderLibrary.Load("assets/shaders/DrawTerrain.glsl",
+  m_ShaderLibrary.Load("assets/shaders/drawTerrain.glsl",
                        GLOBAL_SHADER_DEFINES);
-  auto tntShader = m_ShaderLibrary.Load("assets/shaders/TntInstancing.glsl",
+  auto tntShader = m_ShaderLibrary.Load("assets/shaders/tntInstancing.glsl",
                                         GLOBAL_SHADER_DEFINES);
   tntShader->Bind();
   tntShader->UploadUniformInt("u_Texture1", 1);
@@ -733,7 +734,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
 
     m_Camera.SetPosition(m_CameraPosition);
 
-    auto drawTerrainShader = m_ShaderLibrary.Get("DrawTerrain");
+    auto drawTerrainShader = m_ShaderLibrary.Get("drawTerrain");
     m_TerrainAtlas->Bind();
     VoxelEngine::Renderer::Submit(
         drawTerrainShader, glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
@@ -743,19 +744,9 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     }
 
     VoxelEngine::Renderer::Submit(
-        m_ShaderLibrary.Get("TntInstancing"),
+        m_ShaderLibrary.Get("tntInstancing"),
         glm::translate(glm::mat4(1), glm::vec3(0, 0, 0)));
-    // glDrawArraysInstanced(GL_POINTS, 0, 1, TNT_COUNT);
     glDrawArrays(GL_POINTS, 0, TNT_COUNT);
-
-    // auto linesShader = m_ShaderLibrary.Get("lines");
-
-    // UpdateDebugLines();
-    // VoxelEngine::Renderer::Submit(linesShader,
-    //	glm::translate(glm::mat4(1), glm::vec3(0, 0, 0))
-    //);
-    // m_LinesVA->Bind();
-    // glDrawArrays(GL_LINES, 0, DEBUG_LINES_FLOAT_COUNT);
     VoxelEngine::Renderer::EndScene();
   }
 }
@@ -773,10 +764,6 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
       [&](VoxelEngine::KeyPressedEvent &e) {
         if (e.GetKeyCode() == VE_KEY_ESCAPE) {
           VoxelEngine::Application::Get().Close();
-          return true;
-        }
-        if (e.GetKeyCode() == VE_KEY_C) {
-          ForceRedraw();
           return true;
         }
         if (e.GetKeyCode() == VE_KEY_1) {
@@ -814,13 +801,6 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
       });
 }
 
-void GameLayer::ForceRedraw() {
-  *m_ShouldRedrawWorld = true;
-  for (int i = 0; i < TOTAL_CHUNKS; i++) {
-    m_ShouldRedrawChunk[i] = true;
-  }
-}
-
 void GameLayer::ActivateTnt() {
   auto activateTnt = m_ShaderLibrary.Get("activateTnt");
   activateTnt->Bind();
@@ -845,105 +825,6 @@ void GameLayer::SpawnTnts() {
   glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void GameLayer::InitDebugLines() {
-  m_DebugLines.reserve(DEBUG_LINES_FLOAT_COUNT);
-  m_LinesVA.reset(VoxelEngine::VertexArray::Create());
-  VoxelEngine::Ref<VoxelEngine::VertexBuffer> linesVB(
-      VoxelEngine::VertexBuffer::Create(nullptr, DEBUG_LINES_FLOAT_COUNT *
-                                                     sizeof(float)));
-  VoxelEngine::BufferLayout layout = {
-      {VoxelEngine::ShaderDataType::Float3, "a_Position"},
-  };
-  linesVB->SetLayout(layout);
-  m_LinesVA->AddVertexBuffer(linesVB);
-  glLineWidth(1.0f);
-}
-
-void GameLayer::UpdateDebugLines() {
-  m_DebugLines.clear();
-  float hx = CHUNK_WIDTH;      // full size X
-  float hy = CHUNK_WIDTH / 16; // full size Y
-  float hz = CHUNK_WIDTH;      // full size Z
-  // m_CameraPosition
-  int chunkX = std::floor(m_CameraPosition.x / CHUNK_WIDTH);
-  int chunkZ = std::floor(m_CameraPosition.z / CHUNK_WIDTH);
-  float worldHeightBlocks = WORLD_HEIGHT * CHUNK_WIDTH;
-
-  for (int i = 0; i <= CHUNK_WIDTH; i += 2) {
-    glm::vec3 linesOrigin = {chunkX * CHUNK_WIDTH + i, 0, chunkZ * CHUNK_WIDTH};
-
-    float verticalLine[] = {
-        linesOrigin.x,
-        linesOrigin.y,
-        linesOrigin.z,
-        linesOrigin.x,
-        linesOrigin.y + worldHeightBlocks,
-        linesOrigin.z,
-
-        linesOrigin.x,
-        linesOrigin.y,
-        linesOrigin.z + hz,
-        linesOrigin.x,
-        linesOrigin.y + worldHeightBlocks,
-        linesOrigin.z + hz,
-    };
-    m_DebugLines.insert(m_DebugLines.end(), std::begin(verticalLine),
-                        std::end(verticalLine));
-  }
-
-  for (int i = 0; i <= CHUNK_WIDTH; i += 2) {
-    glm::vec3 linesOrigin = {chunkX * CHUNK_WIDTH, 0, i + chunkZ * CHUNK_WIDTH};
-
-    float verticalLine[] = {
-        linesOrigin.x,
-        linesOrigin.y,
-        linesOrigin.z,
-        linesOrigin.x,
-        linesOrigin.y + worldHeightBlocks,
-        linesOrigin.z,
-
-        linesOrigin.x + hx,
-        linesOrigin.y,
-        linesOrigin.z,
-        linesOrigin.x + hx,
-        linesOrigin.y + worldHeightBlocks,
-        linesOrigin.z,
-    };
-    m_DebugLines.insert(m_DebugLines.end(), std::begin(verticalLine),
-                        std::end(verticalLine));
-  }
-
-  for (int y = 0; y < WORLD_HEIGHT; y++) {
-    for (int i = 0; i < CHUNK_WIDTH; i += 2) {
-      glm::vec3 linesOrigin = {chunkX * CHUNK_WIDTH, i + y * CHUNK_WIDTH,
-                               chunkZ * CHUNK_WIDTH};
-
-      float cubeLines[] = {
-          // BOTTOM 4 edges
-          linesOrigin.x,      linesOrigin.y, linesOrigin.z,
-          linesOrigin.x + hx, linesOrigin.y, linesOrigin.z,
-
-          linesOrigin.x + hx, linesOrigin.y, linesOrigin.z,
-          linesOrigin.x + hx, linesOrigin.y, linesOrigin.z + hz,
-
-          linesOrigin.x + hx, linesOrigin.y, linesOrigin.z + hz,
-          linesOrigin.x,      linesOrigin.y, linesOrigin.z + hz,
-
-          linesOrigin.x,      linesOrigin.y, linesOrigin.z + hz,
-          linesOrigin.x,      linesOrigin.y, linesOrigin.z,
-      };
-      m_DebugLines.insert(m_DebugLines.end(), std::begin(cubeLines),
-                          std::end(cubeLines));
-    }
-  }
-  m_LinesVA->Bind();
-  glBufferSubData(GL_ARRAY_BUFFER, 0, m_DebugLines.size() * sizeof(float),
-                  m_DebugLines.data());
-}
-
-void GameLayer::OnImGuiRender() {
-  // ImGui::Begin("Settings");
-  // ImGui::End();
-}
+void GameLayer::OnImGuiRender() {}
 
 void GameLayer::OnDetach() { CloseAudioDevice(); }

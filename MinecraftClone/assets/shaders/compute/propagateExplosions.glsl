@@ -72,27 +72,27 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		// If block is on the edge, flag the neighboring chunk(s)
 		if (x == 0 && chunkX > 0)
 			shouldRedrawChunk[getChunkIndex(chunkX - 1, chunkY, chunkZ)] = true;
-		else if (x == CHUNK_WIDTH - 1)
+		else if (x == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX + 1, chunkY, chunkZ)] = true;
 
 		if (y == 0 && chunkY > 0 && chunkY<=WORLD_HEIGHT)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY - 1, chunkZ)] = true;
-		else if (y == CHUNK_WIDTH - 1)
+		else if (y == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY + 1, chunkZ)] = true;
 
 		if (z == 0 && chunkZ > 0)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ - 1)] = true;
-		else if (z == CHUNK_WIDTH - 1)
+		else if (z == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
 		int blockType = int(chunksData[chunkIndex].blockTypes[x][y][z]);
 		if(blockType == tnt_block){
-			vec3 blockOrigin = vec3(chunkX*CHUNK_WIDTH+x,chunkY*CHUNK_WIDTH+y,chunkZ*CHUNK_WIDTH+z);	
+			vec3 blockOrigin = vec3(chunkX*CHUNK_SIDE_LENGTH+x,chunkY*CHUNK_SIDE_LENGTH+y,chunkZ*CHUNK_SIDE_LENGTH+z);	
 			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
 			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
 			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
 
-			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;
+			int tntIndex = relY * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH + relZ * TNT_SIDE_LENGTH + relX;
 			tnts[tntIndex].position = blockOrigin;
 			tnts[tntIndex].velocity = vec3(0,5,0);
 			tnts[tntIndex].visible = true;
@@ -115,12 +115,12 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 				ivec3 neighbourChunkOffset = ivec3(0);
 
 				// Handle boundaries
-				if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_WIDTH - 1; neighbourChunkOffset.x = -1; }
-				else if (neighbourPos.x >= CHUNK_WIDTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
-				if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_WIDTH - 1; neighbourChunkOffset.y = -1; }
-				else if (neighbourPos.y >= CHUNK_WIDTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
-				if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
-				else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
+				if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.x = -1; }
+				else if (neighbourPos.x >= CHUNK_SIDE_LENGTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
+				if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.y = -1; }
+				else if (neighbourPos.y >= CHUNK_SIDE_LENGTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
+				if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.z = -1; }
+				else if (neighbourPos.z >= CHUNK_SIDE_LENGTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
 				uvec3 neighbourChunk3DIndex = uvec3( chunkX + neighbourChunkOffset.x,
 									chunkY + neighbourChunkOffset.y,
@@ -151,9 +151,9 @@ void main() {
 		return;
 	}
 	chunksExplosionsCount[TOTAL_CHUNKS] = 1; // after the last chunk set to 1 to single there has been an explosion in one of the chunks
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int z=0;z<CHUNK_WIDTH;z++){
-			for(int y=0;y<CHUNK_WIDTH;y++){
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
+			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
 				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z]&MASK_3_BITS;
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);

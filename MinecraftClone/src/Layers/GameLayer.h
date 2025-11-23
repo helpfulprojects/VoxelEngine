@@ -3,12 +3,11 @@
 #include <VoxelEngine.h>
 #include <raudio.h>
 #define MAX_EXPLOSION_SOUNDS 10000
-#define PLAY_SOUND_AFTER_SECONDS 0.1f
 struct DrawArraysIndirectCommand {
-  GLuint count;         // number of vertices per draw
-  GLuint instanceCount; // usually 1
-  GLuint first;         // starting vertex
-  GLuint baseInstance;  // optional (for per-chunk uniforms)
+  GLuint count;
+  GLuint instanceCount;
+  GLuint first;
+  GLuint baseInstance;
 };
 class GameLayer : public VoxelEngine::Layer {
 public:
@@ -18,28 +17,25 @@ public:
   void OnUpdate(VoxelEngine::Timestep ts) override;
   void OnTick(VoxelEngine::Timestep ts) override;
   void OnEvent(VoxelEngine::Event &event) override;
-  void ForceRedraw();
   void ActivateTnt();
   void SpawnTnts();
-  void InitDebugLines();
-  void UpdateDebugLines();
   virtual void OnImGuiRender() override;
   virtual void OnDetach() override;
-
   inline VoxelEngine::PerspectiveCamera &GetCamera() { return m_Camera; }
 
 private:
   VoxelEngine::ShaderLibrary m_ShaderLibrary;
-  VoxelEngine::Ref<VoxelEngine::VertexArray> m_SquareVA;
-  VoxelEngine::Ref<VoxelEngine::Texture2D> m_Texture, m_ChernoLogoTexture;
+
   VoxelEngine::Ref<VoxelEngine::TextureAtlas> m_TerrainAtlas;
   VoxelEngine::PerspectiveCamera m_Camera;
-  glm::vec3 m_SquarePosition;
   glm::vec3 m_CameraPosition;
   float m_CameraMoveSpeed = 500.0f;
+
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_SsboVao;
   VoxelEngine::Ref<VoxelEngine::VertexArray> m_DirtBlock;
+
   DrawArraysIndirectCommand *m_Cmd;
+
   uint32_t *m_ChunksQuadCount;
   bool *m_ShouldRedrawWorld;
   uint32_t *m_ShouldRedrawChunk;
@@ -54,6 +50,5 @@ private:
   uint32_t *m_ChunksExplosionsCount;
   uint32_t m_ChunksExplosionsCountSsbo;
   uint32_t m_CurrentExplosionSound = 0;
-  float m_SecondsSinceLastSound = PLAY_SOUND_AFTER_SECONDS;
   bool m_UpdateTntPosition = true;
 };

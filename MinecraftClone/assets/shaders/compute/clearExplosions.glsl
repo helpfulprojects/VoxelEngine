@@ -10,9 +10,9 @@ void main() {
 	if(!chunksData[chunkIndex].hasExplosion){
 		return;
 	}
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int z=0;z<CHUNK_WIDTH;z++){
-			for(int y=0;y<CHUNK_WIDTH;y++){
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
+			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
 			}
 		}

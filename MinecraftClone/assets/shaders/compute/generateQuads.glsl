@@ -98,9 +98,9 @@ void main() {
 //	}
 //
 	int index = 0;
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int y=0;y<CHUNK_WIDTH;y++){
-			for(int z=0;z<CHUNK_WIDTH;z++){
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
+			for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
 				uint blockType = chunksData[chunkIndex].blockTypes[x][y][z];
 				if(blockType != 0){
 					ivec3 blockLocalPosition = ivec3(x,y,z);
@@ -110,12 +110,12 @@ void main() {
 						ivec3 neighbourChunkOffset = ivec3(0);
 
 						// Handle boundaries
-						if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_WIDTH - 1; neighbourChunkOffset.x = -1; }
-						else if (neighbourPos.x >= CHUNK_WIDTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
-						if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_WIDTH - 1; neighbourChunkOffset.y = -1; }
-						else if (neighbourPos.y >= CHUNK_WIDTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
-						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
-						else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
+						if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.x = -1; }
+						else if (neighbourPos.x >= CHUNK_SIDE_LENGTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
+						if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.y = -1; }
+						else if (neighbourPos.y >= CHUNK_SIDE_LENGTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
+						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.z = -1; }
+						else if (neighbourPos.z >= CHUNK_SIDE_LENGTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
 						uint neighbourType = 1;
 						uvec3 neighbourChunkPosition = uvec3( gl_WorkGroupID.x + neighbourChunkOffset.x,
