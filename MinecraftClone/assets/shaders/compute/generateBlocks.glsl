@@ -126,7 +126,7 @@ void main() {
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
 			//int surfaceLevel = int(noise * amplitude + baseHeight);
-			int surfaceLevel = 100;
+			int surfaceLevel = SURFACE_LEVEL;
 
 			for(int y=0;y<CHUNK_WIDTH;y++){
 				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;

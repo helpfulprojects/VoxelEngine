@@ -55,7 +55,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	int front = 0;
 	int back = 0;
 	uint tntIndex = chunksData[chunkIndex].explosions[x][y][z]>>3;
-	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<11,chunkIndex,tntIndex<<3|(TNT_EXPLOSION_STRENGTH+1));
+	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<14,chunkIndex,tntIndex<<3|(TNT_EXPLOSION_STRENGTH+1));
 	while(front<back){
 		Node node = queue.nodes[front++];
 
@@ -64,8 +64,8 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		uint z = (node.localIndex3D >> 8) & MASK_4_BITS;
 
 		uint chunkX = (node.chunkIndex3D) & MASK_7_BITS;
-		uint chunkY = (node.chunkIndex3D >> 7) & MASK_4_BITS;
-		uint chunkZ = (node.chunkIndex3D >> 11) & MASK_7_BITS;
+		uint chunkY = (node.chunkIndex3D >> 7) & MASK_7_BITS;
+		uint chunkZ = (node.chunkIndex3D >> 14) & MASK_7_BITS;
 
 		uint chunkIndex = node.chunkIndex;
 		shouldRedrawChunk[chunkIndex] = true;
@@ -75,7 +75,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		else if (x == CHUNK_WIDTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX + 1, chunkY, chunkZ)] = true;
 
-		if (y == 0 && chunkY > 0)
+		if (y == 0 && chunkY > 0 && chunkY<=WORLD_HEIGHT)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY - 1, chunkZ)] = true;
 		else if (y == CHUNK_WIDTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY + 1, chunkZ)] = true;
@@ -88,9 +88,9 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		int blockType = int(chunksData[chunkIndex].blockTypes[x][y][z]);
 		if(blockType == tnt_block){
 			vec3 blockOrigin = vec3(chunkX*CHUNK_WIDTH+x,chunkY*CHUNK_WIDTH+y,chunkZ*CHUNK_WIDTH+z);	
-			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x);
-			int relY = int(blockOrigin.y - 101);
-			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z);
+			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
+			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
+			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
 
 			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;
 			tnts[tntIndex].position = blockOrigin;
@@ -134,7 +134,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 										 + neighbourChunk3DIndex.z * WORLD_WIDTH * WORLD_HEIGHT;
 					if((chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z]&MASK_3_BITS) < explosionValue-1){
 						chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] = explosionValue-1;
-						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<11,neighbourChunkIndex,tntIndex<<3|explosionValue);
+						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<14,neighbourChunkIndex,tntIndex<<3|explosionValue);
 					}
 	//				neighbourType = chunksData[neighbourChunkIndex]
 	//					.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];

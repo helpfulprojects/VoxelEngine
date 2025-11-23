@@ -43,7 +43,7 @@ void main() {
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
 			vec3 blockOrigin = actualChunkPosition+localPos;	
 			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
-			int relY = int(blockOrigin.y - 100-1);
+			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
 			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
 
 			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;

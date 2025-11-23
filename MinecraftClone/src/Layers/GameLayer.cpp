@@ -12,13 +12,13 @@ struct FaceModel {
 };
 const int CHUNK_WIDTH = 16;
 const int WORLD_WIDTH = 65;
-const int WORLD_HEIGHT = 16;
+const int WORLD_HEIGHT = 20;
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 const int BLOCKS_IN_CHUNK_COUNT = CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_WIDTH;
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 // const int TNT_HEIGHT = 154;
 //  const int TNT_HEIGHT = 100;
-const int TNT_HEIGHT = 100;
+const int TNT_HEIGHT = 214;
 const int TNT_WIDTH = sqrt(10000000.0f / TNT_HEIGHT);
 const int TNT_COUNT = TNT_WIDTH * TNT_WIDTH * TNT_HEIGHT;
 const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
@@ -27,6 +27,7 @@ const glm::vec3 DEFAULT_SPAWN(CHUNK_WIDTH *WORLD_WIDTH / 2,
 const uint32_t HALF_WORLD_WIDTH = std::ceil(WORLD_WIDTH / 2.0f);
 const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
 const int DEBUG_LINES_FLOAT_COUNT = WORLD_HEIGHT * 16 * 16 * 3 + 2 * 8 * 4 * 3;
+const int SURFACE_LEVEL = 100;
 
 const int VERTS_PER_QUAD = 6;
 const int QUADS_PER_BLOCK = 6;
@@ -56,6 +57,8 @@ const std::string GLOBAL_SHADER_DEFINES = R"(
                                           R"( 
 #define HALF_WORLD_HEIGHT )" + std::to_string(HALF_WORLD_HEIGHT) +
                                           R"( 
+#define SURFACE_LEVEL )" + std::to_string(SURFACE_LEVEL) +
+                                          R"(
 #define DEFAULT_SPAWN vec3(CHUNK_WIDTH * WORLD_WIDTH / 2, CHUNK_WIDTH * WORLD_HEIGHT*2, CHUNK_WIDTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
 #define TNT_EXPLOSION_STRENGTH 4
@@ -135,6 +138,107 @@ struct ChunkQuads {
   uint32_t blockQuads[FACES_PER_CHUNK];
 };
 
+void APIENTRY GLDebugMessageCallback(GLenum source, GLenum type, GLuint id,
+                                     GLenum severity, GLsizei length,
+                                     const GLchar *msg, const void *data) {
+  std::string _source;
+  std::string _type;
+  std::string _severity;
+
+  switch (source) {
+  case GL_DEBUG_SOURCE_API:
+    _source = "API";
+    break;
+
+  case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+    _source = "WINDOW SYSTEM";
+    break;
+
+  case GL_DEBUG_SOURCE_SHADER_COMPILER:
+    _source = "SHADER COMPILER";
+    break;
+
+  case GL_DEBUG_SOURCE_THIRD_PARTY:
+    _source = "THIRD PARTY";
+    break;
+
+  case GL_DEBUG_SOURCE_APPLICATION:
+    _source = "APPLICATION";
+    break;
+
+  case GL_DEBUG_SOURCE_OTHER:
+    _source = "UNKNOWN";
+    break;
+
+  default:
+    _source = "UNKNOWN";
+    break;
+  }
+
+  switch (type) {
+  case GL_DEBUG_TYPE_ERROR:
+    _type = "ERROR";
+    break;
+
+  case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+    _type = "DEPRECATED BEHAVIOR";
+    break;
+
+  case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+    _type = "UDEFINED BEHAVIOR";
+    break;
+
+  case GL_DEBUG_TYPE_PORTABILITY:
+    _type = "PORTABILITY";
+    break;
+
+  case GL_DEBUG_TYPE_PERFORMANCE:
+    _type = "PERFORMANCE";
+    break;
+
+  case GL_DEBUG_TYPE_OTHER:
+    _type = "OTHER";
+    break;
+
+  case GL_DEBUG_TYPE_MARKER:
+    _type = "MARKER";
+    break;
+
+  default:
+    _type = "UNKNOWN";
+    break;
+  }
+  bool showErrorMessage = false;
+  switch (severity) {
+  case GL_DEBUG_SEVERITY_HIGH:
+    _severity = "HIGH";
+    showErrorMessage = true;
+    break;
+
+  case GL_DEBUG_SEVERITY_MEDIUM:
+    _severity = "MEDIUM";
+    showErrorMessage = true;
+    break;
+
+  case GL_DEBUG_SEVERITY_LOW:
+    _severity = "LOW";
+    showErrorMessage = true;
+    break;
+
+  case GL_DEBUG_SEVERITY_NOTIFICATION:
+    _severity = "NOTIFICATION";
+    break;
+
+  default:
+    _severity = "UNKNOWN";
+    break;
+  }
+  if (showErrorMessage) {
+    VE_ERROR("OPENGL ERROR");
+  }
+  printf("%d: %s of %s severity, raised from %s: %s\n", id, _type, _severity,
+         _source, msg);
+}
 GameLayer::GameLayer()
     : Layer("Example"), m_Camera(70.0f, 0.1f, 2500.0f),
       m_SquarePosition(-1.1f, 0, -0.5f), m_CameraPosition(DEFAULT_SPAWN) {
@@ -158,8 +262,13 @@ GameLayer::GameLayer()
                                "_top.png")) {
     grassBlockPrefix = "grass";
   }
-  // InitDebugLines();
-  // TNT ATLAS
+  // glEnable(GL_DEBUG_OUTPUT);
+  // glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+  // glDebugMessageCallback(GLDebugMessageCallback, NULL);
+  //  unsigned int buffer;
+  //  glGenBuffers(-1, &buffer);
+  //   InitDebugLines();
+  //   TNT ATLAS
   m_ShaderLibrary.Load("assets/shaders/lines.glsl", GLOBAL_SHADER_DEFINES);
   {
     VE_PROFILE_SCOPE("Bake tnt atlas");
@@ -242,6 +351,7 @@ GameLayer::GameLayer()
     VoxelEngine::Ref<VoxelEngine::TextureSubImage2D> bedrock =
         VoxelEngine::TextureAtlas::CreateTextureSubImage(selectedFolder +
                                                          "bedrock.png");
+    bedrock->ToRGBA();
     m_TerrainAtlas->Add(dirt);
     m_TerrainAtlas->Add(grass_block_top);
     m_TerrainAtlas->Add(grass_block_side);

@@ -211,6 +211,8 @@ void Shader::Compile(
   for (auto id : glShaderIDs) {
     {
       VE_PROFILE_SCOPE("Detach shader");
+      if (id == 0)
+        continue;
       glDetachShader(program, id);
     }
   }
