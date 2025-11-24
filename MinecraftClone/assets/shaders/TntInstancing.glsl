@@ -1,80 +1,11 @@
 #type vertex
-
-layout(std430, binding = 0) readonly buffer buffer0 
-{
-	Chunk chunksData[]; 
-};
-layout(std430, binding = 1) readonly buffer buffer1 
-{
-	ChunkQuads chunksQuads[]; 
-};
-
-layout(std430, binding = 2) readonly buffer terrainAtlasCoordsBuffer
-{
-	vec2 terrainAtlasCoords[]; 
-};
-layout(std430, binding = 3) readonly buffer texturePositionOffsetsBuffer
-{
-	vec2 texturePositionOffsets[]; 
-};
-
-layout(std430, binding = 4) readonly buffer buffer4
-{
-	uvec3 debugBuffer[];
-};
+#version 430 core
+#includeGlobalSrouce
 
 layout(std430, binding = 6) buffer buffer6
 {
 	TntEntity tnts[];
 };
-const vec3 offset = vec3(0.5, 0.5, 0.5);
-const vec3 facePositions[6][4] = vec3[6][4](
-    // +Y (top)
-    vec3[4](
-        vec3( 0.5,  0.5, -0.5) + offset,
-        vec3(-0.5,  0.5, -0.5) + offset,
-        vec3(-0.5,  0.5,  0.5) + offset,
-        vec3( 0.5,  0.5,  0.5) + offset
-    ),
-    // -Y (bottom)
-    vec3[4](
-        vec3( 0.5, -0.5,  0.5) + offset,
-        vec3(-0.5, -0.5,  0.5) + offset,
-        vec3(-0.5, -0.5, -0.5) + offset,
-        vec3( 0.5, -0.5, -0.5) + offset
-    ),
-    // +X (east)
-    vec3[4](
-        vec3( 0.5, -0.5,  0.5) + offset,
-        vec3( 0.5, -0.5, -0.5) + offset,
-        vec3( 0.5,  0.5, -0.5) + offset,
-        vec3( 0.5,  0.5,  0.5) + offset
-    ),
-    // -X (west)
-    vec3[4](
-        vec3(-0.5, -0.5, -0.5) + offset,
-        vec3(-0.5, -0.5,  0.5) + offset,
-        vec3(-0.5,  0.5,  0.5) + offset,
-        vec3(-0.5,  0.5, -0.5) + offset
-    ),
-    // +Z (south)
-    vec3[4](
-        vec3(-0.5, -0.5,  0.5) + offset,
-        vec3( 0.5, -0.5,  0.5) + offset,
-        vec3( 0.5,  0.5,  0.5) + offset,
-        vec3(-0.5,  0.5,  0.5) + offset
-    ),
-    // -Z (north)
-    vec3[4](
-        vec3( 0.5, -0.5, -0.5) + offset,
-        vec3(-0.5, -0.5, -0.5) + offset,
-        vec3(-0.5,  0.5, -0.5) + offset,
-        vec3( 0.5,  0.5, -0.5) + offset
-    )
-);
-
-int indices[6] = {0, 1, 2, 2, 3, 0};
-
 
 out vData{
 	vec2 v_TexCoord;
@@ -215,10 +146,6 @@ uniform sampler2D u_Texture1;
 
 void main()
 {
-	color = texture(u_Texture1,frag.v_TexCoord);//*frag.v_StaticLight;
-	//    if(frag.v_StaticLight.a==0){
-	//        discard;
-	//    }
-	// color = texture(u_Texture,frag.v_TexCoord)*frag.v_StaticLight;
+	color = texture(u_Texture1,frag.v_TexCoord);
 	color.rgb = mix(frag.v_ColorOverlay.rgb,color.rgb,frag.v_ColorOverlay.a);
 }

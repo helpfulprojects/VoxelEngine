@@ -1,5 +1,6 @@
 #type vertex
-
+#version 460 core
+#includeGlobalSrouce
 layout(std430, binding = 0) readonly buffer buffer0 
 {
 	Chunk chunksData[]; 
@@ -18,10 +19,6 @@ layout(std430, binding = 3) readonly buffer texturePositionOffsetsBuffer
 	vec2 texturePositionOffsets[]; 
 };
 
-layout(std430, binding = 4) readonly buffer buffer4
-{
-	uvec3 debugBuffer[];
-};
 const vec3 offset = vec3(0.5, 0.5, 0.5);
 const vec3 facePositions[6][4] = vec3[6][4](
     // +Y (top)
@@ -112,7 +109,7 @@ void main()
 }
 
 #type fragment
-#version 330 core
+#version 430 core
 
 out vec4 color;
 in vec2 v_TexCoord;

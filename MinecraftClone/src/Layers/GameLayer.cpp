@@ -37,30 +37,29 @@ const uint32_t HALF_WORLD_HEIGHT = std::ceil(WORLD_HEIGHT / 2.0f);
 const int SURFACE_LEVEL = 100;
 
 const int VERTS_PER_QUAD = 6;
-const std::string GLOBAL_SHADER_DEFINES = R"( 
-#version 460 core
+const std::string SHADERS_GLOBAL_INCLUDE_SOURCE = R"( 
 #define CHUNK_SIDE_LENGTH )" + std::to_string(CHUNK_SIDE_LENGTH) +
-                                          R"(
+                                                  R"(
 #define TNT_SIDE_LENGTH )" + std::to_string(TNT_SIDE_LENGTH) +
-                                          R"(
+                                                  R"(
 #define TNT_COUNT )" + std::to_string(TNT_COUNT) +
-                                          R"(
+                                                  R"(
 #define TOTAL_CHUNKS )" + std::to_string(TOTAL_CHUNKS) +
-                                          R"(
+                                                  R"(
 #define WORLD_WIDTH )" + std::to_string(WORLD_WIDTH) +
-                                          R"(
+                                                  R"(
 #define WORLD_HEIGHT )" + std::to_string(WORLD_HEIGHT) +
-                                          R"(
+                                                  R"(
 #define BLOCKS_IN_CHUNK_COUNT )" + std::to_string(BLOCKS_IN_CHUNK_COUNT) +
-                                          R"( 
+                                                  R"( 
 #define FACES_PER_CHUNK )" + std::to_string(FACES_PER_CHUNK) +
-                                          R"( 
+                                                  R"( 
 #define HALF_WORLD_WIDTH )" + std::to_string(HALF_WORLD_WIDTH) +
-                                          R"( 
+                                                  R"( 
 #define HALF_WORLD_HEIGHT )" + std::to_string(HALF_WORLD_HEIGHT) +
-                                          R"( 
+                                                  R"( 
 #define SURFACE_LEVEL )" + std::to_string(SURFACE_LEVEL) +
-                                          R"(
+                                                  R"(
 #define DEFAULT_SPAWN vec3(CHUNK_SIDE_LENGTH * WORLD_WIDTH / 2, CHUNK_SIDE_LENGTH * WORLD_HEIGHT*2, CHUNK_SIDE_LENGTH * WORLD_WIDTH / 2)
 #define GRAVITY -28.57
 #define TNT_EXPLOSION_STRENGTH 4
@@ -245,6 +244,7 @@ GameLayer::GameLayer()
     : Layer("Example"), m_Camera(70.0f, 0.1f, 2500.0f),
       m_CameraPosition(DEFAULT_SPAWN) {
   VE_PROFILE_FUNCTION;
+  m_ShaderLibrary.SetGlobalIncludeSource(SHADERS_GLOBAL_INCLUDE_SOURCE);
   m_CameraPosition.y -= 150;
   m_CameraPosition.x -= 300;
   std::string blocksFolderLocation =
@@ -267,10 +267,6 @@ GameLayer::GameLayer()
   glEnable(GL_DEBUG_OUTPUT);
   glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
   glDebugMessageCallback(GLDebugMessageCallback, NULL);
-  //  unsigned int buffer;
-  //  glGenBuffers(-1, &buffer);
-  //   InitDebugLines();
-  //   TNT ATLAS
   {
     VE_PROFILE_SCOPE("Bake tnt atlas");
     m_TntAtlas = VoxelEngine::TextureAtlas::Create();
@@ -458,8 +454,8 @@ GameLayer::GameLayer()
   {
     VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
     // GEN BLOCKS
-    auto generateBlocksCompute = m_ShaderLibrary.Load(
-        "assets/shaders/compute/generateBlocks.glsl", GLOBAL_SHADER_DEFINES);
+    auto generateBlocksCompute =
+        m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl");
     generateBlocksCompute->Bind();
     glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT |
@@ -477,10 +473,8 @@ GameLayer::GameLayer()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, genQuadsSsbo);
   }
 
-  m_ShaderLibrary.Load("assets/shaders/drawTerrain.glsl",
-                       GLOBAL_SHADER_DEFINES);
-  auto tntShader = m_ShaderLibrary.Load("assets/shaders/tntInstancing.glsl",
-                                        GLOBAL_SHADER_DEFINES);
+  m_ShaderLibrary.Load("assets/shaders/drawTerrain.glsl");
+  auto tntShader = m_ShaderLibrary.Load("assets/shaders/tntInstancing.glsl");
   tntShader->Bind();
   tntShader->UploadUniformInt("u_Texture1", 1);
 
@@ -534,8 +528,7 @@ GameLayer::GameLayer()
                  GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
   }
-  m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl",
-                       GLOBAL_SHADER_DEFINES);
+  m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl");
   // m_ShaderLibrary
   //     .Load("assets/shaders/compute/initTntTransforms.glsl",
   //           GLOBAL_SHADER_DEFINES)
@@ -545,25 +538,19 @@ GameLayer::GameLayer()
 
   {
     VE_PROFILE_SCOPE("Load updateTntTransforms.glsl");
-    m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl",
-                         GLOBAL_SHADER_DEFINES);
+    m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl");
   }
   {
     VE_PROFILE_SCOPE("Load propagateExplosions.glsl");
-    m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl",
-                         GLOBAL_SHADER_DEFINES);
+    m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl");
   }
   {
     VE_PROFILE_SCOPE("Load generateQuads.glsl");
-    m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl",
-                         GLOBAL_SHADER_DEFINES);
+    m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");
   }
-  m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl",
-                       GLOBAL_SHADER_DEFINES);
-  m_ShaderLibrary.Load("assets/shaders/compute/activateTnt.glsl",
-                       GLOBAL_SHADER_DEFINES);
-  m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl",
-                       GLOBAL_SHADER_DEFINES);
+  m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl");
+  m_ShaderLibrary.Load("assets/shaders/compute/activateTnt.glsl");
+  m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl");
   InitAudioDevice();
   m_FuseSound = LoadSound("assets/audio/Fuse.ogg");
   m_ExplosionSounds[0] = LoadSound("assets/audio/Explosion1.ogg");

@@ -1,4 +1,8 @@
 #type compute
+#version 430 core
+#includeGlobalSrouce
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(std430, binding = 0) buffer buffer0 
 {
@@ -25,8 +29,6 @@ layout(std430, binding = 10) buffer buffer10
 
 uniform vec3 u_CameraPos;
 uniform vec3 u_RayDirection;
-
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 #line 0
 void main() {

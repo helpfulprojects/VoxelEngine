@@ -1,11 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include <memory> 
+#include <memory>
 #include <utility>
 #include <algorithm>
 #include <functional>
-
 
 #include <string>
 #include <sstream>
@@ -15,10 +14,9 @@
 #include <unordered_set>
 #include "VoxelEngine/Core/Log.h"
 #include "VoxelEngine/Debug/Instrumentor.h"
+#include <regex>
 #include <tracy/Tracy.hpp>
 
 #ifdef VE_PLATFORM_WINDOWS
 #include <Windows.h>
 #endif
-
-

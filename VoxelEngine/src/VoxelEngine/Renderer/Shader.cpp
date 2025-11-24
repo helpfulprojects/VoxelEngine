@@ -24,40 +24,16 @@ static GLenum ShaderTypeFromString(const std::string &type) {
   VE_CORE_ASSERT(false, "Unknown shader type!");
   return 0;
 }
-Shader::Shader(const std::string &name, const std::string &vertexSrc,
-               const std::string &fragmentSrc)
-    : m_Name(name) {
-  VE_PROFILE_FUNCTION;
-  std::unordered_map<GLenum, std::string> sources;
-  sources[GL_VERTEX_SHADER] = vertexSrc;
-  sources[GL_FRAGMENT_SHADER] = fragmentSrc;
-  Compile(sources);
-}
-Shader::Shader(const std::string &filepath) : m_Filepath(filepath) {
-  VE_PROFILE_FUNCTION;
-  std::string source = Utils::ReadFile(filepath);
-  VE_CORE_ASSERT(!source.empty(), "Empty shader source read");
-  auto shaderSources = PreProcess(source);
-  Compile(shaderSources);
-
-  m_Name = Utils::ExtractNameFromFilePath(filepath);
-}
-Shader::Shader(const std::string &filepath, const std::string &globalDefines)
+Shader::Shader(const std::string &filepath,
+               const std::string &globalIncludeSource)
     : m_Filepath(filepath) {
   VE_PROFILE_FUNCTION;
   std::string source = Utils::ReadFile(filepath);
+  source = std::regex_replace(source, std::regex("#includeGlobalSrouce"),
+                              globalIncludeSource);
   VE_CORE_ASSERT(!source.empty(), "Empty shader source read");
   std::unordered_map<GLenum, std::string> shaderSources = PreProcess(source);
-  for (auto &&[key, value] : shaderSources) {
-    GLenum type = key;
-    if (type != GL_COMPUTE_SHADER && type != GL_VERTEX_SHADER) {
-      continue;
-    }
-    const std::string &source = value;
-    shaderSources[key] = globalDefines + source;
-  }
   Compile(shaderSources);
-
   m_Name = Utils::ExtractNameFromFilePath(filepath);
 }
 Shader::~Shader() {
@@ -224,17 +200,9 @@ void Shader::UploadUniformFloat4(const std::string &name,
   glUniform4f(location, values.x, values.y, values.z, values.w);
 }
 
-Ref<Shader> Shader::Create(const std::string &filePath) {
-  return std::make_shared<Shader>(filePath);
-}
 Ref<Shader> Shader::Create(const std::string &filePath,
-                           const std::string &globalDefines) {
-  return std::make_shared<Shader>(filePath, globalDefines);
-}
-Ref<Shader> Shader::Create(const std::string &name,
-                           const std::string &vertexSrc,
-                           const std::string &fragmentSrc) {
-  return std::make_shared<Shader>(name, vertexSrc, fragmentSrc);
+                           const std::string &globalIncludeSource) {
+  return std::make_shared<Shader>(filePath, globalIncludeSource);
 }
 
 // ------------------------------------------------------------
@@ -248,23 +216,14 @@ void ShaderLibrary::Add(const std::string &name, const Ref<Shader> &shader) {
   m_Shaders[name] = shader;
 }
 Ref<Shader> ShaderLibrary::Load(const std::string &filepath) {
-  auto shader = Shader::Create(filepath);
+  auto shader = Shader::Create(filepath, m_GlobalIncludeSource);
   Add(shader);
   return shader;
 }
-Ref<Shader> ShaderLibrary::Load(const std::string &filepath,
-                                const std::string &globalDefines) {
-  auto shader = Shader::Create(filepath, globalDefines);
-  Add(shader);
-  return shader;
+
+void ShaderLibrary::SetGlobalIncludeSource(const std::string &source) {
+  m_GlobalIncludeSource = source;
 }
-// Ref<Shader> ShaderLibrary::Load(const std::string& name, const std::string&
-// filepath)
-//{
-//	auto shader = Shader::Create(filepath);
-//	Add(name, shader);
-//	return shader;
-// }
 Ref<Shader> ShaderLibrary::Get(const std::string &name) {
   VE_CORE_ASSERT(Exists(name), "Shader doesn't exists");
   return m_Shaders[name];

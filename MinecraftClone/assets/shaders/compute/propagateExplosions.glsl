@@ -1,9 +1,9 @@
 #type compute
+#version 430 core
+#includeGlobalSrouce
 
-layout(std430, binding = 0) buffer buffer0 
-{
-	Chunk chunksData[]; 
-};
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
 struct Node{
 uint localIndex3D;
 uint chunkIndex3D;
@@ -12,6 +12,11 @@ uint previousValue;
 };
 struct Queue{
 	Node nodes[63];
+};
+
+layout(std430, binding = 0) buffer buffer0 
+{
+	Chunk chunksData[]; 
 };
 layout(std430, binding = 6) buffer buffer6
 {
@@ -34,6 +39,7 @@ layout(std430, binding = 11) buffer buffer11
 {
 	uint chunksExplosionsCount[]; 
 };
+
 uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
@@ -47,6 +53,7 @@ ivec3 offsets[6] = ivec3[6](
 uint startingChunkX = (gl_WorkGroupID.x)*2+uint(u_Offset.x);
 uint startingChunkY = (gl_WorkGroupID.y)*2+uint(u_Offset.y);
 uint startingChunkZ = (gl_WorkGroupID.z)*2+uint(u_Offset.z);
+
 #line 0
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
@@ -136,15 +143,12 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 						chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] = explosionValue-1;
 						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<14,neighbourChunkIndex,tntIndex<<3|explosionValue);
 					}
-	//				neighbourType = chunksData[neighbourChunkIndex]
-	//					.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 				}
 			}
 		}
 	}
 }
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
 	uint chunkIndex = startingChunkX+startingChunkY*WORLD_WIDTH+startingChunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 	if(!chunksData[chunkIndex].hasExplosion){

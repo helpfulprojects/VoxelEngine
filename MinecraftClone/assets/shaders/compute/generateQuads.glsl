@@ -1,4 +1,6 @@
 #type compute
+#version 430 core
+#includeGlobalSrouce
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -12,17 +14,9 @@ layout(std430, binding = 1) buffer buffer1
 {
 	ChunkQuads chunksQuads[]; 
 };
-layout(std430, binding = 4) buffer buffer4
-{
-	uint debugBuffer[];
-};
 layout(std430, binding = 5) buffer buffer5
 {
 	uint renderData[];
-};
-layout(std430, binding = 8) buffer buffer8
-{
-	bool shouldRedrawWorld; 
 };
 
 layout(std430, binding = 9) buffer buffer9
@@ -84,19 +78,9 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 
 void main() {
 	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-//	if(!shouldRedrawWorld){
-//		return;
-//	}
 	if(!shouldRedrawChunk[chunkIndex]){
-		//renderData[chunkIndex] = 0;
 		return;	
 	}
-	//chunksData[chunkIndex].shouldRedraw = false;
-	//renderData[chunkIndex] = 0;
-//	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
-//		chunksQuads[chunkIndex].blockQuads[i] = 0u;
-//	}
-//
 	int index = 0;
 	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
 		for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
@@ -136,10 +120,6 @@ void main() {
 						}
 					}
 
-//					for(int n = 0;n<6;n++){
-//						chunksQuads[chunkIndex].blockQuads[index] = blockLocalPositionBinary | n << 16 | 0 << 19 ;
-//						index++;
-//					}
 				}
 
 			}
