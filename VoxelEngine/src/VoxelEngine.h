@@ -1,5 +1,5 @@
 #pragma once
-//For use by Voxel Engine applications
+// For use by Voxel Engine applications
 
 #include "VoxelEngine/Core/Application.h"
 #include "VoxelEngine/Core/Layer.h"
