@@ -184,9 +184,10 @@ void Shader::Compile(
     }
   }
 
-  for (auto id : glShaderIDs) {
+  for (int i = 0; i < glShaderIDIndex; i++) {
     {
       VE_PROFILE_SCOPE("Detach shader");
+      GLenum id = glShaderIDs[i];
       if (id == 0)
         continue;
       glDetachShader(program, id);
