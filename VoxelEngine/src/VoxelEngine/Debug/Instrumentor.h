@@ -116,8 +116,7 @@ private:
 };
 
 } // namespace VoxelEngine
-#define VE_PROFILE 1
-#if VE_PROFILE
+#ifdef VE_DEBUG
 // #define VE_PROFILE_BEGIN_SESSION(name,filepath)
 // ::VoxelEngine::Instrumentor::Get().BeginSession(name,filepath) #define
 // VE_PROFILE_END_SESSION ::VoxelEngine::Instrumentor::Get().EndSession()
