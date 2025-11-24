@@ -216,13 +216,17 @@ void ShaderLibrary::Add(const std::string &name, const Ref<Shader> &shader) {
   m_Shaders[name] = shader;
 }
 Ref<Shader> ShaderLibrary::Load(const std::string &filepath) {
-  auto shader = Shader::Create(filepath, m_GlobalIncludeSource);
+  auto shader = Shader::Create(filepath, m_GlobalIncludeSource +
+                                             m_GlobalIncludeFileSource);
   Add(shader);
   return shader;
 }
 
 void ShaderLibrary::SetGlobalIncludeSource(const std::string &source) {
   m_GlobalIncludeSource = source;
+}
+void ShaderLibrary::SetGlobalIncludeFile(const std::string &filepath) {
+  m_GlobalIncludeFileSource = Utils::ReadFile(filepath);
 }
 Ref<Shader> ShaderLibrary::Get(const std::string &name) {
   VE_CORE_ASSERT(Exists(name), "Shader doesn't exists");
