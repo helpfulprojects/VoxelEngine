@@ -37,7 +37,7 @@ layout(std430, binding = 9) buffer buffer9
 };
 layout(std430, binding = 11) buffer buffer11
 {
-	uint chunksExplosionsCount[]; 
+	bool doesCurrentFrameHaveExplosion; 
 };
 
 uniform vec3 u_Offset;
@@ -154,7 +154,7 @@ void main() {
 	if(!chunksData[chunkIndex].hasExplosion){
 		return;
 	}
-	chunksExplosionsCount[TOTAL_CHUNKS] = 1; // after the last chunk set to 1 to single there has been an explosion in one of the chunks
+	doesCurrentFrameHaveExplosion = true; 
 	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
 		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
 			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){

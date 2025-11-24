@@ -271,16 +271,16 @@ GameLayer::GameLayer()
   }
 
   {
-    glCreateBuffers(1, &m_ChunksExplosionsCountSsbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_ChunksExplosionsCountSsbo);
-    glBufferStorage(GL_SHADER_STORAGE_BUFFER,
-                    (TOTAL_CHUNKS + 1) * sizeof(uint32_t), nullptr,
+    glCreateBuffers(1, &m_DoesCurrentFrameHaveExplosionSsbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_DoesCurrentFrameHaveExplosionSsbo);
+    glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(uint32_t), nullptr,
                     GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT |
                         GL_MAP_COHERENT_BIT | GL_DYNAMIC_STORAGE_BIT);
-    m_ChunksExplosionsCount = static_cast<uint32_t *>(glMapBufferRange(
-        GL_SHADER_STORAGE_BUFFER, 0, (TOTAL_CHUNKS + 1) * sizeof(uint32_t),
+    m_DoesCurrentFrameHaveExplosion = static_cast<bool *>(glMapBufferRange(
+        GL_SHADER_STORAGE_BUFFER, 0, sizeof(bool),
         GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT));
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11, m_ChunksExplosionsCountSsbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 11,
+                     m_DoesCurrentFrameHaveExplosionSsbo);
   }
 
   {
@@ -361,13 +361,6 @@ GameLayer::GameLayer()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, tntEntitiesSsbo);
   }
   m_ShaderLibrary.Load("assets/shaders/compute/initTntTransforms.glsl");
-  // m_ShaderLibrary
-  //     .Load("assets/shaders/compute/initTntTransforms.glsl",
-  //           GLOBAL_SHADER_DEFINES)
-  //     ->Bind();
-  // glDispatchCompute(TNT_COUNT, 1, 1);
-  // glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
   {
     VE_PROFILE_SCOPE("Load updateTntTransforms.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl");
@@ -393,7 +386,6 @@ GameLayer::GameLayer()
     int randomIndex = rand() % 4;
     m_ExplosionSounds[i] = LoadSoundAlias(m_ExplosionSounds[randomIndex]);
   }
-  // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 }
 GameLayer::~GameLayer() {}
 void GameLayer::OnAttach() {
@@ -487,7 +479,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     glDeleteSync(sync);
   }
 
-  if (m_ChunksExplosionsCount[TOTAL_CHUNKS] == 1) {
+  if (*m_DoesCurrentFrameHaveExplosion) {
     if (!IsSoundPlaying(m_ExplosionSounds[m_CurrentExplosionSound])) {
       PlaySound(m_ExplosionSounds[m_CurrentExplosionSound]);
     }
@@ -495,10 +487,8 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
     if (m_CurrentExplosionSound >= MAX_EXPLOSION_SOUNDS) {
       m_CurrentExplosionSound = 0;
     }
+    *m_DoesCurrentFrameHaveExplosion = false;
   }
-  uint32_t zero = 0;
-  glClearNamedBufferData(m_ChunksExplosionsCountSsbo, GL_R32UI, GL_RED,
-                         GL_UNSIGNED_INT, &zero);
 
   if (m_UpdateTntPosition) {
     {
@@ -508,7 +498,6 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts) {
       updateTntTransformsCompute->Bind();
       updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
       glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-      // glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
       glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
   }
@@ -575,7 +564,23 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
   dispatcher.Dispatch<VoxelEngine::MouseButtonReleasedEvent>(
       [&](VoxelEngine::MouseButtonReleasedEvent &e) {
         if (e.GetMouseButton() == VE_MOUSE_BUTTON_LEFT) {
-          ActivateTnt();
+          auto activateTnt = m_ShaderLibrary.Get("activateTnt");
+          activateTnt->Bind();
+          activateTnt->UploadUniformFloat3("u_CameraPos", m_CameraPosition);
+          activateTnt->UploadUniformFloat3("u_RayDirection",
+                                           m_Camera.GetFront());
+          glDispatchCompute(1, 1, 1);
+          glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT |
+                          GL_BUFFER_UPDATE_BARRIER_BIT);
+
+          GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+          float secondsToWait = 1.0f;
+          glClientWaitSync(sync, 0, secondsToWait * 1000000000);
+          glDeleteSync(sync);
+          if (*m_ShouldPlayFuseAudio) {
+            PlaySound(m_FuseSound);
+            *m_ShouldPlayFuseAudio = false;
+          }
         }
         return true;
       });
@@ -597,15 +602,6 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
           m_CameraMoveSpeed = 500;
           return true;
         }
-        if (e.GetKeyCode() == VE_KEY_4) {
-          m_UpdateTntPosition = false;
-          return true;
-        }
-        if (e.GetKeyCode() == VE_KEY_X) {
-          SpawnTnts();
-          return true;
-        }
-
         return false;
       });
   dispatcher.Dispatch<VoxelEngine::MouseMovedEvent>(
@@ -619,31 +615,5 @@ void GameLayer::OnEvent(VoxelEngine::Event &event) {
         return false;
       });
 }
-
-void GameLayer::ActivateTnt() {
-  auto activateTnt = m_ShaderLibrary.Get("activateTnt");
-  activateTnt->Bind();
-  activateTnt->UploadUniformFloat3("u_CameraPos", m_CameraPosition);
-  activateTnt->UploadUniformFloat3("u_RayDirection", m_Camera.GetFront());
-  glDispatchCompute(1, 1, 1);
-  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
-
-  GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
-  float secondsToWait = 1.0f;
-  glClientWaitSync(sync, 0, secondsToWait * 1000000000);
-  glDeleteSync(sync);
-  if (*m_ShouldPlayFuseAudio) {
-    PlaySound(m_FuseSound);
-    *m_ShouldPlayFuseAudio = false;
-  }
-}
-
-void GameLayer::SpawnTnts() {
-  m_ShaderLibrary.Get("initTntTransforms")->Bind();
-  glDispatchCompute(TNT_COUNT, 1, 1);
-  glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-}
-
-void GameLayer::OnImGuiRender() {}
 
 void GameLayer::OnDetach() { CloseAudioDevice(); }

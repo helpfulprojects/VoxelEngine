@@ -17,9 +17,6 @@ public:
   void OnUpdate(VoxelEngine::Timestep ts) override;
   void OnTick(VoxelEngine::Timestep ts) override;
   void OnEvent(VoxelEngine::Event &event) override;
-  void ActivateTnt();
-  void SpawnTnts();
-  virtual void OnImGuiRender() override;
   virtual void OnDetach() override;
   inline VoxelEngine::PerspectiveCamera &GetCamera() { return m_Camera; }
 
@@ -47,8 +44,8 @@ private:
   Sound m_FuseSound;
   Sound m_ExplosionSounds[MAX_EXPLOSION_SOUNDS] = {0};
   bool *m_ShouldPlayFuseAudio;
-  uint32_t *m_ChunksExplosionsCount;
-  uint32_t m_ChunksExplosionsCountSsbo;
+  bool *m_DoesCurrentFrameHaveExplosion;
+  uint32_t m_DoesCurrentFrameHaveExplosionSsbo;
   uint32_t m_CurrentExplosionSound = 0;
   bool m_UpdateTntPosition = true;
 };
