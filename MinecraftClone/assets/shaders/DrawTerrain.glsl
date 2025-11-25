@@ -115,7 +115,7 @@ out vec4 color;
 in vec2 v_TexCoord;
 in vec4 v_StaticLight;
 
-uniform sampler2D u_Texture;
+layout (binding = 0) uniform sampler2D u_Texture;
 
 void main()
 {

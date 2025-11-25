@@ -142,10 +142,10 @@ in fData{
 	vec4 v_ColorOverlay;
 } frag;
 
-uniform sampler2D u_Texture1;
+layout (binding = 1) uniform sampler2D u_Texture;
 
 void main()
 {
-	color = texture(u_Texture1,frag.v_TexCoord);
+	color = texture(u_Texture,frag.v_TexCoord);
 	color.rgb = mix(frag.v_ColorOverlay.rgb,color.rgb,frag.v_ColorOverlay.a);
 }

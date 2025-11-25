@@ -15,10 +15,15 @@ public:
     ~GameLayer();
     void OnAttach() override;
     void OnUpdate(VoxelEngine::Timestep ts) override;
-    void OnTick(VoxelEngine::Timestep ts) override;
+    void OnRender() override;
     void OnEvent(VoxelEngine::Event& event) override;
     virtual void OnDetach() override;
     inline VoxelEngine::PerspectiveCamera& GetCamera() { return m_Camera; }
+
+private:
+    void SetupShaders();
+    void SetupTextures();
+    void SetupStorageBuffers();
 
 private:
     VoxelEngine::ShaderLibrary m_ShaderLibrary;
@@ -57,4 +62,5 @@ private:
 
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_DrawIndirectBuffer;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_TntEntitiesSsbo;
+    VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_GenQuadsSsbo;
 };

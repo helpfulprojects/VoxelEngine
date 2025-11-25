@@ -6,18 +6,19 @@ namespace VoxelEngine {
 
 class VE_API Layer {
 public:
-  Layer(const std::string &name = "Layer");
-  virtual ~Layer();
-  virtual void OnAttach() {}
-  virtual void OnTick(Timestep ts) {}
-  virtual void OnDetach() {}
-  virtual void OnUpdate(Timestep ts) {}
-  virtual void OnImGuiRender() {}
-  virtual void OnEvent(Event &event) {}
+    Layer(const std::string& name = "Layer");
+    virtual ~Layer();
+    virtual void OnAttach() { }
+    virtual void OnTick(Timestep ts) { }
+    virtual void OnDetach() { }
+    virtual void OnUpdate(Timestep ts) { }
+    virtual void OnRender() { }
+    virtual void OnImGuiRender() { }
+    virtual void OnEvent(Event& event) { }
 
-  inline const std::string &GetName() const { return m_DebugName; }
+    inline const std::string& GetName() const { return m_DebugName; }
 
 private:
-  std::string m_DebugName;
+    std::string m_DebugName;
 };
 } // namespace VoxelEngine
