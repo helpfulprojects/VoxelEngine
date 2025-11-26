@@ -141,7 +141,6 @@
     <ClInclude Include="src\Layers\GameConfig.h" />
     <ClInclude Include="src\Layers\GameLayer.h" />
     <ClInclude Include="src\Overlays\DebugOverlay.h" />
-    <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample2.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample3.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample4.h" />
@@ -149,7 +148,6 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample6.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample7.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample8.h" />
-    <ClInclude Include="src\SimpleExamples\SimpleExample9.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp" />

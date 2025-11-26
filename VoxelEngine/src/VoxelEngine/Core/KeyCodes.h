@@ -2,10 +2,10 @@
 //	From glfw3.h
 #define VE_KEY_SPACE 32
 #define VE_KEY_APOSTROPHE 39 /* ' */
-#define VE_KEY_COMMA 44      /* , */
-#define VE_KEY_MINUS 45      /* - */
-#define VE_KEY_PERIOD 46     /* . */
-#define VE_KEY_SLASH 47      /* / */
+#define VE_KEY_COMMA 44 /* , */
+#define VE_KEY_MINUS 45 /* - */
+#define VE_KEY_PERIOD 46 /* . */
+#define VE_KEY_SLASH 47 /* / */
 #define VE_KEY_0 48
 #define VE_KEY_1 49
 #define VE_KEY_2 50
@@ -17,7 +17,7 @@
 #define VE_KEY_8 56
 #define VE_KEY_9 57
 #define VE_KEY_SEMICOLON 59 /* ; */
-#define VE_KEY_EQUAL 61     /* = */
+#define VE_KEY_EQUAL 61 /* = */
 #define VE_KEY_A 65
 #define VE_KEY_B 66
 #define VE_KEY_C 67
@@ -44,12 +44,12 @@
 #define VE_KEY_X 88
 #define VE_KEY_Y 89
 #define VE_KEY_Z 90
-#define VE_KEY_LEFT_BRACKET 91  /* [ */
-#define VE_KEY_BACKSLASH 92     /* \ */
+#define VE_KEY_LEFT_BRACKET 91 /* [ */
+#define VE_KEY_BACKSLASH 92 /* \ */
 #define VE_KEY_RIGHT_BRACKET 93 /* ] */
-#define VE_KEY_GRAVE_ACCENT 96  /* ` */
-#define VE_KEY_WORLD_1 161      /* non-US #1 */
-#define VE_KEY_WORLD_2 162      /* non-US #2 */
+#define VE_KEY_GRAVE_ACCENT 96 /* ` */
+#define VE_KEY_WORLD_1 161 /* non-US #1 */
+#define VE_KEY_WORLD_2 162 /* non-US #2 */
 
 /* Function keys */
 #define VE_KEY_ESCAPE 256

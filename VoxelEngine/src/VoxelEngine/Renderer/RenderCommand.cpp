@@ -2,5 +2,5 @@
 #include "RenderCommand.h"
 
 namespace VoxelEngine {
-RendererAPI *RenderCommand::s_RendererAPI = new RendererAPI;
+RendererAPI* RenderCommand::s_RendererAPI = new RendererAPI;
 }

@@ -18,9 +18,6 @@
     <ClInclude Include="src\Overlays\DebugOverlay.h">
       <Filter>Overlays</Filter>
     </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample1.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
     <ClInclude Include="src\SimpleExamples\SimpleExample2.h">
       <Filter>SimpleExamples</Filter>
     </ClInclude>
@@ -42,7 +39,6 @@
     <ClInclude Include="src\SimpleExamples\SimpleExample8.h">
       <Filter>SimpleExamples</Filter>
     </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample9.h" />
     <ClInclude Include="src\Layers\GameConfig.h" />
     <ClInclude Include="assets\shaders\compute\initTntData.glsl" />
   </ItemGroup>
