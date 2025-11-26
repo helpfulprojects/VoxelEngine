@@ -16,4 +16,4 @@
 	url = https://github.com/helpfulprojects/tracy
 [submodule "VoxelEngine/vendor/raudio"]
 	path = VoxelEngine/vendor/raudio
-	url = git@github.com:helpfulprojects/raudio.git
+	url = https://github.com/helpfulprojects/raudio
