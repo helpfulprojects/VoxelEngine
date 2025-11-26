@@ -29,7 +29,7 @@ void Application::Run()
     while (m_Running) {
         VE_PROFILE_SCOPE("RunLoop");
         float time = (float)glfwGetTime(); // Platform::GetTime
-        Timestep timestep = time - m_LastFrameTime;
+        Timestep timestep = std::clamp(time - m_LastFrameTime, 0.001f, 0.1f);
         m_LastFrameTime = time;
 
         {

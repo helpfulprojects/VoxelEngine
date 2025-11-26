@@ -2,27 +2,6 @@
 #define GRAVITY -28.57
 #define TNT_EXPLOSION_STRENGTH 4
 
-struct Chunk {
-	uint x;
-	uint y;
-	uint z;
-	bool hasExplosion;
-	uint blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
-	uint explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
-};
-
-struct ChunkQuads {
-	uint blockQuads[FACES_PER_CHUNK];
-};
-
-struct TntEntity{
-	vec3 position;
-	vec3 velocity;
-	float secondsUntilExplode;
-	bool visible; 
-	bool justBlewUp; 
-};
-
 #define air 0
 #define dirt_block 1
 #define grass_block 2
@@ -50,9 +29,24 @@ struct TntEntity{
 uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
 	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 }
-vec3 hash33(vec3 p)
-{
-    p = fract(p * 0.1031);
-    p += dot(p, p.yzx + 33.33);
-    return fract((p.xxy + p.yzz) * p.zyx);
-}
+
+struct Chunk {
+	uint x;
+	uint y;
+	uint z;
+	bool hasExplosion;
+	uint blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
+	uint explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH];
+};
+
+struct ChunkQuads {
+	uint blockQuads[FACES_PER_CHUNK];
+};
+
+struct TntEntity{
+	vec3 position;
+	vec3 velocity;
+	float secondsUntilExplode;
+	bool visible; 
+	bool justBlewUp; 
+};

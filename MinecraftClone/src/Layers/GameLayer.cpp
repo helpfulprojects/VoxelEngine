@@ -309,9 +309,10 @@ void GameLayer::SetupShaders()
     m_ShaderLibrary.SetGlobalIncludeSource(SHADERS_GLOBAL_INCLUDE_SOURCE);
     m_ShaderLibrary.SetGlobalIncludeFile("assets/shaders/globalInclude.glsl");
 
-    m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl");
     m_ShaderLibrary.Load("assets/shaders/drawTerrain.glsl");
     m_ShaderLibrary.Load("assets/shaders/tntInstancing.glsl");
+
+    m_ShaderLibrary.Load("assets/shaders/compute/generateBlocks.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/updateTntTransforms.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/propagateExplosions.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/generateQuads.glsl");

@@ -54,6 +54,14 @@ uint startingChunkX = (gl_WorkGroupID.x)*2+uint(u_Offset.x);
 uint startingChunkY = (gl_WorkGroupID.y)*2+uint(u_Offset.y);
 uint startingChunkZ = (gl_WorkGroupID.z)*2+uint(u_Offset.z);
 
+//Hash function from David Hoskins https://jakerunzer.com/posts/shader-hash-functions
+float hash13(vec3 p3)
+{
+	p3  = fract(p3 * .1031);
+    p3 += dot(p3, p3.zyx + 31.32);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
 #line 0
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
@@ -103,8 +111,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 			tnts[tntIndex].velocity = vec3(0,5,0);
 			tnts[tntIndex].visible = true;
 			tnts[tntIndex].justBlewUp = true;
-			vec3 rand = hash33(blockOrigin);
-			tnts[tntIndex].secondsUntilExplode = 0.5+fract(rand.x+rand.y+rand.z);
+			tnts[tntIndex].secondsUntilExplode = 0.5+hash13(blockOrigin);
 		}
 		if(blockType!=bedrock_block){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
