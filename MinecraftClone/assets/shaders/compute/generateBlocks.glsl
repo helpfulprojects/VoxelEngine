@@ -89,7 +89,7 @@ float cnoise(vec2 P)
 }
 
 void main() {
-	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
+	uint chunkIndex = getChunkIndex(gl_WorkGroupID.x,gl_WorkGroupID.y,gl_WorkGroupID.z);
 	shouldRedrawWorld = true;
 	shouldRedrawChunk[chunkIndex] = true;
 	int index = 0;
@@ -108,7 +108,7 @@ void main() {
 			uint blockZ = z+chunkZ;
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
-			//int surfaceLevel = int(noise * amplitude + baseHeight);
+			//int surfaceLevel = int(noise * amplitude + baseHeight); // I used this for non flat terrain
 			int surfaceLevel = SURFACE_LEVEL;
 
 			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){

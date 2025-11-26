@@ -17,6 +17,19 @@ GameLayer::GameLayer()
     SetupShaders();
     SetupTextures();
     SetupStorageBuffers();
+    {
+        VE_PROFILE_SCOPE("Compute shader: Init tnt data");
+        m_ShaderLibrary.Get("initTntData")->Bind();
+        glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
+
+    {
+        VE_PROFILE_SCOPE("Compute shader: Clear explosions");
+        m_ShaderLibrary.Get("clearExplosions")->Bind();
+        glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
 
     {
         VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
@@ -70,7 +83,7 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts)
     }
 
     {
-        VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
+        VE_PROFILE_SCOPE("Compute shader: Tnt explosion timer decrease");
         auto updateTntTransformsCompute = m_ShaderLibrary.Get("explodeTnts");
         updateTntTransformsCompute->Bind();
         updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
@@ -130,19 +143,21 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts)
         *m_DoesCurrentFrameHaveExplosion = false;
     }
 
-    if (m_UpdateTntPosition) {
-        {
-            VE_PROFILE_SCOPE("Compute shader: update tnt transforms");
-            auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
-            updateTntTransformsCompute->Bind();
-            updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
-            glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
-            glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        }
+    {
+        VE_PROFILE_SCOPE("Compute shader: Update tnt transforms");
+        auto updateTntTransformsCompute = m_ShaderLibrary.Get("updateTntTransforms");
+        updateTntTransformsCompute->Bind();
+        updateTntTransformsCompute->UploadUniformFloat("u_DeltaTime", ts);
+        glDispatchCompute(ceil(TNT_COUNT / 256.0f), 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
-    m_ShaderLibrary.Get("clearExplosions")->Bind();
-    glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    {
+        VE_PROFILE_SCOPE("Compute shader: Clear explosions");
+        m_ShaderLibrary.Get("clearExplosions")->Bind();
+        glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    }
 
     {
         VE_PROFILE_SCOPE("Compute Shader: Generate quads");
@@ -304,6 +319,7 @@ void GameLayer::SetupShaders()
     m_ShaderLibrary.Load("assets/shaders/compute/clearExplosions.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/activateTnt.glsl");
     m_ShaderLibrary.Load("assets/shaders/compute/explodeTnts.glsl");
+    m_ShaderLibrary.Load("assets/shaders/compute/initTntData.glsl");
 }
 
 void GameLayer::SetupTextures()

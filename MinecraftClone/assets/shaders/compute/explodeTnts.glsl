@@ -16,7 +16,6 @@ layout(std430, binding = 6) buffer buffer6
 uniform float u_DeltaTime;
 
 void main() {
-	//uint index = gl_WorkGroupID.x*2+gl_LocalInvocationIndex;
 	uint index = gl_GlobalInvocationID.x;
 	if(index>=TNT_COUNT){
 		return;

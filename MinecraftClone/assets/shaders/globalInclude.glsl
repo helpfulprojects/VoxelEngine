@@ -47,12 +47,6 @@ struct TntEntity{
 #define tnt_top 6
 #define bedrock 7
 
-#define MASK_3_BITS  0x7u
-#define MASK_4_BITS  0xFu
-#define MASK_7_BITS  0x7Fu
-#define MASK_8_BITS  0xFFu
-#define MASK_24_BITS 0xFFFFFFu
-
 uint getChunkIndex(uint chunkX, uint chunkY, uint chunkZ){
 	return chunkX+chunkY*WORLD_WIDTH+chunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 }

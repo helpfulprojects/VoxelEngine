@@ -65,14 +65,13 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<14,chunkIndex,tntIndex<<3|(TNT_EXPLOSION_STRENGTH+1));
 	while(front<back){
 		Node node = queue.nodes[front++];
+		uint x = bitfieldExtract(node.localIndex3D,0,4);
+		uint y = bitfieldExtract(node.localIndex3D,4,4);
+		uint z = bitfieldExtract(node.localIndex3D,8,4);
 
-		uint x = (node.localIndex3D) & MASK_4_BITS;
-		uint y = (node.localIndex3D >> 4) & MASK_4_BITS;
-		uint z = (node.localIndex3D >> 8) & MASK_4_BITS;
-
-		uint chunkX = (node.chunkIndex3D) & MASK_7_BITS;
-		uint chunkY = (node.chunkIndex3D >> 7) & MASK_7_BITS;
-		uint chunkZ = (node.chunkIndex3D >> 14) & MASK_7_BITS;
+		uint chunkX = bitfieldExtract(node.chunkIndex3D,0,7);
+		uint chunkY = bitfieldExtract(node.chunkIndex3D,7,7);
+		uint chunkZ = bitfieldExtract(node.chunkIndex3D,14,7);
 
 		uint chunkIndex = node.chunkIndex;
 		shouldRedrawChunk[chunkIndex] = true;
@@ -110,7 +109,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		if(blockType!=bedrock_block){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 		}
-		uint explosionValue = (node.previousValue&MASK_3_BITS) -1;
+		uint explosionValue = bitfieldExtract(node.previousValue,0,3)-1;
 		uint tntIndex = node.previousValue>>3;
 		chunksData[chunkIndex].explosions[x][y][z] = tntIndex<<3|explosionValue;
 
@@ -139,7 +138,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 					uint neighbourChunkIndex = neighbourChunk3DIndex.x
 										 + neighbourChunk3DIndex.y * WORLD_WIDTH
 										 + neighbourChunk3DIndex.z * WORLD_WIDTH * WORLD_HEIGHT;
-					if((chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z]&MASK_3_BITS) < explosionValue-1){
+					if(bitfieldExtract(chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z],0,3) < explosionValue-1){
 						chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] = explosionValue-1;
 						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<14,neighbourChunkIndex,tntIndex<<3|explosionValue);
 					}
@@ -158,7 +157,7 @@ void main() {
 	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
 		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
 			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
-				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z]&MASK_3_BITS;
+				uint explosionValue = bitfieldExtract(chunksData[chunkIndex].explosions[x][y][z],0,3);
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);
 				}

@@ -35,11 +35,11 @@ ivec3 offsets[6] = ivec3[6](
 
 int blockTypeAndNormalToTextureId(uint blockType, int normal){
 	switch(blockType){
-	case 0://AIR
+	case air:
 		return dirt;
-	case 1://DIRT
+	case dirt_block:
 		return dirt;
-	case 2://GRASS_BLOCK
+	case grass_block:
 		switch(normal){
 		case 0://positive y
 			return grass_block_top;
@@ -54,7 +54,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return grass_block_side;
 		}
-	case 3://TNT
+	case tnt_block:
 		switch(normal){
 		case 0://positive y
 			return tnt_top;
@@ -69,7 +69,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return tnt_side;
 		}
-	case 4://BEDROCK
+	case bedrock_block:
 		return bedrock;
 	case stone_block:
 		return stone;
@@ -77,7 +77,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 }
 
 void main() {
-	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
+	uint chunkIndex = getChunkIndex(gl_WorkGroupID.x,gl_WorkGroupID.y,gl_WorkGroupID.z);
 	if(!shouldRedrawChunk[chunkIndex]){
 		return;	
 	}
@@ -108,9 +108,7 @@ void main() {
 															);	
 						if(!(neighbourChunkPosition.x>=WORLD_WIDTH ||neighbourChunkPosition.y>=WORLD_HEIGHT ||neighbourChunkPosition.z>=WORLD_WIDTH ||
 						neighbourChunkPosition.x<0 ||neighbourChunkPosition.y<0 ||neighbourChunkPosition.z<0)){
-							uint neighbourChunkIndex = neighbourChunkPosition.x
-												 + neighbourChunkPosition.y * WORLD_WIDTH
-												 + neighbourChunkPosition.z * WORLD_WIDTH * WORLD_HEIGHT;
+							uint neighbourChunkIndex = getChunkIndex(neighbourChunkPosition.x,neighbourChunkPosition.y,neighbourChunkPosition.z);
 							neighbourType = chunksData[neighbourChunkIndex]
 								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 						}

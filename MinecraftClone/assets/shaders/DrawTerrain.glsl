@@ -84,12 +84,12 @@ void main()
 	const uint packedData = chunksQuads[chunkId].blockQuads[index];
 	const int currVertexID = gl_VertexID % 6;
 
-	const uint x = (packedData) & MASK_4_BITS;
-	const uint y = (packedData >> 4) & MASK_4_BITS;
-	const uint z = (packedData >> 8) & MASK_4_BITS;
+	const uint x = bitfieldExtract(packedData,0,4);
+	const uint y = bitfieldExtract(packedData,4,4);
+	const uint z = bitfieldExtract(packedData,8,4);
 
-	const uint normalId = (packedData >> 12) & MASK_3_BITS;
-	const uint texId = (packedData >> 15) & MASK_4_BITS;
+	const uint normalId = bitfieldExtract(packedData,12,3);
+	const uint texId = bitfieldExtract(packedData,15,4);
 	
 	vec3 position = vec3(x+chunkX, y+chunkY, z+chunkZ);
 

@@ -25,9 +25,9 @@ void main() {
 		vec3 chunkPosition = floor(tnts[index].position/16);
 		ivec3 localPos = ivec3(tnts[index].position-chunkPosition*16);
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
-		uint explosionValue = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]&MASK_3_BITS;
+		uint explosionValue = bitfieldExtract(chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z],0,3);
 		if(explosionValue!=0 && !tnts[index].justBlewUp){
-			uint otherTntId = chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z]>>3;
+			uint otherTntId = bitfieldExtract(chunksData[chunkIndex].explosions[localPos.x][localPos.y][localPos.z],3,29);
 			vec3 otherTntPosition = tnts[otherTntId].position;
 			vec3 diff = tnts[index].position - otherTntPosition;
 			vec3 diffDirection = normalize(diff);
