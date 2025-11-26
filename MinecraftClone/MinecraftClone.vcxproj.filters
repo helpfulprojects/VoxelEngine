@@ -7,9 +7,6 @@
     <Filter Include="Overlays">
       <UniqueIdentifier>{FAD240D3-E69F-9BDE-0FB9-8986FBE4D06C}</UniqueIdentifier>
     </Filter>
-    <Filter Include="SimpleExamples">
-      <UniqueIdentifier>{4E5F3257-3A2D-265D-23C1-96830F2E02C2}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Layers\GameLayer.h">
@@ -18,29 +15,9 @@
     <ClInclude Include="src\Overlays\DebugOverlay.h">
       <Filter>Overlays</Filter>
     </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample2.h">
-      <Filter>SimpleExamples</Filter>
+    <ClInclude Include="src\Layers\GameConfig.h">
+      <Filter>Layers</Filter>
     </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample3.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample4.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample5.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample6.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample7.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\SimpleExamples\SimpleExample8.h">
-      <Filter>SimpleExamples</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Layers\GameConfig.h" />
-    <ClInclude Include="assets\shaders\compute\initTntData.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">
@@ -50,9 +27,5 @@
     <ClCompile Include="src\Overlays\DebugOverlay.cpp">
       <Filter>Overlays</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="assets\shaders\HideTntWall.glsl" />
-    <None Include="assets\shaders\compute\HideTnts.glsl" />
   </ItemGroup>
 </Project>
