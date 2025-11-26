@@ -419,67 +419,38 @@ void GameLayer::SetupStorageBuffers()
         uint32_t blockQuads[FACES_PER_CHUNK];
     };
 
-    struct FaceData {
-        uint32_t packedPos;
-    };
-
-    struct FaceModel {
-        const glm::vec2* texCoordsOrigin;
-    };
     struct PropagationQueueNode {
         uint32_t localIndex3DPacked;
         uint32_t chunkIndex3DPacked;
         uint32_t chunkIndex;
         uint32_t previousValue;
     };
-    uint32_t persistentReadBitmask = GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-    uint32_t persistentWriteBitmask = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    uint32_t PERSISTENT_READ_BITMASK = GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
+    uint32_t PERSISTENT_WRITE_BITMASK = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
-    int queueCap = 63;
-    m_TntExplosionsQueues = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr,
-        HALF_WORLD_WIDTH * HALF_WORLD_WIDTH * HALF_WORLD_HEIGHT * queueCap * sizeof(PropagationQueueNode),
-        GL_DYNAMIC_STORAGE_BIT);
-    m_TntExplosionsQueues->BindBufferBase(7);
-
-    m_ChunksSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr, TOTAL_CHUNKS * sizeof(Chunk), GL_DYNAMIC_STORAGE_BIT);
-    m_ChunksSsbo->BindBufferBase(0);
-
+    /////////////////
+    /// Render
+    /////////////////
     m_RenderDataSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         nullptr, TOTAL_CHUNKS * sizeof(uint32_t),
-        persistentReadBitmask | GL_DYNAMIC_STORAGE_BIT);
+        PERSISTENT_READ_BITMASK | GL_DYNAMIC_STORAGE_BIT);
     m_ChunksQuadCount = static_cast<uint32_t*>(m_RenderDataSsbo->MapBufferRange(
-        0, TOTAL_CHUNKS * sizeof(uint32_t), persistentReadBitmask));
+        0, TOTAL_CHUNKS * sizeof(uint32_t), PERSISTENT_READ_BITMASK));
     m_RenderDataSsbo->BindBufferBase(5);
 
-    m_HasWorldRedrawnSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+    m_ShouldRedrawWorldSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         nullptr, sizeof(uint32_t),
-        persistentWriteBitmask | GL_DYNAMIC_STORAGE_BIT);
-    m_ShouldRedrawWorld = static_cast<bool*>(m_HasWorldRedrawnSsbo->MapBufferRange(
-        0, sizeof(uint32_t), persistentWriteBitmask));
-    m_HasWorldRedrawnSsbo->BindBufferBase(8);
+        PERSISTENT_WRITE_BITMASK | GL_DYNAMIC_STORAGE_BIT);
+    m_ShouldRedrawWorld = static_cast<bool*>(m_ShouldRedrawWorldSsbo->MapBufferRange(
+        0, sizeof(uint32_t), PERSISTENT_WRITE_BITMASK));
+    m_ShouldRedrawWorldSsbo->BindBufferBase(8);
 
-    m_HasChunkRedrawnSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+    m_ShouldRedrawChunkSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         nullptr, TOTAL_CHUNKS * sizeof(uint32_t),
-        persistentWriteBitmask | GL_DYNAMIC_STORAGE_BIT);
-    m_ShouldRedrawChunk = static_cast<uint32_t*>(m_HasChunkRedrawnSsbo->MapBufferRange(
-        0, TOTAL_CHUNKS * sizeof(uint32_t), persistentWriteBitmask));
-    m_HasChunkRedrawnSsbo->BindBufferBase(9);
-
-    m_HasTntFuseLitSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr, sizeof(uint32_t),
-        persistentWriteBitmask | GL_DYNAMIC_STORAGE_BIT);
-    m_ShouldPlayFuseAudio = static_cast<bool*>(m_HasTntFuseLitSsbo->MapBufferRange(
-        0, sizeof(uint32_t), persistentWriteBitmask));
-    m_HasTntFuseLitSsbo->BindBufferBase(10);
-
-    m_DoesCurrentFrameHaveExplosionSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr, sizeof(uint32_t),
-        persistentWriteBitmask | GL_DYNAMIC_STORAGE_BIT);
-    m_DoesCurrentFrameHaveExplosion = static_cast<bool*>(m_DoesCurrentFrameHaveExplosionSsbo->MapBufferRange(
-        0, sizeof(uint32_t), persistentWriteBitmask));
-    m_DoesCurrentFrameHaveExplosionSsbo->BindBufferBase(11);
+        PERSISTENT_WRITE_BITMASK | GL_DYNAMIC_STORAGE_BIT);
+    m_ShouldRedrawChunk = static_cast<uint32_t*>(m_ShouldRedrawChunkSsbo->MapBufferRange(
+        0, TOTAL_CHUNKS * sizeof(uint32_t), PERSISTENT_WRITE_BITMASK));
+    m_ShouldRedrawChunkSsbo->BindBufferBase(9);
 
     m_GenQuadsSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         nullptr,
@@ -487,6 +458,51 @@ void GameLayer::SetupStorageBuffers()
         GL_DYNAMIC_STORAGE_BIT);
     m_GenQuadsSsbo->BindBufferBase(1);
 
+    m_DrawIndirectBuffer = VoxelEngine::StorageBuffer::Create(GL_DRAW_INDIRECT_BUFFER,
+        nullptr, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand),
+        PERSISTENT_WRITE_BITMASK | GL_DYNAMIC_STORAGE_BIT);
+    m_Cmd = static_cast<DrawArraysIndirectCommand*>(m_DrawIndirectBuffer->MapBufferRange(
+        0, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand), PERSISTENT_WRITE_BITMASK));
+    m_DrawIndirectBuffer->Bind();
+
+    /////////////////
+    /// Tnts
+    /////////////////
+    m_TntEntitiesSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+        nullptr, TNT_COUNT * sizeof(TntEntity), GL_DYNAMIC_STORAGE_BIT);
+    m_TntEntitiesSsbo->BindBufferBase(6);
+
+    int MAX_PROPAGATION_QUEUE_SIZE = 63;
+    m_TntExplosionsQueues = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+        nullptr,
+        HALF_WORLD_WIDTH * HALF_WORLD_WIDTH * HALF_WORLD_HEIGHT * MAX_PROPAGATION_QUEUE_SIZE * sizeof(PropagationQueueNode),
+        GL_DYNAMIC_STORAGE_BIT);
+    m_TntExplosionsQueues->BindBufferBase(7);
+
+    m_ChunksSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+        nullptr, TOTAL_CHUNKS * sizeof(Chunk), GL_DYNAMIC_STORAGE_BIT);
+    m_ChunksSsbo->BindBufferBase(0);
+
+    /////////////////
+    /// Audio
+    /////////////////
+    m_HasTntFuseLitSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+        nullptr, sizeof(uint32_t),
+        PERSISTENT_WRITE_BITMASK | GL_DYNAMIC_STORAGE_BIT);
+    m_ShouldPlayFuseAudio = static_cast<bool*>(m_HasTntFuseLitSsbo->MapBufferRange(
+        0, sizeof(uint32_t), PERSISTENT_WRITE_BITMASK));
+    m_HasTntFuseLitSsbo->BindBufferBase(10);
+
+    m_DoesCurrentFrameHaveExplosionSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
+        nullptr, sizeof(uint32_t),
+        PERSISTENT_WRITE_BITMASK | GL_DYNAMIC_STORAGE_BIT);
+    m_DoesCurrentFrameHaveExplosion = static_cast<bool*>(m_DoesCurrentFrameHaveExplosionSsbo->MapBufferRange(
+        0, sizeof(uint32_t), PERSISTENT_WRITE_BITMASK));
+    m_DoesCurrentFrameHaveExplosionSsbo->BindBufferBase(11);
+
+    /////////////////
+    /// Textures
+    /////////////////
     const std::vector<glm::vec2>& subImagesCoordsList = m_TerrainAtlas->GetSubImagesCoordsList();
     m_QuadInfoSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         subImagesCoordsList.data(), subImagesCoordsList.size() * sizeof(glm::vec2), 0);
@@ -502,15 +518,4 @@ void GameLayer::SetupStorageBuffers()
     m_TextureOffsetSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         textureOffsetsData, sizeof(textureOffsetsData), 0);
     m_TextureOffsetSsbo->BindBufferBase(3);
-
-    m_DrawIndirectBuffer = VoxelEngine::StorageBuffer::Create(GL_DRAW_INDIRECT_BUFFER,
-        nullptr, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand),
-        persistentWriteBitmask | GL_DYNAMIC_STORAGE_BIT);
-    m_Cmd = static_cast<DrawArraysIndirectCommand*>(m_DrawIndirectBuffer->MapBufferRange(
-        0, TOTAL_CHUNKS * sizeof(DrawArraysIndirectCommand), persistentWriteBitmask));
-    m_DrawIndirectBuffer->Bind();
-
-    m_TntEntitiesSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr, TNT_COUNT * sizeof(TntEntity), GL_DYNAMIC_STORAGE_BIT);
-    m_TntEntitiesSsbo->BindBufferBase(6);
 }

@@ -53,8 +53,8 @@ private:
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_TntExplosionsQueues;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_ChunksSsbo;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_RenderDataSsbo;
-    VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_HasWorldRedrawnSsbo;
-    VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_HasChunkRedrawnSsbo;
+    VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_ShouldRedrawWorldSsbo;
+    VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_ShouldRedrawChunkSsbo;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_HasTntFuseLitSsbo;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_DoesCurrentFrameHaveExplosionSsbo;
     VoxelEngine::Ref<VoxelEngine::StorageBuffer> m_QuadInfoSsbo;
