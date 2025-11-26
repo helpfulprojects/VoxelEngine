@@ -1,4 +1,6 @@
 #type compute
+#version 430 core
+#includeGlobalSource
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -12,17 +14,9 @@ layout(std430, binding = 1) buffer buffer1
 {
 	ChunkQuads chunksQuads[]; 
 };
-layout(std430, binding = 4) buffer buffer4
-{
-	uint debugBuffer[];
-};
 layout(std430, binding = 5) buffer buffer5
 {
 	uint renderData[];
-};
-layout(std430, binding = 8) buffer buffer8
-{
-	bool shouldRedrawWorld; 
 };
 
 layout(std430, binding = 9) buffer buffer9
@@ -41,11 +35,11 @@ ivec3 offsets[6] = ivec3[6](
 
 int blockTypeAndNormalToTextureId(uint blockType, int normal){
 	switch(blockType){
-	case 0://AIR
+	case air:
 		return dirt;
-	case 1://DIRT
+	case dirt_block:
 		return dirt;
-	case 2://GRASS_BLOCK
+	case grass_block:
 		switch(normal){
 		case 0://positive y
 			return grass_block_top;
@@ -60,7 +54,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return grass_block_side;
 		}
-	case 3://TNT
+	case tnt_block:
 		switch(normal){
 		case 0://positive y
 			return tnt_top;
@@ -75,7 +69,7 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 		case 5://negative z
 			return tnt_side;
 		}
-	case 4://BEDROCK
+	case bedrock_block:
 		return bedrock;
 	case stone_block:
 		return stone;
@@ -83,24 +77,14 @@ int blockTypeAndNormalToTextureId(uint blockType, int normal){
 }
 
 void main() {
-	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
-//	if(!shouldRedrawWorld){
-//		return;
-//	}
+	uint chunkIndex = getChunkIndex(gl_WorkGroupID.x,gl_WorkGroupID.y,gl_WorkGroupID.z);
 	if(!shouldRedrawChunk[chunkIndex]){
-		//renderData[chunkIndex] = 0;
 		return;	
 	}
-	//chunksData[chunkIndex].shouldRedraw = false;
-	//renderData[chunkIndex] = 0;
-//	for (int i = 0; i < FACES_PER_CHUNK; ++i) {
-//		chunksQuads[chunkIndex].blockQuads[i] = 0u;
-//	}
-//
 	int index = 0;
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int y=0;y<CHUNK_WIDTH;y++){
-			for(int z=0;z<CHUNK_WIDTH;z++){
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
+			for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
 				uint blockType = chunksData[chunkIndex].blockTypes[x][y][z];
 				if(blockType != 0){
 					ivec3 blockLocalPosition = ivec3(x,y,z);
@@ -110,12 +94,12 @@ void main() {
 						ivec3 neighbourChunkOffset = ivec3(0);
 
 						// Handle boundaries
-						if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_WIDTH - 1; neighbourChunkOffset.x = -1; }
-						else if (neighbourPos.x >= CHUNK_WIDTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
-						if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_WIDTH - 1; neighbourChunkOffset.y = -1; }
-						else if (neighbourPos.y >= CHUNK_WIDTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
-						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
-						else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
+						if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.x = -1; }
+						else if (neighbourPos.x >= CHUNK_SIDE_LENGTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
+						if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.y = -1; }
+						else if (neighbourPos.y >= CHUNK_SIDE_LENGTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
+						if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.z = -1; }
+						else if (neighbourPos.z >= CHUNK_SIDE_LENGTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
 						uint neighbourType = 1;
 						uvec3 neighbourChunkPosition = uvec3( gl_WorkGroupID.x + neighbourChunkOffset.x,
@@ -124,9 +108,7 @@ void main() {
 															);	
 						if(!(neighbourChunkPosition.x>=WORLD_WIDTH ||neighbourChunkPosition.y>=WORLD_HEIGHT ||neighbourChunkPosition.z>=WORLD_WIDTH ||
 						neighbourChunkPosition.x<0 ||neighbourChunkPosition.y<0 ||neighbourChunkPosition.z<0)){
-							uint neighbourChunkIndex = neighbourChunkPosition.x
-												 + neighbourChunkPosition.y * WORLD_WIDTH
-												 + neighbourChunkPosition.z * WORLD_WIDTH * WORLD_HEIGHT;
+							uint neighbourChunkIndex = getChunkIndex(neighbourChunkPosition.x,neighbourChunkPosition.y,neighbourChunkPosition.z);
 							neighbourType = chunksData[neighbourChunkIndex]
 								.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 						}
@@ -136,10 +118,6 @@ void main() {
 						}
 					}
 
-//					for(int n = 0;n<6;n++){
-//						chunksQuads[chunkIndex].blockQuads[index] = blockLocalPositionBinary | n << 16 | 0 << 19 ;
-//						index++;
-//					}
 				}
 
 			}

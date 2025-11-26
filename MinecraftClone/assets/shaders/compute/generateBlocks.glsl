@@ -1,19 +1,12 @@
 #type compute
+#version 430 core
+#includeGlobalSource
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(std430, binding = 0) buffer buffer0 
 {
 	Chunk chunksData[]; 
-};
-
-layout(std430, binding = 1) buffer buffer1 
-{
-	ChunkQuads chunksQuads[]; 
-};
-layout(std430, binding = 4) buffer buffer4
-{
-	uint debugBuffer[];
 };
 
 layout(std430, binding = 8) buffer buffer8
@@ -26,14 +19,6 @@ layout(std430, binding = 9) buffer buffer9
 	bool shouldRedrawChunk[]; 
 };
 
-ivec3 offsets[6] = ivec3[6](
-    ivec3(0, 1, 0),
-    ivec3(0, -1, 0),
-    ivec3(1, 0, 0),
-    ivec3(-1, 0, 0),
-    ivec3(0, 0, 1),
-    ivec3(0, 0, -1)
-);
 //
 // GLSL textureless classic 2D noise "cnoise",
 // with an RSL-style periodic variant "pnoise".
@@ -103,10 +88,8 @@ float cnoise(vec2 P)
   return 2.3 * n_xy;
 }
 
-
-#define LIMIT_BLOCKS false
 void main() {
-	uint chunkIndex = gl_WorkGroupID.x+gl_WorkGroupID.y*WORLD_WIDTH+gl_WorkGroupID.z*WORLD_WIDTH*WORLD_HEIGHT;
+	uint chunkIndex = getChunkIndex(gl_WorkGroupID.x,gl_WorkGroupID.y,gl_WorkGroupID.z);
 	shouldRedrawWorld = true;
 	shouldRedrawChunk[chunkIndex] = true;
 	int index = 0;
@@ -115,21 +98,21 @@ void main() {
 	float amplitude = 20.0;     
 	float baseHeight = 150.0;
 
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int z=0;z<CHUNK_WIDTH;z++){
-			uint chunkX = gl_WorkGroupID.x * CHUNK_WIDTH;
-			uint chunkZ = gl_WorkGroupID.z * CHUNK_WIDTH;
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
+			uint chunkX = gl_WorkGroupID.x * CHUNK_SIDE_LENGTH;
+			uint chunkZ = gl_WorkGroupID.z * CHUNK_SIDE_LENGTH;
 			chunksData[chunkIndex].x = chunkX;
 			chunksData[chunkIndex].z = chunkZ;
 			uint blockX = x+chunkX;
 			uint blockZ = z+chunkZ;
 			//NOISE
 			float noise = cnoise(vec2(blockX, blockZ) * freq);
-			//int surfaceLevel = int(noise * amplitude + baseHeight);
-			int surfaceLevel = 100;
+			//int surfaceLevel = int(noise * amplitude + baseHeight); // I used this for non flat terrain
+			int surfaceLevel = SURFACE_LEVEL;
 
-			for(int y=0;y<CHUNK_WIDTH;y++){
-				uint chunkY = gl_WorkGroupID.y * CHUNK_WIDTH;
+			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
+				uint chunkY = gl_WorkGroupID.y * CHUNK_SIDE_LENGTH;
 				uint blockY = y+chunkY;
 				chunksData[chunkIndex].y = chunkY;
 				if(blockY == 0){
@@ -145,17 +128,10 @@ void main() {
 				} else{
 					chunksData[chunkIndex].blockTypes[x][y][z] = air;
 				}
-				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_HEIGHT &&
-						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_WIDTH &&
-						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_WIDTH){
-					if(
-							(LIMIT_BLOCKS && blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+1 && blockZ == DEFAULT_SPAWN.z+1)||
-							(blockY==surfaceLevel+1 && blockX == DEFAULT_SPAWN.x+2 && blockZ == DEFAULT_SPAWN.z+1)
-							){
+				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_SIDE_LENGTH &&
+						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_SIDE_LENGTH &&
+						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_SIDE_LENGTH){
 						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					}else if(!LIMIT_BLOCKS){
-						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
-					}
 				}
 
 				chunksData[chunkIndex].explosions[x][y][z] = 0;
@@ -163,10 +139,4 @@ void main() {
 			}
 		}
 	}
-//	if(gl_WorkGroupID.x == 32 && gl_WorkGroupID.z == 32){
-//		chunksData[chunkIndex].explosions[8][15][8] = TNT_EXPLOSION_STRENGTH;
-//		chunksData[chunkIndex].hasExplosion = true;
-//	}
-//
 }
-

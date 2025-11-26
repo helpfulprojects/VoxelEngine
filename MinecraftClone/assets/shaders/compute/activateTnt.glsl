@@ -1,4 +1,8 @@
 #type compute
+#version 430 core
+#includeGlobalSource
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(std430, binding = 0) buffer buffer0 
 {
@@ -26,8 +30,6 @@ layout(std430, binding = 10) buffer buffer10
 uniform vec3 u_CameraPos;
 uniform vec3 u_RayDirection;
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
-
 #line 0
 void main() {
 	float step = 0.1;
@@ -43,10 +45,10 @@ void main() {
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
 			vec3 blockOrigin = actualChunkPosition+localPos;	
 			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
-			int relY = int(blockOrigin.y - 100-1);
+			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
 			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
 
-			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;
+			int tntIndex = relY * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH + relZ * TNT_SIDE_LENGTH + relX;
 			tnts[tntIndex].position = blockOrigin;
 			tnts[tntIndex].velocity = vec3(0,6,0);
 			tnts[tntIndex].visible = true;
@@ -61,17 +63,17 @@ void main() {
 			shouldRedrawChunk[chunkIndex] = true;
 			if (localPos.x == 0 && chunkPosition.x > 0)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x - 1, chunkPosition.y, chunkPosition.z)] = true;
-			else if (localPos.x == CHUNK_WIDTH - 1)
+			else if (localPos.x == CHUNK_SIDE_LENGTH - 1)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x + 1, chunkPosition.y, chunkPosition.z)] = true;
 
 			if (localPos.y == 0 && chunkPosition.y > 0)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y - 1, chunkPosition.z)] = true;
-			else if (localPos.y == CHUNK_WIDTH - 1)
+			else if (localPos.y == CHUNK_SIDE_LENGTH - 1)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y + 1, chunkPosition.z)] = true;
 
 			if (localPos.z == 0 && chunkPosition.z > 0)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y, chunkPosition.z - 1)] = true;
-			else if (localPos.z == CHUNK_WIDTH - 1)
+			else if (localPos.z == CHUNK_SIDE_LENGTH - 1)
 				shouldRedrawChunk[getChunkIndex(chunkPosition.x, chunkPosition.y, chunkPosition.z + 1)] = true;
 			break;
 		}

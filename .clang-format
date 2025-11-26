@@ -1,1 +1,7 @@
+BasedOnStyle: WebKit
+
 SortIncludes: false
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+

@@ -43,6 +43,8 @@
       <Filter>SimpleExamples</Filter>
     </ClInclude>
     <ClInclude Include="src\SimpleExamples\SimpleExample9.h" />
+    <ClInclude Include="src\Layers\GameConfig.h" />
+    <ClInclude Include="assets\shaders\compute\initTntData.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Layers\GameLayer.cpp">

@@ -137,6 +137,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="assets\shaders\compute\initTntData.glsl" />
+    <ClInclude Include="src\Layers\GameConfig.h" />
     <ClInclude Include="src\Layers\GameLayer.h" />
     <ClInclude Include="src\Overlays\DebugOverlay.h" />
     <ClInclude Include="src\SimpleExamples\SimpleExample1.h" />

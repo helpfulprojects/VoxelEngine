@@ -1,9 +1,9 @@
 #type compute
+#version 430 core
+#includeGlobalSource
 
-layout(std430, binding = 0) buffer buffer0 
-{
-	Chunk chunksData[]; 
-};
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
 struct Node{
 uint localIndex3D;
 uint chunkIndex3D;
@@ -12,6 +12,11 @@ uint previousValue;
 };
 struct Queue{
 	Node nodes[63];
+};
+
+layout(std430, binding = 0) buffer buffer0 
+{
+	Chunk chunksData[]; 
 };
 layout(std430, binding = 6) buffer buffer6
 {
@@ -32,8 +37,9 @@ layout(std430, binding = 9) buffer buffer9
 };
 layout(std430, binding = 11) buffer buffer11
 {
-	uint chunksExplosionsCount[]; 
+	bool doesCurrentFrameHaveExplosion; 
 };
+
 uniform vec3 u_Offset;
 
 ivec3 offsets[6] = ivec3[6](
@@ -47,6 +53,7 @@ ivec3 offsets[6] = ivec3[6](
 uint startingChunkX = (gl_WorkGroupID.x)*2+uint(u_Offset.x);
 uint startingChunkY = (gl_WorkGroupID.y)*2+uint(u_Offset.y);
 uint startingChunkZ = (gl_WorkGroupID.z)*2+uint(u_Offset.z);
+
 #line 0
 void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	shouldRedrawWorld = true;
@@ -55,44 +62,43 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 	int front = 0;
 	int back = 0;
 	uint tntIndex = chunksData[chunkIndex].explosions[x][y][z]>>3;
-	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<11,chunkIndex,tntIndex<<3|(TNT_EXPLOSION_STRENGTH+1));
+	queue.nodes[back++] = Node(x | y<<4 | z <<8,startingChunkX | startingChunkY<<7 | startingChunkZ <<14,chunkIndex,tntIndex<<3|(TNT_EXPLOSION_STRENGTH+1));
 	while(front<back){
 		Node node = queue.nodes[front++];
+		uint x = bitfieldExtract(node.localIndex3D,0,4);
+		uint y = bitfieldExtract(node.localIndex3D,4,4);
+		uint z = bitfieldExtract(node.localIndex3D,8,4);
 
-		uint x = (node.localIndex3D) & MASK_4_BITS;
-		uint y = (node.localIndex3D >> 4) & MASK_4_BITS;
-		uint z = (node.localIndex3D >> 8) & MASK_4_BITS;
-
-		uint chunkX = (node.chunkIndex3D) & MASK_7_BITS;
-		uint chunkY = (node.chunkIndex3D >> 7) & MASK_4_BITS;
-		uint chunkZ = (node.chunkIndex3D >> 11) & MASK_7_BITS;
+		uint chunkX = bitfieldExtract(node.chunkIndex3D,0,7);
+		uint chunkY = bitfieldExtract(node.chunkIndex3D,7,7);
+		uint chunkZ = bitfieldExtract(node.chunkIndex3D,14,7);
 
 		uint chunkIndex = node.chunkIndex;
 		shouldRedrawChunk[chunkIndex] = true;
 		// If block is on the edge, flag the neighboring chunk(s)
 		if (x == 0 && chunkX > 0)
 			shouldRedrawChunk[getChunkIndex(chunkX - 1, chunkY, chunkZ)] = true;
-		else if (x == CHUNK_WIDTH - 1)
+		else if (x == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX + 1, chunkY, chunkZ)] = true;
 
-		if (y == 0 && chunkY > 0)
+		if (y == 0 && chunkY > 0 && chunkY<=WORLD_HEIGHT)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY - 1, chunkZ)] = true;
-		else if (y == CHUNK_WIDTH - 1)
+		else if (y == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY + 1, chunkZ)] = true;
 
 		if (z == 0 && chunkZ > 0)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ - 1)] = true;
-		else if (z == CHUNK_WIDTH - 1)
+		else if (z == CHUNK_SIDE_LENGTH - 1)
 			shouldRedrawChunk[getChunkIndex(chunkX, chunkY, chunkZ + 1)] = true;
 
 		int blockType = int(chunksData[chunkIndex].blockTypes[x][y][z]);
 		if(blockType == tnt_block){
-			vec3 blockOrigin = vec3(chunkX*CHUNK_WIDTH+x,chunkY*CHUNK_WIDTH+y,chunkZ*CHUNK_WIDTH+z);	
-			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x);
-			int relY = int(blockOrigin.y - 101);
-			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z);
+			vec3 blockOrigin = vec3(chunkX*CHUNK_SIDE_LENGTH+x,chunkY*CHUNK_SIDE_LENGTH+y,chunkZ*CHUNK_SIDE_LENGTH+z);	
+			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
+			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
+			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
 
-			int tntIndex = relY * TNT_WIDTH * TNT_WIDTH + relZ * TNT_WIDTH + relX;
+			int tntIndex = relY * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH + relZ * TNT_SIDE_LENGTH + relX;
 			tnts[tntIndex].position = blockOrigin;
 			tnts[tntIndex].velocity = vec3(0,5,0);
 			tnts[tntIndex].visible = true;
@@ -103,7 +109,7 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		if(blockType!=bedrock_block){
 			chunksData[chunkIndex].blockTypes[x][y][z] = 0;
 		}
-		uint explosionValue = (node.previousValue&MASK_3_BITS) -1;
+		uint explosionValue = bitfieldExtract(node.previousValue,0,3)-1;
 		uint tntIndex = node.previousValue>>3;
 		chunksData[chunkIndex].explosions[x][y][z] = tntIndex<<3|explosionValue;
 
@@ -115,12 +121,12 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 				ivec3 neighbourChunkOffset = ivec3(0);
 
 				// Handle boundaries
-				if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_WIDTH - 1; neighbourChunkOffset.x = -1; }
-				else if (neighbourPos.x >= CHUNK_WIDTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
-				if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_WIDTH - 1; neighbourChunkOffset.y = -1; }
-				else if (neighbourPos.y >= CHUNK_WIDTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
-				if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_WIDTH - 1; neighbourChunkOffset.z = -1; }
-				else if (neighbourPos.z >= CHUNK_WIDTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
+				if (neighbourPos.x < 0) { neighbourPos.x = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.x = -1; }
+				else if (neighbourPos.x >= CHUNK_SIDE_LENGTH) { neighbourPos.x = 0; neighbourChunkOffset.x = 1; }
+				if (neighbourPos.y < 0) { neighbourPos.y = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.y = -1; }
+				else if (neighbourPos.y >= CHUNK_SIDE_LENGTH) { neighbourPos.y = 0; neighbourChunkOffset.y = 1; }
+				if (neighbourPos.z < 0) { neighbourPos.z = CHUNK_SIDE_LENGTH - 1; neighbourChunkOffset.z = -1; }
+				else if (neighbourPos.z >= CHUNK_SIDE_LENGTH) { neighbourPos.z = 0; neighbourChunkOffset.z = 1; }
 
 				uvec3 neighbourChunk3DIndex = uvec3( chunkX + neighbourChunkOffset.x,
 									chunkY + neighbourChunkOffset.y,
@@ -132,29 +138,26 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 					uint neighbourChunkIndex = neighbourChunk3DIndex.x
 										 + neighbourChunk3DIndex.y * WORLD_WIDTH
 										 + neighbourChunk3DIndex.z * WORLD_WIDTH * WORLD_HEIGHT;
-					if((chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z]&MASK_3_BITS) < explosionValue-1){
+					if(bitfieldExtract(chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z],0,3) < explosionValue-1){
 						chunksData[neighbourChunkIndex].explosions[neighbourPos.x][neighbourPos.y][neighbourPos.z] = explosionValue-1;
-						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<11,neighbourChunkIndex,tntIndex<<3|explosionValue);
+						queue.nodes[back++] = Node(neighbourPos.x | neighbourPos.y<<4 | neighbourPos.z <<8,neighbourChunk3DIndex.x | neighbourChunk3DIndex.y<<7 | neighbourChunk3DIndex.z <<14,neighbourChunkIndex,tntIndex<<3|explosionValue);
 					}
-	//				neighbourType = chunksData[neighbourChunkIndex]
-	//					.blockTypes[neighbourPos.x][neighbourPos.y][neighbourPos.z];
 				}
 			}
 		}
 	}
 }
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 void main() {
 	uint chunkIndex = startingChunkX+startingChunkY*WORLD_WIDTH+startingChunkZ*WORLD_WIDTH*WORLD_HEIGHT;
 	if(!chunksData[chunkIndex].hasExplosion){
 		return;
 	}
-	chunksExplosionsCount[TOTAL_CHUNKS] = 1; // after the last chunk set to 1 to single there has been an explosion in one of the chunks
-	for(int x=0;x<CHUNK_WIDTH;x++){
-		for(int z=0;z<CHUNK_WIDTH;z++){
-			for(int y=0;y<CHUNK_WIDTH;y++){
-				uint explosionValue = chunksData[chunkIndex].explosions[x][y][z]&MASK_3_BITS;
+	doesCurrentFrameHaveExplosion = true; 
+	for(int x=0;x<CHUNK_SIDE_LENGTH;x++){
+		for(int z=0;z<CHUNK_SIDE_LENGTH;z++){
+			for(int y=0;y<CHUNK_SIDE_LENGTH;y++){
+				uint explosionValue = bitfieldExtract(chunksData[chunkIndex].explosions[x][y][z],0,3);
 				if(explosionValue==TNT_EXPLOSION_STRENGTH){
 					propagateExplosion(chunkIndex,x,y,z);
 				}

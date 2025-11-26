@@ -2,11 +2,7 @@
 #include "Layer.h"
 
 namespace VoxelEngine {
-	Layer::Layer(const std::string& debugName) : m_DebugName(debugName)
-	{
-	}
+Layer::Layer(const std::string &debugName) : m_DebugName(debugName) {}
 
-	Layer::~Layer()
-	{
-	}
-}
+Layer::~Layer() {}
+} // namespace VoxelEngine
