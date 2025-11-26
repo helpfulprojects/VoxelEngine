@@ -1,8 +1,13 @@
 #pragma once
-const int CHUNK_SIDE_LENGTH = 16;
-
+///////////////////////////////////////
+// You can change these to your liking
+/////////////////////////////////////
+const int HOW_MANY_TNT_TO_SPAWN = 10000000;
 const int WORLD_WIDTH = 35;
 const int WORLD_HEIGHT = 20;
+////////////////////////////////////
+
+const int CHUNK_SIDE_LENGTH = 16;
 
 const int TOTAL_CHUNKS = WORLD_WIDTH * WORLD_WIDTH * WORLD_HEIGHT;
 
@@ -10,7 +15,6 @@ const int BLOCKS_IN_CHUNK_COUNT = CHUNK_SIDE_LENGTH * CHUNK_SIDE_LENGTH * CHUNK_
 
 const int FACES_PER_CHUNK = BLOCKS_IN_CHUNK_COUNT;
 
-const int HOW_MANY_TNT_TO_SPAWN = 10000000;
 const int TNT_SIDE_LENGTH = glm::ceil(std::cbrt(HOW_MANY_TNT_TO_SPAWN));
 const int TNT_COUNT = TNT_SIDE_LENGTH * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH;
 
