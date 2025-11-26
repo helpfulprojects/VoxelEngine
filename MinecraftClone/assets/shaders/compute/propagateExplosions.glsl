@@ -102,9 +102,9 @@ void propagateExplosion(uint chunkIndex, int x, int y, int z){
 		int blockType = int(chunksData[chunkIndex].blockTypes[x][y][z]);
 		if(blockType == tnt_block){
 			vec3 blockOrigin = vec3(chunkX*CHUNK_SIDE_LENGTH+x,chunkY*CHUNK_SIDE_LENGTH+y,chunkZ*CHUNK_SIDE_LENGTH+z);	
-			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
-			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
-			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
+			int relX = int(blockOrigin.x - TNT_MIN_X);
+			int relY = int(blockOrigin.y - TNT_MIN_Y);
+			int relZ = int(blockOrigin.z - TNT_MIN_Z);
 
 			int tntIndex = relY * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH + relZ * TNT_SIDE_LENGTH + relX;
 			tnts[tntIndex].position = blockOrigin;

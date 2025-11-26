@@ -9,11 +9,11 @@
 GameLayer::GameLayer()
     : Layer("GameLayer")
     , m_Camera(70.0f, 0.1f, 2500.0f)
-    , m_CameraPosition(DEFAULT_SPAWN)
+    , m_CameraPosition(WORLD_CENTER)
 {
     VE_PROFILE_FUNCTION;
-    m_CameraPosition.y -= 150;
-    m_CameraPosition.x -= 300;
+    m_CameraPosition.y = SURFACE_LEVEL + 4;
+    m_CameraPosition.x = TNT_MIN_X - 10;
     SetupShaders();
     SetupTextures();
     SetupStorageBuffers();
@@ -279,6 +279,27 @@ void GameLayer::SetupShaders()
         R"(
 						#define TNT_SIDE_LENGTH )"
         + std::to_string(TNT_SIDE_LENGTH) +
+
+        R"(
+						#define TNT_MIN_X )"
+        + std::to_string(TNT_MIN_X) +
+        R"(
+						#define TNT_MIN_Y )"
+        + std::to_string(TNT_MIN_Y) +
+        R"(
+						#define TNT_MIN_Z )"
+        + std::to_string(TNT_MIN_Z) +
+
+        R"(
+						#define TNT_MAX_X )"
+        + std::to_string(TNT_MAX_X) +
+        R"(
+						#define TNT_MAX_Y )"
+        + std::to_string(TNT_MAX_Y) +
+        R"(
+						#define TNT_MAX_Z )"
+        + std::to_string(TNT_MAX_Z) +
+
         R"(
 						#define TNT_COUNT )"
         + std::to_string(TNT_COUNT) +

@@ -44,9 +44,9 @@ void main() {
 		int chunkIndex = int(chunkPosition.x+chunkPosition.y*WORLD_WIDTH+chunkPosition.z*WORLD_WIDTH*WORLD_HEIGHT);
 		if(chunksData[chunkIndex].blockTypes[localPos.x][localPos.y][localPos.z]==tnt_block){
 			vec3 blockOrigin = actualChunkPosition+localPos;	
-			int relX = int(blockOrigin.x - DEFAULT_SPAWN.x-1);
-			int relY = int(blockOrigin.y - SURFACE_LEVEL-1);
-			int relZ = int(blockOrigin.z - DEFAULT_SPAWN.z-1);
+			int relX = int(blockOrigin.x - TNT_MIN_X);
+			int relY = int(blockOrigin.y - TNT_MIN_Y);
+			int relZ = int(blockOrigin.z - TNT_MIN_Z);
 
 			int tntIndex = relY * TNT_SIDE_LENGTH * TNT_SIDE_LENGTH + relZ * TNT_SIDE_LENGTH + relX;
 			tnts[tntIndex].position = blockOrigin;

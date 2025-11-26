@@ -56,9 +56,9 @@ void main() {
 				} else{
 					chunksData[chunkIndex].blockTypes[x][y][z] = air;
 				}
-				if(blockY>surfaceLevel && blockY <= surfaceLevel+TNT_SIDE_LENGTH &&
-						blockX > DEFAULT_SPAWN.x && blockX <= DEFAULT_SPAWN.x+TNT_SIDE_LENGTH &&
-						blockZ > DEFAULT_SPAWN.z && blockZ <= DEFAULT_SPAWN.z+TNT_SIDE_LENGTH){
+				if(blockY>=TNT_MIN_Y && blockY < TNT_MAX_Y &&
+						blockX >= TNT_MIN_X && blockX < TNT_MAX_X &&
+						blockZ >= TNT_MIN_Z && blockZ < TNT_MAX_Z){
 						chunksData[chunkIndex].blockTypes[x][y][z] = tnt_block;
 				}
 

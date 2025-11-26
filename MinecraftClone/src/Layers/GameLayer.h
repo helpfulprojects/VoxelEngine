@@ -31,7 +31,7 @@ private:
     VoxelEngine::Ref<VoxelEngine::TextureAtlas> m_TerrainAtlas;
     VoxelEngine::PerspectiveCamera m_Camera;
     glm::vec3 m_CameraPosition;
-    float m_CameraMoveSpeed = 500.0f;
+    float m_CameraMoveSpeed = 50.0f;
 
     DrawArraysIndirectCommand* m_Cmd;
 
