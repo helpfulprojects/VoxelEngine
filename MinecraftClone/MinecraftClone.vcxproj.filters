@@ -9,14 +9,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Layers\GameConfig.h">
+      <Filter>Layers</Filter>
+    </ClInclude>
     <ClInclude Include="src\Layers\GameLayer.h">
       <Filter>Layers</Filter>
     </ClInclude>
     <ClInclude Include="src\Overlays\DebugOverlay.h">
       <Filter>Overlays</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Layers\GameConfig.h">
-      <Filter>Layers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
