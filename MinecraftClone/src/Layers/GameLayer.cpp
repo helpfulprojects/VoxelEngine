@@ -6,29 +6,6 @@
 #include "../Overlays/DebugOverlay.h"
 #include "GameConfig.h"
 
-struct Chunk {
-    int x;
-    int y;
-    int z;
-    int hasExplosion;
-    uint32_t blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH]
-                       [CHUNK_SIDE_LENGTH];
-    uint32_t explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH]
-                       [CHUNK_SIDE_LENGTH];
-};
-
-struct ChunkQuads {
-    uint32_t blockQuads[FACES_PER_CHUNK];
-};
-
-struct FaceData {
-    uint32_t packedPos;
-};
-
-struct FaceModel {
-    const glm::vec2* texCoordsOrigin;
-};
-
 GameLayer::GameLayer()
     : Layer("GameLayer")
     , m_Camera(70.0f, 0.1f, 2500.0f)
@@ -45,7 +22,7 @@ GameLayer::GameLayer()
         VE_PROFILE_SCOPE("Compute Shader: Generate blocks");
         m_ShaderLibrary.Get("generateBlocks")->Bind();
         glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
     }
 
     InitAudioDevice();
@@ -107,35 +84,35 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts)
         propagateExplosions->UploadUniformFloat3("u_Offset", { 0, 0, 0 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 1, 0, 0 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 0, 0, 1 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 1, 0, 1 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 0, 1, 0 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 1, 1, 0 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 0, 1, 1 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         propagateExplosions->UploadUniformFloat3("u_Offset", { 1, 1, 1 });
         glDispatchCompute(HALF_WORLD_WIDTH, HALF_WORLD_HEIGHT,
             HALF_WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         float secondsToWait = 1.0f;
         glClientWaitSync(sync, 0, secondsToWait * 1000000000);
@@ -165,13 +142,13 @@ void GameLayer::OnUpdate(VoxelEngine::Timestep ts)
     }
     m_ShaderLibrary.Get("clearExplosions")->Bind();
     glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
     {
         VE_PROFILE_SCOPE("Compute Shader: Generate quads");
         m_ShaderLibrary.Get("generateQuads")->Bind();
         glDispatchCompute(WORLD_WIDTH, WORLD_HEIGHT, WORLD_WIDTH);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
         GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         float secondsToWait = 1.0f;
         glClientWaitSync(sync, 0, secondsToWait * 1000000000);
@@ -233,7 +210,7 @@ void GameLayer::OnEvent(VoxelEngine::Event& event)
                 activateTnt->UploadUniformFloat3("u_RayDirection",
                     m_Camera.GetFront());
                 glDispatchCompute(1, 1, 1);
-                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_BUFFER_UPDATE_BARRIER_BIT);
+                glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
                 GLsync sync = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
                 float secondsToWait = 1.0f;
                 glClientWaitSync(sync, 0, secondsToWait * 1000000000);
@@ -413,14 +390,55 @@ void GameLayer::SetupTextures()
 
 void GameLayer::SetupStorageBuffers()
 {
+
+    struct Chunk {
+        int x;
+        int y;
+        int z;
+        bool hasExplosion;
+        bool _pad0[3];
+        uint32_t blockTypes[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH]
+                           [CHUNK_SIDE_LENGTH];
+        uint32_t explosions[CHUNK_SIDE_LENGTH][CHUNK_SIDE_LENGTH]
+                           [CHUNK_SIDE_LENGTH];
+    };
+    struct TntEntity {
+        glm::vec3 position;
+        uint32_t _pad0;
+        glm::vec3 velocity;
+        uint32_t _pad1;
+        float secondsUntilExplode;
+        bool visible;
+        bool _pad2[3];
+        bool justBlewUp;
+        bool _pad3[3];
+        uint32_t _pad4; // had to set this last padding because struct size has to be a multiple of its largest alignment when using the standard layout supposed to the shared layout
+    };
+
+    struct ChunkQuads {
+        uint32_t blockQuads[FACES_PER_CHUNK];
+    };
+
+    struct FaceData {
+        uint32_t packedPos;
+    };
+
+    struct FaceModel {
+        const glm::vec2* texCoordsOrigin;
+    };
+    struct PropagationQueueNode {
+        uint32_t localIndex3DPacked;
+        uint32_t chunkIndex3DPacked;
+        uint32_t chunkIndex;
+        uint32_t previousValue;
+    };
     uint32_t persistentReadBitmask = GL_MAP_READ_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
     uint32_t persistentWriteBitmask = GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
-    uint32_t tntExplosionsQeueusSsbo;
     int queueCap = 63;
     m_TntExplosionsQueues = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
         nullptr,
-        HALF_WORLD_WIDTH * HALF_WORLD_WIDTH * HALF_WORLD_HEIGHT * queueCap * 4 * sizeof(uint32_t),
+        HALF_WORLD_WIDTH * HALF_WORLD_WIDTH * HALF_WORLD_HEIGHT * queueCap * sizeof(PropagationQueueNode),
         GL_DYNAMIC_STORAGE_BIT);
     m_TntExplosionsQueues->BindBufferBase(7);
 
@@ -493,6 +511,6 @@ void GameLayer::SetupStorageBuffers()
     m_DrawIndirectBuffer->Bind();
 
     m_TntEntitiesSsbo = VoxelEngine::StorageBuffer::Create(GL_SHADER_STORAGE_BUFFER,
-        nullptr, TNT_COUNT * 48, GL_DYNAMIC_STORAGE_BIT);
+        nullptr, TNT_COUNT * sizeof(TntEntity), GL_DYNAMIC_STORAGE_BIT);
     m_TntEntitiesSsbo->BindBufferBase(6);
 }
