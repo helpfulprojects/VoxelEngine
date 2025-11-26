@@ -1,6 +1,6 @@
 #type vertex
 #version 460 core
-#includeGlobalSrouce
+#includeGlobalSource
 layout(std430, binding = 0) readonly buffer buffer0 
 {
 	Chunk chunksData[]; 

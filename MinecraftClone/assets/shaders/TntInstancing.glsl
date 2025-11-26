@@ -1,6 +1,6 @@
 #type vertex
 #version 430 core
-#includeGlobalSrouce
+#includeGlobalSource
 
 layout(std430, binding = 6) buffer buffer6
 {
