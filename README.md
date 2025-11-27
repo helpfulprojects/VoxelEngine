@@ -27,3 +27,7 @@ You can change the movement speed by pressing 1,2, or 3 where 1 is the slowest, 
 
 To configure the game to your liking go to [GameConfig.h](https://github.com/helpfulprojects/VoxelEngine/blob/main/MinecraftClone/src/Layers/GameConfig.h) file found in MinecraftClone sub project and the Layers folder. 
 If the game builds but doesn't run be sure to lower WORLD_WIDTH from 35 to let's say 25 or lower. And HOW_MANY_TNT_TO_SPAWN from 10 million to let's say 100k or lower.
+
+## Video Showcase
+
+[![Youtube Video](https://github.com/user-attachments/assets/ba8e37ae-44e9-40d0-af16-67372026563e)](https://www.youtube.com/watch?v=PbUh15N8No4)
