@@ -20,7 +20,7 @@ If the project runs successfully you should see the TNT in front of you.
 ![What you yould see first starting the game](https://raw.githubusercontent.com/helpfulprojects/VoxelEngine/refs/heads/main/doc/startup.png)
 You can move close to it with WASD and looking around by moving the mouse. To activate a TNT block hover over it and press the left mouse button.
 ![Tnt being activated](https://raw.githubusercontent.com/helpfulprojects/VoxelEngine/refs/heads/main/doc/actiavte_tnt.png)
-You can change the movement speed by pressing 1,2, or 3 where 1 is the slowest, 2 the default speed and 3 the fastest. Choosing the propper speed move back so you can see the explosions unfold at hopfully enough frames per second.
+You can change the movement speed by pressing 1,2, or 3 where 1 is the slowest, 2 the default speed and 3 the fastest. Choosing the proper speed move back so you can see the explosions unfold at hopfully enough frames per second.
 ![Watching explosion from afar](https://raw.githubusercontent.com/helpfulprojects/VoxelEngine/refs/heads/main/doc/explosions_started.png)
 
 ## Game configuration
