@@ -12,7 +12,7 @@ If the repository was cloned non-recursively previously, use `git submodule upda
 <ins>**2. Premake:**</ins>
 1. Run [GenerateProjects.bat](https://github.com/helpfulprojects/VoxelEngine/blob/main/GenerateProjects.bat) file found in project root. It should generate the project solution VoxelEngine.sln in the root folder.
 2. Open the newly generated VoxelEngine.sln and build the solution by going to Build -> Build Solution or pressing F7
-3. If build is successful you can run the project in Debug mode for opengl error logs in the console and enabled profiling. Chhose Dist for best performance.
+3. If build is successful you can run the project in Debug mode for opengl error logs in the console and enabled profiling. Choose Dist for best performance.
 
 ## What to expect
 
